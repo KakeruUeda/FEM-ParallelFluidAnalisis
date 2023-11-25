@@ -1,4 +1,5 @@
 #include "FEM.h"
+using namespace std;
  
 int main(int argc, char* argv[])
 {
@@ -6,11 +7,21 @@ int main(int argc, char* argv[])
 
   FEM Fem;
 
- string  domainFile    = argv[1];
- //string  controlfile = argv[2];
- //string  petscfile   = argv[3];
+  //input argument
+  if(argc!=2){
+    printf("Invalid input. Please set tp file\n");
+    return 1;
+  }
 
-  Fem.initialize(domainFile);
+  //input and check tp file
+  string input_file = argv[1];
+  int ierror;
+  if ((ierror = Fem.tp.read(input_file)) != TP_NO_ERROR) {
+   printf("\tError at reading '%s' file\n", input_file.c_str());
+    return 1;
+  }
+
+  Fem.initialize();
 
   PetscFinalize();
   return 0;

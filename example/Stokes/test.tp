@@ -1,0 +1,5 @@
+Domain
+{
+  nx=(32,32,32)  //element size
+  Lx=(1e0,1e0,1e0)  //domain size
+}

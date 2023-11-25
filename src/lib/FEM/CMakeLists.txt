@@ -4,8 +4,9 @@ string(REPLACE " " ";" compile_options_tmp ${compile_options_tmp})
 add_library(FEM STATIC)
 target_sources(FEM
   PRIVATE
-  FEMbase.cpp
-  FEMInitialize.cpp
+  baseFEM.cpp
+  initializeFEM.cpp
+  exportFEM.cpp
 )
 
 target_include_directories(FEM PUBLIC

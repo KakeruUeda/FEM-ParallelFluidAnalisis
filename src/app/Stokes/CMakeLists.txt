@@ -14,7 +14,9 @@ target_compile_options(${main_target} PUBLIC ${compile_options_tmp})
 
 
 target_link_libraries( ${main_target} PRIVATE
+  TPmpi
   petsc
+  metis
   Base
   FEM
   Solver

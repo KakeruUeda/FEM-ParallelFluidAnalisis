@@ -6,17 +6,31 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "FEMDomain.h"
+#include "metis.h"
+#include "TextParser.h"
+#include "domainFEM.h"
+#include "petscSolver.h"
 
-class FEM :public FEMDomain{
+using namespace std;
+
+class FEM :public DomainFEM{
   public:
-   PetscInt  n_mpi_procs, this_mpi_proc;
+    TextParser tp;
+    PetscErrorCode  errpetsc;
+
+    PetscInt  n_mpi_procs, this_mpi_proc;
+    
+    ElementBaseFEM  **elm;
+  
   public:
     FEM();
     ~FEM();
-    void initialize(string& domainFile);
-    void readInput(string& domainFile);
+    void initialize();
+    void readInput();
     void setDomain();
-    void partitionMesh();
+    void prepare();
+    int partitionMesh();
+
+    void export_vti(const string &file, vector<int> &node, vector<int> &element);
 };
 
