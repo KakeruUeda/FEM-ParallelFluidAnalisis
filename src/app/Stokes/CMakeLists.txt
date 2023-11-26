@@ -20,6 +20,12 @@ target_link_libraries( ${main_target} PRIVATE
   Base
   FEM
   Solver
+  Stokes
+  stdc++ 
+  m 
+  superlu  
+  blas 
+  lapack 
 )
 
 target_include_directories(${main_target} PRIVATE

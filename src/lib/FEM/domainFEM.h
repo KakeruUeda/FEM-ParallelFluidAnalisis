@@ -3,6 +3,8 @@
 #include "petscksp.h"
 #include "petscmat.h"
 
+
+
 using namespace std;
 
 class DomainFEM{
@@ -12,21 +14,17 @@ class DomainFEM{
     PetscInt numOfNodeGlobal,numOfElmGlobal;
     PetscInt numOfNodeLocal,numOfElmLocal;
     PetscInt numOfNodeInElm,numOfBd,numOfBdWall;
+    PetscInt numOfBdNode;
     vector<vector<double>> x;
-    //vector<ElementType> element;
     vector<vector<int>> element;
-    //vector<vector<int>> elmConnect; 
+
+    vector<double> bd_p;
+    vector<int> bd_ip;
+    vector<vector<double>> bd_u;
+    vector<vector<int>> bd_iu;
+
     vector<int>  node_proc_id, node_map_get_old, node_map_get_new;
 
   private:
 };
 
-class ElementBaseFEM{
-  public:
-    int subdomainId;
-
-    void  setSubdomainId(int id)
-    {  subdomainId = id; return;  }
-
-  private:
-};

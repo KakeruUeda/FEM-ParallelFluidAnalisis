@@ -1,5 +1,37 @@
 Domain
 {
-  nx=(32,32,32)  //element size
+  nx=(16,16,16)  //element size
   Lx=(1e0,1e0,1e0)  //domain size
+}
+
+Boundary
+{
+ top{
+    type = "v"
+    value = (0,0,0)
+ }
+ bottom{
+    type = "v"
+    value = (0,0,0)
+ }
+ left{
+    type = "v"
+    value = (0,0,0)
+ }
+ right{
+    type = "free"
+ }
+ front{
+    type = "v"
+    value = (0,0,0)
+ }
+back{
+    type = "v"
+    value = (0,0,0)
+ }
+}
+
+Parameter
+{
+  mu = 1e0
 }

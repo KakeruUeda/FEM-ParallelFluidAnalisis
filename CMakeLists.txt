@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_COMPILER "/opt/petsc/bin/mpic++")
-set(base_compile_options ${base_compile_options} " -fopenmp")
+set(base_compile_options ${base_compile_options} " -fopenmp -O2")
 #set(CMAKE_CXX_FLAGS_RELEASE "-pg")
 string(REPLACE " " " " compile_options ${base_compile_options})
 
@@ -17,14 +17,18 @@ set(CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/cmake)
 # include directories
 ##################################
 include_directories(
-  /opt/petsc/include
+  /opt/homebrew/include
   /opt/homebrew/include/eigen3
+  /opt/TextParser/include
+  /opt/petsc/include
 )
 
 ##################################
 # lib directories
 ##################################
 link_directories(
+  /opt/homebrew/lib
+  /opt/TextParser/lib
   /opt/petsc/lib
 )
 

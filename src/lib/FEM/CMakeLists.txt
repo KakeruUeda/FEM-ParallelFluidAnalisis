@@ -7,6 +7,10 @@ target_sources(FEM
   baseFEM.cpp
   initializeFEM.cpp
   exportFEM.cpp
+  domainFEM.cpp
+  mathFEM.cpp
+  solutionData.cpp
+  elementBase.cpp
 )
 
 target_include_directories(FEM PUBLIC
