@@ -37,23 +37,6 @@ void FEM::Stokes()
       Flocal.setZero();
       calcStokesMatrix(ic,Klocal,Flocal);
 
-      /*
-      if(this_mpi_proc == 0){
-        ofstream outKlocal0("Klocaltmp.dat");
-        ofstream outFlocal0("Flocaltmp.dat");
-        
-        outKlocal0 << Klocal << endl;
-        outKlocal0 << endl;
-        
-        outFlocal0 << Flocal << endl;
-        outFlocal0 << endl;
-        
-        outKlocal0.close();
-        outFlocal0.close();
-        //exit(1);
-      }
-      */
-
       size1 = elm[ic]->forAssyVec.size();
       for(ii=0; ii<size1; ii++)
       {
@@ -61,28 +44,7 @@ void FEM::Stokes()
         fact = SolnData.solnApplied[elm[ic]->globalDOFnums[ii]];
         if(aa == -1) // this DOF has a prescribed value
         {
-          Flocal(ii) = 2;    
-        }
-
-        if(aa == -1) // this DOF has a prescribed value
-        {
-          // fact = SolnData.solnApplied[elm[ic]->globalDOFnums[ii]];
-          // Flocal(ii) = fact;
-          // cout << "fact = " << fact << endl;
-          // check if fact is zero. We don't need to
-          // execute the for loop if fact is zero.
-          if( abs(fact) > 1.0e-10)
-          {
-            //Flocal(ii) = fact;
-            for(jj=0; jj<size1; jj++)
-            {
-              if(elm[ic]->forAssyVec[jj] != -1)
-              {
-                //cout << "fact = " << fact << endl;
-                //Flocal(jj) = fact;
-              }
-            }
-          }
+          Flocal(ii) = fact;    
         }
       }    
       solverPetsc->assembleMatrixAndVectorSerial(elm[ic]->forAssyVec, elm[ic]->forAssyVec_withoutBd, Klocal, Flocal);
@@ -192,7 +154,7 @@ void FEM::Stokes()
     w[ii] = SolnData.soln[kk+2];
     p[ii] = SolnData.soln[kk+3];
     if(u[ii] != 0 || v[ii] != 0 || w[ii] != 0 || p[ii] != 0){
-      cout << "i = " << ii <<  " u = " << u[ii] << " v = " << v[ii] << " w = " << w[ii] << " p = "<< p[ii] << endl;
+      //cout << "i = " << ii <<  " u = " << u[ii] << " v = " << v[ii] << " w = " << w[ii] << " p = "<< p[ii] << endl;
     }
   }
   

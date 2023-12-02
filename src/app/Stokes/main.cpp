@@ -2,16 +2,13 @@
 using namespace std;
  
 int main(int argc, char* argv[])
-{
-  PetscInitialize(NULL, NULL,(char *)0, NULL);
-
+{    
+  MPI_Init(NULL, NULL);
+  
+  string  petscfile   = argv[2];
+  PetscInitialize(NULL, NULL, petscfile.c_str(), NULL);
+  
   FEM Fem;
-
-  //input argument
-  if(argc!=2){
-    printf("Invalid input. Please set tp file\n");
-    return 1;
-  }
   
   //input and check tp file
   string input_file = argv[1];

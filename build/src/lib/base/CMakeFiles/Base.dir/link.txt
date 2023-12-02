@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libBase.a CMakeFiles/Base.dir/basicFunctions.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libBase.a

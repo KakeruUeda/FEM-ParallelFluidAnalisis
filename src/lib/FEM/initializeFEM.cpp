@@ -128,10 +128,11 @@ void FEM::initialize()
   {
     for(jj=0;jj<ndof;++jj)
     {
-      if(NodeDofArrayNew[ii][jj] != -1)
-      {
+      ///erase////
+      //if(NodeDofArrayNew[ii][jj] != -1)
+      //{
         assyForSoln[ind++] = ii*ndof+jj;
-      }
+      //}
     }
   }
 
