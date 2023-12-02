@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libNavierStokes.a CMakeFiles/NavierStokes.dir/CreateMatrix.cpp.o CMakeFiles/NavierStokes.dir/NavierStokes.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libNavierStokes.a
