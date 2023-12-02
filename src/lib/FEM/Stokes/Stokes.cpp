@@ -30,7 +30,7 @@ void FEM::Stokes()
   assignBoundaryConditions();
 
   for(int ic=0;ic<numOfElmGlobal;ic++){
-    cout << "ic = " << ic << " elm[ic]->getSubdomainId() = " << elm[ic]->getSubdomainId() << endl;
+    //cout << "ic = " << ic << " elm[ic]->getSubdomainId() = " << elm[ic]->getSubdomainId() << endl;
     if(elm[ic]->getSubdomainId() == this_mpi_proc)
     {
       Klocal.setZero();
@@ -59,11 +59,16 @@ void FEM::Stokes()
       {
         aa = elm[ic]->forAssyVec[ii];
         fact = SolnData.solnApplied[elm[ic]->globalDOFnums[ii]];
-        //Flocal(ii) = fact;
         if(aa == -1) // this DOF has a prescribed value
         {
-          fact = SolnData.solnApplied[elm[ic]->globalDOFnums[ii]];
-          //Flocal(ii) = fact;
+          Flocal(ii) = 2;    
+        }
+
+        if(aa == -1) // this DOF has a prescribed value
+        {
+          // fact = SolnData.solnApplied[elm[ic]->globalDOFnums[ii]];
+          // Flocal(ii) = fact;
+          // cout << "fact = " << fact << endl;
           // check if fact is zero. We don't need to
           // execute the for loop if fact is zero.
           if( abs(fact) > 1.0e-10)
@@ -74,13 +79,13 @@ void FEM::Stokes()
               if(elm[ic]->forAssyVec[jj] != -1)
               {
                 //cout << "fact = " << fact << endl;
-                Flocal(jj) -= Klocal(jj,ii) * fact;
+                //Flocal(jj) = fact;
               }
             }
           }
         }
       }    
-      solverPetsc->assembleMatrixAndVectorSerial(elm[ic]->forAssyVec, Klocal, Flocal);
+      solverPetsc->assembleMatrixAndVectorSerial(elm[ic]->forAssyVec, elm[ic]->forAssyVec_withoutBd, Klocal, Flocal);
       /*
       if(this_mpi_proc == 0){
         ofstream Assy("forAssyVec0.dat"); 
@@ -141,6 +146,8 @@ void FEM::Stokes()
   
   VecAssemblyBegin(solverPetsc->rhsVec);
   VecAssemblyEnd(solverPetsc->rhsVec);
+  //VecView(solverPetsc->rhsVec,PETSC_VIEWER_STDOUT_WORLD);
+
 
   //VecNorm(solverPetsc->rhsVec, NORM_2, &norm_rhs);
   solverPetsc->currentStatus = ASSEMBLY_OK;

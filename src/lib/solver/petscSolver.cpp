@@ -142,11 +142,14 @@ int PetscSolver::solve()
   errpetsc = MatAssemblyBegin(mtx,MAT_FINAL_ASSEMBLY); CHKERRQ(errpetsc);
   errpetsc = MatAssemblyEnd(mtx,MAT_FINAL_ASSEMBLY); CHKERRQ(errpetsc);
 
+  errpetsc = MatView(mtx,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(errpetsc);
+
+
   //PetscPrintf(MPI_COMM_WORLD, "  SolverPetsc::solve() ... Matrix Assembly ...  \n\n");
 
   errpetsc = VecAssemblyBegin(rhsVec); CHKERRQ(errpetsc);
   errpetsc = VecAssemblyEnd(rhsVec); CHKERRQ(errpetsc);
-
+  errpetsc = VecView(rhsVec,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(errpetsc);
   //PetscPrintf(MPI_COMM_WORLD, "  SolverPetsc::solve() ... rhsVec Assembly ...  \n\n");
 
   errpetsc = VecAssemblyBegin(solnVec); CHKERRQ(errpetsc);
@@ -202,13 +205,13 @@ int PetscSolver::factoriseAndSolve()
 }
 
 
-int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, MatrixXd& Klocal, VectorXd& Flocal)
+int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, vector<int>& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal)
 {
   int  size1 = forAssyElem.size();
-
+  int  size2 = forAssyElemRHS.size();
   MatrixXdRM Klocal2 = Klocal;
 
-  VecSetValues(rhsVec, size1, &forAssyElem[0], &Flocal[0], ADD_VALUES);
+  VecSetValues(rhsVec, size1, &forAssyElemRHS[0], &Flocal[0], INSERT_VALUES);
   MatSetValues(mtx,    size1, &forAssyElem[0], size1, &forAssyElem[0], &Klocal2(0,0), ADD_VALUES);
 
   return 0;
@@ -221,7 +224,7 @@ int PetscSolver::zeroMtx()
   errpetsc = MatAssemblyBegin(mtx,MAT_FINAL_ASSEMBLY);//CHKERRQ(errpetsc);
   errpetsc = MatAssemblyEnd(mtx,MAT_FINAL_ASSEMBLY);//CHKERRQ(errpetsc);
 
-  MatZeroEntries(mtx);
+  //MatZeroEntries(mtx);
 
   VecAssemblyBegin(rhsVec);
   VecAssemblyEnd(rhsVec);

@@ -25,6 +25,7 @@ void FEM::initialize()
 
   vector<int>  vecIntTempM1(ndof, -1);
   NodeDofArrayOld.resize(numOfNodeGlobal, vecIntTempM1);
+  NodeDofArrayOld_withoutBd.resize(numOfNodeGlobal, vecIntTempM1);
   NodeDofArrayNew.resize(numOfNodeGlobal, vecIntTempM1);
   
   for(ii=0; ii<numOfBdNode; ii++){
@@ -35,11 +36,13 @@ void FEM::initialize()
   for(int ii=0;ii<numOfNodeGlobal;++ii){
     for(int jj=0;jj<ndof;++jj){
       ////erase/////
-      if(!NodeTypeOld[ii][jj]){
+      //if(!NodeTypeOld[ii][jj]){
+        NodeDofArrayOld_withoutBd[ii][jj] = ntotdofs_global;
         NodeDofArrayOld[ii][jj] = ntotdofs_global++;
-      }
+      //}
+
       if(NodeTypeOld[ii][jj]){
-        //NodeDofArrayOld[ii][jj] = -1;
+        NodeDofArrayOld[ii][jj] = -1;
       }
       ////erase////
     }
@@ -85,6 +88,7 @@ void FEM::initialize()
       numOfNodeInElm = elm[ee]->nodeNums.size();
 
       elm[ee]->forAssyVec.resize(nsize);
+      elm[ee]->forAssyVec_withoutBd.resize(nsize);
 
       for(ii=0; ii<numOfNodeInElm; ++ii)
       {
@@ -95,6 +99,7 @@ void FEM::initialize()
         for(jj=0;jj<ndof;++jj)
         {
           elm[ee]->forAssyVec[ind+jj] = NodeDofArrayNew[kk][jj];
+          elm[ee]->forAssyVec_withoutBd[ind+jj] = NodeDofArrayOld_withoutBd[kk][jj];
         }
       }
     }
@@ -147,8 +152,8 @@ void FEM::initialize()
   {
     if(elm[ee]->getSubdomainId() == this_mpi_proc)
     {
-      tt = &(elm[ee]->forAssyVec[0]);
-      nsize = elm[ee]->forAssyVec.size();
+      tt = &(elm[ee]->forAssyVec_withoutBd[0]);
+      nsize = elm[ee]->forAssyVec_withoutBd.size();
 
       for(ii=0;ii<nsize;ii++)
       {
@@ -159,13 +164,13 @@ void FEM::initialize()
             if(r >= row_start && r <= row_end)
             {
             for(jj=0;jj<nsize;jj++)
-            {
-              if(tt[jj] != -1)
               {
-                //printf("ii.... %5d \t %5d \t %5d \t %5d \n",ii, jj, r, tt[jj]);
-                forAssyMat[r].insert(tt[jj]);
+                if(tt[jj] != -1)
+                {
+                  //printf("ii.... %5d \t %5d \t %5d \t %5d \n",ii, jj, r, tt[jj]);
+                  forAssyMat[r].insert(tt[jj]);
+                }
               }
-            }
             }
           }
       }
@@ -232,16 +237,79 @@ void FEM::initialize()
   ind = ind*ind;
   PetscScalar  Klocal[ind];
   for(ii=0; ii<ind; ii++)  Klocal[ii] = 0.0;
+  
+  MatrixXd Klocal_tmp(numOfNodeInElm*ndof,numOfNodeInElm*ndof);
+
   vector<int>  vecIntTemp;
   for(ee=0; ee<numOfElmGlobal; ee++)
-  {
+  {  
+    Klocal_tmp.setZero();
     if(elm[ee]->getSubdomainId() == this_mpi_proc)
     {
       size1 = elm[ee]->forAssyVec.size();
-      vecIntTemp = elm[ee]->forAssyVec;
-      errpetsc = MatSetValues(solverPetsc->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
+      vecIntTemp = elm[ee]->forAssyVec_withoutBd;
+      for(ii=0; ii<size1; ii++){
+        if(elm[ee]->forAssyVec[ii] == -1){
+          Klocal[ii*numOfNodeInElm*ndof+ii] = 1.0;
+          Klocal_tmp(ii,ii) = 1.0;
+          //printf("%5d \t %5d \t %5d \t %5d \n",ee, ii, vecIntTemp[ii], this_mpi_proc);
+          //cout << "e = " << ee << " ii = " << ii << endl;
+          //cout << "i = " << ii*numOfNodeInElm*ndof+ii << " Klocal = " << Klocal[ii*numOfNodeInElm*ndof+ii] << endl;
+        }
+      }
+      //MatrixXdRM Klocal2_tmp = Klocal_tmp;
+      errpetsc = MatSetValues(solverPetsc->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], &Klocal_tmp(0,0), INSERT_VALUES);
     }
   }
+  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
+
+  //MatAssemblyBegin(solverPetsc->mtx,MAT_FINAL_ASSEMBLY);
+  //MatAssemblyEnd(solverPetsc->mtx,MAT_FINAL_ASSEMBLY);
+  //MatView(solverPetsc->mtx,PETSC_VIEWER_STDOUT_WORLD);
+  //exit(1);
+  /*
+  if(this_mpi_proc == 1){
+    ofstream Kb("Klocal_before.dat"); 
+    for(int ic=0; ic<ind; ic++){
+      Kb << Klocal[ic]  << " ";
+      if((ic+1)%32 == 0){
+        Kb << endl;
+      } 
+    }
+    Kb.close();
+    //exit(1);
+  }
+  */
+  /*
+  if(this_mpi_proc == 0){
+    //MatView(mtx, PETSC_VIEWER_STDOUT_WORLD);
+    //MatView(A,viewer);
+    ofstream Assy("forAssyVec0_withoutBd.dat"); 
+    for(int ic=0; ic<numOfElmGlobal; ic++){
+      int size = elm[ic]->forAssyVec_withoutBd.size();
+      for(ii=0; ii<size; ii++){
+        if(ii != 0 && ii%4 == 0) Assy << " ";
+        Assy << elm[ic]->forAssyVec_withoutBd[ii] << " ";
+      } 
+      Assy << endl;
+    }
+    Assy.close();
+  }
+    
+  if(this_mpi_proc == 1){
+    ofstream Assy1("forAssyVec1_withoutBd.dat"); 
+    for(int ic=0; ic<numOfElmGlobal; ic++){
+      int size = elm[ic]->forAssyVec_withoutBd.size();
+      for(ii=0; ii<size; ii++){
+        if(ii != 0 && ii%4 == 0) Assy1 << " ";
+        Assy1 << elm[ic]->forAssyVec_withoutBd[ii] << " ";
+      } 
+      Assy1 << endl;
+    }
+    Assy1.close();
+  }
+  */
+  
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
   solverPetsc->currentStatus = PATTERN_OK;
@@ -894,8 +962,8 @@ int FEM::prepareForParallel()
 
   for(ii=0; ii<numOfNodeGlobal; ii++)
   {
-    n1 = node_map_get_old[ii];
-    node_map_get_new[n1] = ii;
+    //n1 = node_map_get_old[ii];
+    //node_map_get_new[n1] = ii;
     //for(jj=0; jj<ndof; jj++)
     //{
     //NodeTypeNew[ii][jj] = NodeTypeOld[n1][jj];
@@ -903,7 +971,7 @@ int FEM::prepareForParallel()
   }
 
   if(this_mpi_proc == 0){
-    ofstream node_map_old("node_map_get_old1.dat");
+    ofstream node_map_old("node_map_get_old.dat");
     for(ii=0; ii<numOfNodeGlobal; ii++)
     { 
       node_map_old << node_map_get_old[ii] << endl;
@@ -998,21 +1066,25 @@ int FEM::prepareForParallel()
   MPI_Barrier(MPI_COMM_WORLD);
 
   // compute first and last row indices of the rows owned by the local processor
-  row_start  =  1e9;
-  row_end    = -1e9;
+  //row_start  =  1e9;
+  //row_end    = -1e9;
   ntotdofs_local = 0;
+  
+  row_start = node_start*ndof;
+  row_end = node_end*ndof+ndof-1;
+
   for(ii=node_start; ii<=node_end; ii++)
   {
     for(jj=0; jj<ndof; jj++)
     {
       ////erase////
-      if(NodeTypeNew[ii][jj] == false)
-      {
-        ind = NodeDofArrayNew[ii][jj];
-        row_start  = min(row_start, ind);
-        row_end    = max(row_end,   ind);
+      //if(NodeTypeNew[ii][jj] == false)
+      //{
+        //ind = NodeDofArrayNew[ii][jj];
+        //row_start  = min(row_start, ind);
+        //row_end    = max(row_end,   ind);
         ntotdofs_local++;
-      }
+      //}
     }
   }
 
