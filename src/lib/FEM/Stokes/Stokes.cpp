@@ -30,7 +30,7 @@ void FEM::Stokes()
   assignBoundaryConditions();
 
   for(int ic=0;ic<numOfElmGlobal;ic++){
-    cout << "ic = " << ic << " elm[ic]->getSubdomainId() = " << elm[ic]->getSubdomainId() << endl;
+    //cout << "ic = " << ic << " elm[ic]->getSubdomainId() = " << elm[ic]->getSubdomainId() << endl;
     if(elm[ic]->getSubdomainId() == this_mpi_proc)
     {
       Klocal.setZero();
@@ -63,7 +63,7 @@ void FEM::Stokes()
         if(aa == -1) // this DOF has a prescribed value
         {
           fact = SolnData.solnApplied[elm[ic]->globalDOFnums[ii]];
-          //Flocal(ii) = fact;
+          // Flocal(ii) = fact;
           // check if fact is zero. We don't need to
           // execute the for loop if fact is zero.
           if( abs(fact) > 1.0e-10)
@@ -185,7 +185,7 @@ void FEM::Stokes()
     w[ii] = SolnData.soln[kk+2];
     p[ii] = SolnData.soln[kk+3];
     if(u[ii] != 0 || v[ii] != 0 || w[ii] != 0 || p[ii] != 0){
-      cout << "i = " << ii <<  " u = " << u[ii] << " v = " << v[ii] << " w = " << w[ii] << " p = "<< p[ii] << endl;
+      //cout << "i = " << ii <<  " u = " << u[ii] << " v = " << v[ii] << " w = " << w[ii] << " p = "<< p[ii] << endl;
     }
   }
   

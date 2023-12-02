@@ -217,10 +217,10 @@ int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, MatrixX
 
 int PetscSolver::zeroMtx()
 {
-
+  PetscPrintf(MPI_COMM_WORLD, " zeroMtx 1 \n");
   errpetsc = MatAssemblyBegin(mtx,MAT_FINAL_ASSEMBLY);//CHKERRQ(errpetsc);
   errpetsc = MatAssemblyEnd(mtx,MAT_FINAL_ASSEMBLY);//CHKERRQ(errpetsc);
-
+  PetscPrintf(MPI_COMM_WORLD, " zeroMtx 2 \n");
   MatZeroEntries(mtx);
 
   VecAssemblyBegin(rhsVec);
