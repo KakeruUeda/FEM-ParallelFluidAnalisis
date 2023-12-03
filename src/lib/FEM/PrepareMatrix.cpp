@@ -93,9 +93,7 @@ void FEM::prepareMatrix(){
     
     MPI_Barrier(MPI_COMM_WORLD);
   }
-  cout << "11" << endl;
     
-
   SolnData.nodeMapPrev = nodeMapPrev;
   SolnData.nodeMap = nodeMap;
 
@@ -222,11 +220,6 @@ void FEM::prepareMatrix(){
       else
         count_offdiag++;
     }
-
-    //if(this_mpi_proc == 1){
-      //cout << " count_diag ..." << ii << '\t' << count_diag << '\t' << count_offdiag << endl;
-    //}
-
     diag_nnz[kk]    = count_diag;
     offdiag_nnz[kk] = count_offdiag;
     kk++;
@@ -370,16 +363,9 @@ int FEM::divideMesh()
     }
 
     int  ncommon_nodes;
-    //if(ndim == 2)
-    //  ncommon_nodes = 2;    // 3-noded tria or 4-noded quad
-    //else
-    //{
-      //if(numOfNodeInElm == 4)       // 4-noded tetra element
-        //ncommon_nodes = 3;
-      //else
-        ncommon_nodes = 4;  // 8-noded hexa element
-    //}
 
+    ncommon_nodes = 4;  // 8-noded hexa element
+  
     idx_t objval;
     idx_t options[METIS_NOPTIONS];
 
@@ -387,7 +373,7 @@ int FEM::divideMesh()
 
     // Specifies the partitioning method.
     //options[METIS_OPTION_PTYPE] = METIS_PTYPE_RB;          // Multilevel recursive bisectioning.
-    options[METIS_OPTION_PTYPE] = METIS_PTYPE_KWAY;        // Multilevel k-way partitioning.
+    options[METIS_OPTION_PTYPE] = METIS_PTYPE_KWAY;        
 
     //options[METIS_OPTION_NSEPS] = 10;
 
@@ -399,7 +385,6 @@ int FEM::divideMesh()
     cout << " Executing METIS subroutine " << endl;
 
     // METIS partition routine
-    //int ret = METIS_PartMeshNodal(&nElem_global, &nNode_global, eptr, eind, NULL, NULL, &nparts, NULL, options, &objval, elem_proc_id, node_proc_id);
     int ret = METIS_PartMeshDual(&numOfElmGlobal, &numOfNodeGlobal, eptr, eind, NULL, NULL, &ncommon_nodes, &nparts, NULL, options, &objval, &elmId[0], &nodeId[0]);
 
     if(ret == METIS_OK)
@@ -410,19 +395,6 @@ int FEM::divideMesh()
     errpetsc = PetscFree(eptr); CHKERRQ(errpetsc);
     errpetsc = PetscFree(eind); CHKERRQ(errpetsc);
     
-    //ofstream out_nodeId("check_nodeProcId.dat");
-    //ofstream out_elmId("check_elmProcId.dat");
-    //for(ee=0; ee<numOfNodeGlobal; ee++)
-    //{
-    //  out_nodeId << ee <<  " node_proc_id[ee] = " << node_proc_id[ee] << endl;
-    //}
-    //for(ee=0; ee<numOfElmGlobal; ee++)
-    //{
-    //  out_elmId << ee << " elm_proc_id[ee] = " << elm_proc_id[ee] << endl;
-    //}
-    //out_nodeId.close();
-    //out_elmId.close();
-
     /// check ///
     string vtiFile;
     vtiFile = "check_MeshPartition.vti";
@@ -441,6 +413,7 @@ int FEM::divideMesh()
     elm[ee]->setSubdomainId(elmId[ee]);
   }
 
+  /*
   if(myId == 0){
     ofstream getsubdomain("getSubDomainId.dat");
     for(int ee=0; ee<numOfElmGlobal; ee++){
@@ -448,8 +421,7 @@ int FEM::divideMesh()
     }
     getsubdomain.close();
   }
-  //cout << "wwwww" << endl;
-  //exit(1);
+  */
 
   MPI_Barrier(MPI_COMM_WORLD);
   numOfElmLocal = count(elmId.begin(), elmId.end(), myId);
@@ -485,8 +457,7 @@ int FEM::prepareForParallel()
         nodelist_owned[kk++] = ii;
       }
     }
-  cout << " Locally owned nodes " << '\t' << myId << endl;
-  //printVector(nodelist_owned);
+
   MPI_Barrier(MPI_COMM_WORLD);
 
   vector<int>  nNode_owned_vector(numOfId), nNode_owned_sum(numOfId);
@@ -514,16 +485,11 @@ int FEM::prepareForParallel()
 
   errpetsc = MPI_Allgatherv(&nodelist_owned[0], nNode_owned, MPI_INT, &nodeMapPrev[0], &nNode_owned_vector[0], &displs[0], MPI_INT, MPI_COMM_WORLD);
 
-  for(ii=0; ii<numOfNodeGlobal; ii++)
-  {
+  for(ii=0; ii<numOfNodeGlobal; ii++){
     n1 = nodeMapPrev[ii];
     nodeMap[n1] = ii;
-    //for(jj=0; jj<ndof; jj++)
-    //{
-    //NodeTypeNew[ii][jj] = NodeTypeOld[n1][jj];
-    //}
   }
-
+  /*
   if(myId == 0){
     ofstream node_map_old("nodeMapPrev.dat");
     for(ii=0; ii<numOfNodeGlobal; ii++)
@@ -532,19 +498,17 @@ int FEM::prepareForParallel()
     }
     node_map_old.close();
   }
+  */
 
-  for(ee=0; ee<numOfElmGlobal; ee++)
-  {
+  for(ee=0; ee<numOfElmGlobal; ee++){
 
     elm[ee]->nodeNumsPrev = element[ee];
     
-    ////erase////
     for(ii=0; ii<numOfNodeInElm; ii++) element[ee][ii] = nodeMap[element[ee][ii]];
-
+    
     elm[ee]->nodeNums = element[ee];
-
-    // element array is no longer needed.
     element[ee].clear();
+  
   }
   element.clear();
 
@@ -570,7 +534,7 @@ int FEM::prepareForParallel()
     }
   }
 
-
+ /*
   if(myId == 0){  
     ofstream NodeNew("nodeDofArrayBCs.dat");
     for(ii=0; ii<numOfNodeGlobal; ii++)
@@ -583,6 +547,7 @@ int FEM::prepareForParallel()
     }
     NodeNew.close();
   }
+  */
   
   if(jpn != numOfDofsGlobal)
   {

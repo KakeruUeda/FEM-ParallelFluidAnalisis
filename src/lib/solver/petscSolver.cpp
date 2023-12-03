@@ -50,7 +50,6 @@ int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int*
     errpetsc = VecDuplicate(solnVec, &reacVec);
     CHKERRQ(errpetsc);
 
-    //PetscPrintf(PETSC_COMM_WORLD, " Creating PETSc matrices \n", errpetsc)
 
     // Create PETSc matrix
     errpetsc = MatCreate(PETSC_COMM_WORLD, &mtx);
@@ -77,8 +76,6 @@ int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int*
     errpetsc = MatSetOption(mtx, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
     CHKERRQ(errpetsc);
 
-    PetscPrintf(MPI_COMM_WORLD, "\n\n Creating KSP context ... \n\n");
-
     // Create the KSP context
     errpetsc = KSPCreate(PETSC_COMM_WORLD, &ksp);
     CHKERRQ(errpetsc);
@@ -91,21 +88,14 @@ int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int*
     //  KSPSetInitialGuessNonzero(ksp, PETSC_TRUE);
     //  KSPSetInitialGuessNonzero(ksp, PETSC_FALSE);
 
-    PetscPrintf(MPI_COMM_WORLD, "\n\n Setting KSP context from input file ... \n\n");
 
     // Set KSP options from the input file
     // This is convenient as it allows to choose different options
     // from the input files instead of recompiling the code
     errpetsc = KSPSetFromOptions(ksp);    CHKERRQ(errpetsc);
 
-    PetscPrintf(MPI_COMM_WORLD, "\n\n Creating PC context ... \n\n");
-
-    // Get the PC context
     errpetsc = KSPGetPC(ksp, &pc);    CHKERRQ(errpetsc);
 
-    PetscPrintf(MPI_COMM_WORLD, "\n\n Setting PC context from input file ... \n\n");
-
-    // Set PC options from the input file
     errpetsc = PCSetFromOptions(pc);    CHKERRQ(errpetsc);
 
     currentStatus = SOLVER_EMPTY;

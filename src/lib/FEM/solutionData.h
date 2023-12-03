@@ -17,7 +17,7 @@
 #include <iterator>
 #include <functional>
 
-#include "eigen.h"
+#include "Eigen.h"
 using namespace std;
 
 

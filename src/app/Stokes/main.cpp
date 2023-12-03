@@ -29,8 +29,12 @@ int main(int argc, char* argv[]){
   MPI_Barrier(MPI_COMM_WORLD);
 
   fem.deallocate();
-
+   
+  MPI_Barrier(MPI_COMM_WORLD);
+  
   PetscFinalize();
+  MPI_Finalize();
+  
   return 0;
   
 }

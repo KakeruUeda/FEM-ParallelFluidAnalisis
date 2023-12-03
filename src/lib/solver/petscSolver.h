@@ -1,4 +1,4 @@
-#include "eigen.h"
+#include "Eigen.h"
 #include "petscksp.h"
 #include "petscmat.h"
 

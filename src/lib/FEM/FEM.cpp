@@ -24,7 +24,9 @@ FEM::~FEM()
 
 int FEM::deallocate()
 {
-  if(solverPetsc != nullptr)
+  if(solverPetsc != nullptr){
     solverPetsc->free();
+  }
+
   return 0;
 }

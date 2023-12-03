@@ -5,10 +5,9 @@ void FEM::Stokes(){
 
   PetscPrintf(MPI_COMM_WORLD, " Solve Stokes equation \n\n\n");
 
-  int  stepsCompleted=0;
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;
 
-  double  norm_rhs, fact, fact1, fact2, timerVal;
+  double  norm_rhs, timer;
 
   VectorXd  reacVec(numOfNodeGlobal*numOfDofsNode);
   jpn = numOfNodeInElm*numOfDofsNode;
@@ -29,21 +28,25 @@ void FEM::Stokes(){
   
   assignBoundaryConditions();
 
+  timer = MPI_Wtime();
   for(int ic=0;ic<numOfElmGlobal;ic++){
-
     if(elm[ic]->getSubdomainId() == myId){
 
       Klocal.setZero();
       Flocal.setZero();
 
-      
       calcStokesMatrix(ic,Klocal,Flocal);
       
       size1 = elm[ic]->nodeForAssyBCs.size();
       applyBoundaryConditions(Flocal, size1, ic);
       solverPetsc->assembleMatrixAndVectorSerial(elm[ic]->nodeForAssyBCs, elm[ic]->nodeForAssy, Klocal, Flocal);
+    
     }
   }
+  timer = MPI_Wtime() - timer;
+  //computerTimeAssembly += timerVal;
+  PetscPrintf(MPI_COMM_WORLD, "\n\n Time for matrix assembly = %f seconds \n\n", timer);
+
 
   MPI_Barrier(MPI_COMM_WORLD);
   
@@ -57,9 +60,11 @@ void FEM::Stokes(){
   
   PetscPrintf(MPI_COMM_WORLD, "Assembly done. Solving the matrix system. \n");
   
+  timer = MPI_Wtime();
   solverPetsc->factoriseAndSolve();
-
-  PetscPrintf(MPI_COMM_WORLD, "Solved. \n");
+  timer = MPI_Wtime() - timer;
+  //computerTimeSolver += timerVal;
+  PetscPrintf(MPI_COMM_WORLD, "\n\n Time for PETSc solver = %f seconds \n\n", timer);
   
   MPI_Barrier(MPI_COMM_WORLD);
 
