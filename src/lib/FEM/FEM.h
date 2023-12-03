@@ -28,7 +28,6 @@ class FEM :public DomainFEM{
     PetscInt  node_start, node_end, elem_start, elem_end;
     PetscInt  row_start, row_end, numOfDofsLocal, numOfDofsGlobal;
 
-
     vector<int>  assyForSoln, OutputNodes;
     vector<double> DirichletBCs; 
     vector<vector<double>> DirichletBCs_tmp; 
@@ -41,6 +40,10 @@ class FEM :public DomainFEM{
     PetscSolver  *solverPetsc;
 
     double rho,mu,nu;
+
+    vector<double> phi;
+    vector<double> phiEX;
+    vector<double> sdf;
   
   public:
     FEM();
@@ -58,17 +61,28 @@ class FEM :public DomainFEM{
     int deallocate();
 
     void Stokes();
+   
     void calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
-
-    void Pressure_inGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<double> &N,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
-    void Diffusion_inGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
-    void PSPG_inGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void calcStokesMatrixXFEM(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    
+    void DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<double> &N,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    
+    void localRefinement(const int n,std::vector<double> &b);
+    void DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm,const double weight,const int ic);
+    void PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<double> &NP, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm, const double weight, const int ic);
+    void PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNPdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
     
     void assignBoundaryConditions();
     void applyBoundaryConditions(VectorXd& Flocal, const int size, const int ic);
     void getSolution();
     
+
+    void postCaluculation();
+    
     void export_vti(const string &file, vector<int> &node, vector<int> &element);
+    void export_vti_domain(const string &file);
     void export_vti_result(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &w, vector<double> &p);
     void export_vti_result_2D(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &p);
 };

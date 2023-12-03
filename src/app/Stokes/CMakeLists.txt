@@ -17,10 +17,11 @@ target_link_libraries( ${main_target} PRIVATE
   TPmpi
   petsc
   metis
-  Base
-  FEM
-  Solver
-  Stokes
+  base
+  fem
+  solver
+  stokes
+  postprocess
   stdc++ 
   m 
   superlu  
@@ -30,7 +31,7 @@ target_link_libraries( ${main_target} PRIVATE
 
 target_include_directories(${main_target} PRIVATE
   ${PROJECT_SOURCE_DIR}/src/lib/base
-  ${PROJECT_SOURCE_DIR}/src/lib/FEM
+  ${PROJECT_SOURCE_DIR}/src/lib/fem
   ${PROJECT_SOURCE_DIR}/src/lib/solver
 )
 

@@ -1,5 +1,4 @@
 #include "FEM.h"
-using namespace std;
  
 int main(int argc, char* argv[]){
 
@@ -23,15 +22,22 @@ int main(int argc, char* argv[]){
   fem.initialize();
 
   MPI_Barrier(MPI_COMM_WORLD);
+  
+  if(fem.myId == 1){
+    string vtiFile;
+    vtiFile = "domain.vti";
+    fem.export_vti_domain(vtiFile);
+  }
 
   fem.Stokes();
-
   MPI_Barrier(MPI_COMM_WORLD);
 
+  fem.postCaluculation();
+  MPI_Barrier(MPI_COMM_WORLD);
+    
   fem.deallocate();
-   
   MPI_Barrier(MPI_COMM_WORLD);
-  
+
   PetscFinalize();
   MPI_Finalize();
   

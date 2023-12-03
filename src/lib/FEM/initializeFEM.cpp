@@ -6,7 +6,6 @@ void FEM::initialize()
   readInput(); 
   setDomain();
   setBoundary();
-  //setImage();
   prepareMatrix();
 }
 
@@ -76,6 +75,20 @@ void FEM::prepare()
 
 
 void FEM::setBoundary(){
+  
+  for(int ic=0;ic<numOfElmGlobal;ic++){
+    
+    if(phi[ic]>1e-10) continue;
+
+    for(int i=0;i<numOfNodeInElm;i++){
+      for(int j=0;j<3;j++){
+        bd_iu[element[ic][i]][j] = 0;
+        bd_u[element[ic][i]][j] = 0;
+      }
+    }
+  }
+
+
 
   int count = 0;
   vector<double> vecDbTmp(3,0);
@@ -95,10 +108,11 @@ void FEM::setBoundary(){
   ///pressure///
   vecDbTmp[0] = 0;
   vecDbTmp[1] = 3;
-  vecDbTmp[2] = 1e0;
+  vecDbTmp[2] = 0e0;
   DirichletBCs_tmp.push_back(vecDbTmp);
   count++;
   numOfBdNode = count;
 
 }
+
 

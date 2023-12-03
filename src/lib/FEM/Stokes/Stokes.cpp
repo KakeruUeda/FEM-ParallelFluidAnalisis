@@ -23,33 +23,40 @@ void FEM::Stokes(){
 
   solverPetsc->zeroMtx();
   reacVec.setZero();
-
-  MPI_Barrier(MPI_COMM_WORLD);
   
   assignBoundaryConditions();
-
+  
+  MPI_Barrier(MPI_COMM_WORLD);
+ 
   timer = MPI_Wtime();
+  
   for(int ic=0;ic<numOfElmGlobal;ic++){
     if(elm[ic]->getSubdomainId() == myId){
-
+      
       Klocal.setZero();
       Flocal.setZero();
 
-      calcStokesMatrix(ic,Klocal,Flocal);
+      if(phiEX[ic]>0.999){
+        calcStokesMatrix(ic,Klocal,Flocal);
+      }else if(phiEX[ic]>1e-5){
+        calcStokesMatrixXFEM(ic,Klocal,Flocal);
+      }else{
+        calcStokesMatrix(ic,Klocal,Flocal);
+      }
       
+
       size1 = elm[ic]->nodeForAssyBCs.size();
       applyBoundaryConditions(Flocal, size1, ic);
       solverPetsc->assembleMatrixAndVectorSerial(elm[ic]->nodeForAssyBCs, elm[ic]->nodeForAssy, Klocal, Flocal);
-    
     }
   }
+    
+  MPI_Barrier(MPI_COMM_WORLD);
+
   timer = MPI_Wtime() - timer;
   //computerTimeAssembly += timerVal;
   PetscPrintf(MPI_COMM_WORLD, "\n\n Time for matrix assembly = %f seconds \n\n", timer);
 
-
-  MPI_Barrier(MPI_COMM_WORLD);
-  
   VecAssemblyBegin(solverPetsc->rhsVec);
   VecAssemblyEnd(solverPetsc->rhsVec);
 
@@ -62,11 +69,13 @@ void FEM::Stokes(){
   
   timer = MPI_Wtime();
   solverPetsc->factoriseAndSolve();
+  
+  MPI_Barrier(MPI_COMM_WORLD);
   timer = MPI_Wtime() - timer;
   //computerTimeSolver += timerVal;
   PetscPrintf(MPI_COMM_WORLD, "\n\n Time for PETSc solver = %f seconds \n\n", timer);
   
-  MPI_Barrier(MPI_COMM_WORLD);
+
 
   /////////////////////////////////////////////////////////////////////////////
   // get the solution vector onto all the processors
@@ -85,8 +94,6 @@ void FEM::Stokes(){
   MPI_Barrier(MPI_COMM_WORLD);
   
   VecRestoreArray(vec_SEQ, &arrayTempSoln);
-  
-  getSolution();
   
   VecScatterDestroy(&ctx);
   VecDestroy(&vec_SEQ);
@@ -109,41 +116,11 @@ void FEM::assignBoundaryConditions(){
 
 void FEM::applyBoundaryConditions(VectorXd& Flocal, const int size, const int ic){
 
-  int ii, value;
+  int ii;
   for(ii=0; ii<size; ii++){
-    value = DirichletBCs[elm[ic]->globalDOFnums[ii]];
     if(elm[ic]->nodeForAssyBCs[ii] == -1) {
-      Flocal(ii) = value;    
+      Flocal(ii) = DirichletBCs[elm[ic]->globalDOFnums[ii]];    
     }
   }
-
-}
-
-
-void FEM::getSolution(){
-
-  int ii;
-  vector<double> u(numOfNodeGlobal,0);
-  vector<double> v(numOfNodeGlobal,0);
-  vector<double> w(numOfNodeGlobal,0);
-  vector<double> p(numOfNodeGlobal,0);
-
-  for(ii=0; ii<numOfNodeGlobal; ii++){
-
-      int nnn = nodeMap[ii];
-      int kkk = nnn*numOfDofsNode;
-      u[ii] = SolnData.soln[kkk];
-      v[ii] = SolnData.soln[kkk+1];
-      w[ii] = SolnData.soln[kkk+2];
-      p[ii] = SolnData.soln[kkk+3];
-
-  }
-        
-  string vtiFile;
-  vtiFile = "resutls.vti";
-  export_vti_result(vtiFile,u,v,w,p);
-
-  vtiFile = "resutls_2D.vti";
-  export_vti_result_2D(vtiFile,u,v,p);
 
 }

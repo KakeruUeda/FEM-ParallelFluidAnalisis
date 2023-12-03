@@ -1,25 +1,37 @@
+//Domain
+//{
+//  nx=(32,32,32)  //element size
+//  Lx=(1e2,1e2,1e2)  //domain size
+//  image = "INPUT/square/image32x32x32.dat"
+//  imageEX = "INPUT/square/image32x32x32_around.dat"
+//  sdf = "INPUT/square/sdf32x32x32.dat"
+//}
+
 Domain
 {
   nx=(32,32,32)  //element size
-  Lx=(1e0,1e0,1e0)  //domain size
+  Lx=(1e2,1e2,1e2)  //domain size
+  image = "INPUT/straightTube/image32x32x32.dat"
+  imageEX = "INPUT/straightTube/image32x32x32_around.dat"
+  sdf = "INPUT/straightTube/sdf32x32x32.dat"
 }
 
 Boundary
 {
  top{
-    type = "v"
-    value = (0,0,0)
+    type = "free"
  }
  bottom{
     type = "v"
-    value = (0,0,0)
+    value = (0,1,0)
  }
  left{
     type = "v"
-    value = (1,0,0)
+    value = (0,0,0)
  }
  right{
-    type = "free"
+    type = "v"
+    value = (0,0,0)
  }
  front{
     type = "v"

@@ -1,17 +1,18 @@
 set(compile_options_tmp ${base_compile_options})
 string(REPLACE " " ";" compile_options_tmp ${compile_options_tmp})
 
-add_library(Stokes STATIC)
-target_sources(Stokes
+add_library(stokes STATIC)
+target_sources(stokes
   PRIVATE
   CreateMatrix.cpp
+  CreateMatrixXFEM.cpp
   Stokes.cpp
 )
 
-target_include_directories(Stokes PUBLIC
+target_include_directories(stokes PUBLIC
   ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/solver
-  ${PROJECT_SOURCE_DIR}/src/lib/FEM
+  ${PROJECT_SOURCE_DIR}/src/lib/fem
 )
 
-target_compile_options(Stokes PUBLIC ${compile_options_tmp})
+target_compile_options(stokes PUBLIC ${compile_options_tmp})

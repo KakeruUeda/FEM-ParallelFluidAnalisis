@@ -15,14 +15,14 @@ target_compile_options(${main_target} PUBLIC ${compile_options_tmp})
 
 target_link_libraries( ${main_target} PRIVATE
   petsc
-  Base
-  FEM
-  Solver
+  base
+  fem
+  solver
 )
 
 target_include_directories(${main_target} PRIVATE
   ${PROJECT_SOURCE_DIR}/src/lib/base
-  ${PROJECT_SOURCE_DIR}/src/lib/FEM
+  ${PROJECT_SOURCE_DIR}/src/lib/fem
   ${PROJECT_SOURCE_DIR}/src/lib/solver
 )
 

@@ -64,6 +64,47 @@ void FEM::readInput(){
   string bdType;
   base_label = "/Boundary";
 
+  label = base_label + "/bottom/type";
+  if ( !tp.getInspectedValue(label,bdType)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+  if(bdType=="v"){
+    double value[3];
+    label = base_label + "/bottom/value";
+    if ( !tp.getInspectedVector(label,value,3)){
+      cout << label << " is not set" << endl;
+      exit(0);
+    }
+    int tmp = 0;
+    for(int i=0;i<nz+1;i++){
+      for(int j=0;j<nx+1;j++){
+        for(int k=0;k<3;k++){
+          bd_iu[i*(nx+1)*(ny+1)+tmp+j][k] = 0;
+          bd_u[i*(nx+1)*(ny+1)+tmp+j][k] = value[k];
+        }
+      }
+    }
+  }else if(bdType=="p"){
+    double value;
+    label = base_label + "/bottom/value";
+    if ( !tp.getInspectedValue(label,value)){
+      cout << label << " is not set" << endl;
+      exit(0);
+    }
+    int tmp = 0;
+    for(int i=0;i<nz+1;i++){
+      for(int j=0; j<nx+1; j++){
+        bd_ip[i*(nx+1)*(ny+1)+tmp+j] = 0;
+        bd_p[i*(nx+1)*(ny+1)+tmp+j] = value;
+      }
+    }
+  }else if(bdType=="free"){
+  }else{
+    cout << bdType << " is undefined. Exit..." << endl;
+  }
+
   label = base_label + "/left/type";
   if ( !tp.getInspectedValue(label,bdType)){
     cout << label << " is not set" << endl;
@@ -83,7 +124,6 @@ void FEM::readInput(){
         for(int k=0; k<3; k++){
           bd_iu[(nx+1)*j+(nx+1)*(ny+1)*i][k] = 0;
           bd_u[(nx+1)*j+(nx+1)*(ny+1)*i][k] = value[k];
-          //cout << "letvalue = " << value[k] << endl; 
         }
       }
     }
@@ -148,47 +188,6 @@ void FEM::readInput(){
       for(int j=0; j<nx+1; j++){
         bd_ip[(nx+1)*j+(nx+1)*(ny+1)*i+tmp] = 0;
         bd_p[(nx+1)*j+(nx+1)*(ny+1)*i+tmp] = value;
-      }
-    }
-  }else if(bdType=="free"){
-  }else{
-    cout << bdType << " is undefined. Exit..." << endl;
-  }
-
-  label = base_label + "/bottom/type";
-  if ( !tp.getInspectedValue(label,bdType)){
-    cout << label << " is not set" << endl;
-    exit(0);
-  }
-
-  if(bdType=="v"){
-    double value[3];
-    label = base_label + "/bottom/value";
-    if ( !tp.getInspectedVector(label,value,3)){
-      cout << label << " is not set" << endl;
-      exit(0);
-    }
-    int tmp = 0;
-    for(int i=0;i<nz+1;i++){
-      for(int j=0;j<nx+1;j++){
-        for(int k=0;k<3;k++){
-          bd_iu[i*(nx+1)*(ny+1)+tmp+j][k] = 0;
-          bd_u[i*(nx+1)*(ny+1)+tmp+j][k] = value[k];
-        }
-      }
-    }
-  }else if(bdType=="p"){
-    double value;
-    label = base_label + "/bottom/value";
-    if ( !tp.getInspectedValue(label,value)){
-      cout << label << " is not set" << endl;
-      exit(0);
-    }
-    int tmp = 0;
-    for(int i=0;i<nz+1;i++){
-      for(int j=0; j<nx+1; j++){
-        bd_ip[i*(nx+1)*(ny+1)+tmp+j] = 0;
-        bd_p[i*(nx+1)*(ny+1)+tmp+j] = value;
       }
     }
   }else if(bdType=="free"){
@@ -321,5 +320,90 @@ void FEM::readInput(){
   }else{
     cout << bdType << " is undefined. Exit..." << endl;
   }
+
+
+  ////setImage////
+  phi.resize(numOfElmGlobal);
+  phiEX.resize(numOfElmGlobal);
+  sdf.resize(numOfNodeGlobal);
+
+  for(int i=0;i<numOfElmGlobal;i++){
+    phi[i] = 1e0;
+    phiEX[i] = 1e0;
+  }
+
+  string imageFile;
+  label = "/Domain/image";
+  if ( !tp.getInspectedValue(label,imageFile)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+  double value;
+  FILE *fp; 
+  if ((fp = fopen(imageFile.c_str(), "r")) == NULL)
+  {
+    cout << imageFile << " open error" << endl;
+    exit(1);
+  }
+  for(int k=0; k<nz; k++){
+    for(int j=0;j<ny;j++){
+      for(int i=0;i<nx;i++){
+        int tmp1,tmp2,tmp3;
+        fscanf(fp,"%d %d %d %lf\n",&tmp1,&tmp2,&tmp3,&value);
+        phi[tmp1+tmp2*nx+tmp3*nx*ny] = value;
+      }
+    }
+  }
+  fclose(fp);
+
+  label = "/Domain/imageEX";
+  if ( !tp.getInspectedValue(label,imageFile)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+
+  if ((fp = fopen(imageFile.c_str(), "r")) == NULL)
+  {
+    cout << imageFile << " open error" << endl;
+    exit(1);
+  }
+  for(int k=0; k<nz; k++){
+    for(int j=0;j<ny;j++){
+      for(int i=0;i<nx;i++){
+        int tmp1,tmp2,tmp3;
+        fscanf(fp,"%d %d %d %lf\n",&tmp1,&tmp2,&tmp3,&value);
+        phiEX[tmp1+tmp2*nx+tmp3*nx*ny] = value;
+      }
+    }
+  }
+  fclose(fp);
+
+  label = "/Domain/sdf";
+  if ( !tp.getInspectedValue(label,imageFile)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+  if ((fp = fopen(imageFile.c_str(), "r")) == NULL)
+  {
+    cout << imageFile << " open error" << endl;
+    exit(1);
+  }
+  for(int k=0; k<nz+1; k++){
+    for(int j=0;j<ny+1;j++){
+      for(int i=0;i<nx+1;i++){
+        int tmp1,tmp2,tmp3;
+        fscanf(fp,"%d %d %d %lf\n",&tmp1,&tmp2,&tmp3,&value);
+        value = -value;
+        if(fabs(value)<1e-10) {
+          value = 0e0;
+        }
+        sdf[tmp1+tmp2*(nx+1)+tmp3*(nx+1)*(ny+1)] = value;
+      }
+    }
+  }
+  fclose(fp);
 
 }

@@ -1,3 +1,3 @@
 add_subdirectory(base)
-add_subdirectory(FEM)
+add_subdirectory(fem)
 add_subdirectory(solver)
