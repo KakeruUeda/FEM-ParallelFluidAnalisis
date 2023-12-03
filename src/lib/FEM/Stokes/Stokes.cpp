@@ -48,32 +48,8 @@ void FEM::Stokes()
         }
       }    
       solverPetsc->assembleMatrixAndVectorSerial(elm[ic]->forAssyVec, elm[ic]->forAssyVec_withoutBd, Klocal, Flocal);
-      /*
-      if(this_mpi_proc == 0){
-        ofstream Assy("forAssyVec0.dat"); 
-        for(ic=0; ic<numOfElmGlobal; ic++){
-          int size = elm[ic]->forAssyVec.size();
-          for(ii=0; ii<size; ii++){
-            if(ii != 0 && ii%4 == 0) Assy << " ";
-            Assy << elm[ic]->forAssyVec[ii] << " ";
-          } 
-          Assy << endl;
-        }
-        Assy.close();
-      }
-      if(this_mpi_proc == 1){
-        ofstream Assy1("forAssyVec1.dat"); 
-        for(ic=0; ic<numOfElmGlobal; ic++){
-          int size = elm[ic]->forAssyVec.size();
-          for(ii=0; ii<size; ii++){
-            if(ii != 0 && ii%4 == 0) Assy1 << " ";
-            Assy1 << elm[ic]->forAssyVec[ii] << " ";
-          } 
-          Assy1 << endl;
-        }
-        Assy1.close();
-      }
-      */
+    
+      
       
       /*
       if(this_mpi_proc == 0){
@@ -148,46 +124,20 @@ void FEM::Stokes()
   vector<double> p(numOfNodeGlobal,0);
 
   for(ii=0; ii<numOfNodeGlobal; ii++){
-    kk = ii*ndof;
-    u[ii] = SolnData.soln[kk];
-    v[ii] = SolnData.soln[kk+1];
-    w[ii] = SolnData.soln[kk+2];
-    p[ii] = SolnData.soln[kk+3];
-    if(u[ii] != 0 || v[ii] != 0 || w[ii] != 0 || p[ii] != 0){
-      //cout << "i = " << ii <<  " u = " << u[ii] << " v = " << v[ii] << " w = " << w[ii] << " p = "<< p[ii] << endl;
-    }
-  }
-  
-  if(this_mpi_proc == 0){
-    ofstream res("results.dat");
-    for(int i=0; i<numOfNodeGlobal; i++){
-      res << "i = " << i <<  " u = " << u[i] << " v = " << v[i] << " w = " << w[i] << " p = "<< p[i] << endl;
-    }
-    res.close();
-  }
-  if(this_mpi_proc == 0){
-    ofstream res2("resultsOrig.dat");
-    vector<double> vec(4,0);
-    for(int i=0; i<numOfNodeGlobal; i++){
-      int nnn = node_map_get_new[i];
+      int nnn = node_map_get_new[ii];
       int kkk = nnn*ndof;
-
-      vec[0] = SolnData.soln[kkk];
-      vec[1] = SolnData.soln[kkk+1];
-      vec[2] = SolnData.soln[kkk+2];
-      vec[3] = SolnData.soln[kkk+3];
-
-      res2 << "i = " << i <<  " u = " << vec[0] << " v = " << vec[1] << " w = " << vec[2] << " p = "<< vec[3] << endl;
-    }
-    res2.close();
-    }
+      u[ii] = SolnData.soln[kkk];
+      v[ii] = SolnData.soln[kkk+1];
+      w[ii] = SolnData.soln[kkk+2];
+      p[ii] = SolnData.soln[kkk+3];
+  }
         
-    string vtiFile;
-    vtiFile = "resutls.vti";
-    export_vti_result(vtiFile,u,v,w,p);
+  string vtiFile;
+  vtiFile = "resutls.vti";
+  export_vti_result(vtiFile,u,v,w,p);
 
-    vtiFile = "resutls_2D.vti";
-    export_vti_result_2D(vtiFile,u,v,p);
+  vtiFile = "resutls_2D.vti";
+  export_vti_result_2D(vtiFile,u,v,p);
 }
 
 

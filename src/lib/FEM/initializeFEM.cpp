@@ -27,6 +27,7 @@ void FEM::initialize()
   NodeDofArrayOld.resize(numOfNodeGlobal, vecIntTempM1);
   NodeDofArrayOld_withoutBd.resize(numOfNodeGlobal, vecIntTempM1);
   NodeDofArrayNew.resize(numOfNodeGlobal, vecIntTempM1);
+  NodeDofArrayNew_withoutBd.resize(numOfNodeGlobal, vecIntTempM1);
   
   for(ii=0; ii<numOfBdNode; ii++){
     NodeTypeOld[DirichletBCs[ii][0]][DirichletBCs[ii][1]] = true;
@@ -99,25 +100,36 @@ void FEM::initialize()
         for(jj=0;jj<ndof;++jj)
         {
           elm[ee]->forAssyVec[ind+jj] = NodeDofArrayNew[kk][jj];
-          elm[ee]->forAssyVec_withoutBd[ind+jj] = NodeDofArrayOld_withoutBd[kk][jj];
+          elm[ee]->forAssyVec_withoutBd[ind+jj] =  NodeDofArrayNew_withoutBd[kk][jj];
         }
       }
     }
   }   
-  /*
-  if(this_mpi_proc == 1){
-    ofstream Assy("forAssyVec1.dat"); 
-    for(ee=0; ee<numOfElmGlobal; ee++){
-      int size = elm[ee]->forAssyVec.size();
-      for(ii=0; ii<size; ii++){
+
+  if(this_mpi_proc == 0){
+    ofstream Assy("forAssyVec_withoutBd0.dat"); 
+    for(int ic=0; ic<numOfElmGlobal; ic++){
+      int size = elm[ic]->forAssyVec.size();
+      for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy << " ";
-        Assy << elm[ee]->forAssyVec[ii] << " ";
+        Assy << elm[ic]->forAssyVec_withoutBd[ii] << " ";
       } 
       Assy << endl;
     }
     Assy.close();
   }
-  */
+  if(this_mpi_proc == 1){
+    ofstream Assy1("forAssyVec_withoutBd1.dat"); 
+    for(int ic=0; ic<numOfElmGlobal; ic++){
+      int size = elm[ic]->forAssyVec.size();
+      for(int ii=0; ii<size; ii++){
+        if(ii != 0 && ii%4 == 0) Assy1 << " ";
+        Assy1 << elm[ic]->forAssyVec_withoutBd[ii] << " ";
+      } 
+      Assy1 << endl;
+    }
+    Assy1.close();
+  }
 
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
@@ -264,10 +276,10 @@ void FEM::initialize()
   }
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
-  //MatAssemblyBegin(solverPetsc->mtx,MAT_FINAL_ASSEMBLY);
-  //MatAssemblyEnd(solverPetsc->mtx,MAT_FINAL_ASSEMBLY);
-  //MatView(solverPetsc->mtx,PETSC_VIEWER_STDOUT_WORLD);
-  //exit(1);
+  errpetsc = MatAssemblyBegin(solverPetsc->mtx,MAT_FINAL_ASSEMBLY); 
+  errpetsc = MatAssemblyEnd(solverPetsc->mtx,MAT_FINAL_ASSEMBLY); 
+
+  //errpetsc = MatView(solverPetsc->mtx,PETSC_VIEWER_STDOUT_WORLD); 
   /*
   if(this_mpi_proc == 1){
     ofstream Kb("Klocal_before.dat"); 
@@ -963,8 +975,8 @@ int FEM::prepareForParallel()
 
   for(ii=0; ii<numOfNodeGlobal; ii++)
   {
-    //n1 = node_map_get_old[ii];
-    //node_map_get_new[n1] = ii;
+    n1 = node_map_get_old[ii];
+    node_map_get_new[n1] = ii;
     //for(jj=0; jj<ndof; jj++)
     //{
     //NodeTypeNew[ii][jj] = NodeTypeOld[n1][jj];
@@ -982,16 +994,20 @@ int FEM::prepareForParallel()
 
   for(ee=0; ee<numOfElmGlobal; ee++)
   {
+
+    elm[ee]->nodeNumsPrev = element[ee];
+    
     ////erase////
-    //for(ii=0; ii<numOfNodeInElm; ii++) element[ee][ii] = node_map_get_new[element[ee][ii]];
+    for(ii=0; ii<numOfNodeInElm; ii++) element[ee][ii] = node_map_get_new[element[ee][ii]];
 
-      elm[ee]->nodeNums = element[ee];
+    elm[ee]->nodeNums = element[ee];
 
-      // element array is no longer needed.
-      element[ee].clear();
+    // element array is no longer needed.
+    element[ee].clear();
   }
 
    ///////add////////
+   /*
   for(ii=0; ii<numOfNodeGlobal; ii++)
   {
     node_map_get_new[ii] = node_map_get_old[ii];
@@ -1000,6 +1016,7 @@ int FEM::prepareForParallel()
     NodeTypeNew[ii][jj] = NodeTypeOld[ii][jj];
     }
   }
+  */
   ////////add////////
 
   if(this_mpi_proc == 1){
@@ -1017,11 +1034,11 @@ int FEM::prepareForParallel()
   for(ii=0; ii<numOfBdNode; ii++)
   { 
     ////erase///
-    //n1 = node_map_get_new[DirichletBCs[ii][0]];
+    n1 = node_map_get_new[DirichletBCs[ii][0]];
     ////erase///
-    //DirichletBCs[ii][0] = n1;
+    DirichletBCs[ii][0] = n1;
     ///erase////
-    //NodeTypeNew[n1][DirichletBCs[ii][1]] = true;
+    NodeTypeNew[n1][DirichletBCs[ii][1]] = true;
   }
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -1035,10 +1052,14 @@ int FEM::prepareForParallel()
       ///erase///
       //if(NodeTypeNew[ii][jj] == false)
       //{
-        ///NodeDofArrayNew[ii][jj] = ind++;
-        NodeDofArrayNew[ii][jj] = NodeDofArrayOld[ii][jj];
-        ind++;
-      //}
+        NodeDofArrayNew_withoutBd[ii][jj] = ind;
+        NodeDofArrayNew[ii][jj] = ind++;
+        if(NodeTypeNew[ii][jj]){
+          NodeDofArrayNew[ii][jj] = -1;
+        }
+        //NodeDofArrayNew[ii][jj] = NodeDofArrayOld[ii][jj];
+        //ind++;
+     //}
     }
   }
 

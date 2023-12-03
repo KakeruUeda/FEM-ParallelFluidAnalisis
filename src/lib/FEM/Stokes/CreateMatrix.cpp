@@ -9,7 +9,7 @@ void FEM::calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
 
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){
-      x_current[i][j] = x[elm[ic]->nodeNums[i]][j];
+      x_current[i][j] = x[elm[ic]->nodeNumsPrev[i]][j];
     }
   }
   Gauss g1(1),g2(2),g3(3);

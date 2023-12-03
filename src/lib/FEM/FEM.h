@@ -32,7 +32,7 @@ class FEM :public DomainFEM{
     vector<int>  assyForSoln, OutputNodes;
     vector<vector<double>>  DirichletBCs; 
 
-    vector<vector<int>>  NodeDofArrayOld, NodeDofArrayOld_withoutBd, NodeDofArrayNew;
+    vector<vector<int>>  NodeDofArrayOld, NodeDofArrayOld_withoutBd, NodeDofArrayNew, NodeDofArrayNew_withoutBd;
     vector<vector<bool>>  NodeTypeOld, NodeTypeNew;
     
     SolutionData  SolnData;
