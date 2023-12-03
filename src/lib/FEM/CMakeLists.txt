@@ -4,13 +4,16 @@ string(REPLACE " " ";" compile_options_tmp ${compile_options_tmp})
 add_library(FEM STATIC)
 target_sources(FEM
   PRIVATE
-  baseFEM.cpp
-  initializeFEM.cpp
-  exportFEM.cpp
-  domainFEM.cpp
-  mathFEM.cpp
-  solutionData.cpp
-  elementBase.cpp
+  FEM.cpp
+  BaseFEM.cpp
+  InitializeFEM.cpp
+  ExportFEM.cpp
+  DomainFEM.cpp
+  MathFEM.cpp
+  SolutionData.cpp
+  ElementBaseFEM.cpp
+  ReadlnputFile.cpp
+  PrepareMatrix.cpp
 )
 
 target_include_directories(FEM PUBLIC
