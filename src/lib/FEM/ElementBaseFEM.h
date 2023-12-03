@@ -2,8 +2,8 @@
 
 class ElementBaseFEM{
   public:
-    int subdomainId;
-    vector<int>  nodeNums,nodeNumsPrev,forAssyVec,forAssyVec_withoutBd,globalDOFnums;
+    int subdomainId,numOfDofsNode,numOfNodeInElm;
+    vector<int>  nodeNums,nodeNumsPrev,nodeForAssyBCs,nodeForAssy,globalDOFnums;
 
     ElementBaseFEM();
     virtual ~ElementBaseFEM();

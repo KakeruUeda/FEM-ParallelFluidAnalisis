@@ -1,4 +1,4 @@
-#include "petscSolver.h"
+#include "PetscSolver.h"
 #include "petscmat.h"
 #include "petscksp.h"
 #include <iostream>

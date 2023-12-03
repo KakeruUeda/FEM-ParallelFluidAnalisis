@@ -1,4 +1,4 @@
-#include "solutionData.h"
+#include "SolutionData.h"
 
 SolutionData::SolutionData()
 {

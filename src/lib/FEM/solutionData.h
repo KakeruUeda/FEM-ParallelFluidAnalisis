@@ -30,7 +30,7 @@ class  SolutionData
     VectorXd  soln, solnPrev, solnPrev2, solnPrev3, solnPrev4, solnCur, solnInit, solnApplied;
     VectorXd  td;
 
-    vector<int>  node_map_get_old, node_map_get_new;
+    vector<int>  nodeMapPrev, nodeMap;
 
     SolutionData();
     ~SolutionData(){}

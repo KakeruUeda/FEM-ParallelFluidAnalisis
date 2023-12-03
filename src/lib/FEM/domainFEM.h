@@ -23,7 +23,7 @@ class DomainFEM{
     vector<vector<double>> bd_u;
     vector<vector<int>> bd_iu;
 
-    vector<int>  node_proc_id, node_map_get_old, node_map_get_new;
+    vector<int>  nodeId, nodeMapPrev, nodeMap;
 
   private:
 };
