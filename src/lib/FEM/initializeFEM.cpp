@@ -12,7 +12,6 @@ void FEM::initialize()
 
 void FEM::setDomain()
 {
-
   x.resize(numOfNodeGlobal,vector<double>(3, 0));
   element.resize(numOfElmGlobal);
 
@@ -40,15 +39,15 @@ void FEM::setDomain()
   for(int k=0;k<nz;k++){
     for(int i=0;i<ny;i++){
       for(int j=0;j<nx;j++){
-          element[tmp2][0]=j   +i*(nx+1) +k*(nx+1)*(ny+1);
-          element[tmp2][1]=j+1 +i*(nx+1) +k*(nx+1)*(ny+1);
-          element[tmp2][2]=j+1 +(i+1)*(nx+1) +k*(nx+1)*(ny+1);
-          element[tmp2][3]=j   +(i+1)*(nx+1) +k*(nx+1)*(ny+1);
-          element[tmp2][4]=j   +i*(nx+1) +(k+1)*(nx+1)*(ny+1);
-          element[tmp2][5]=j+1 +i*(nx+1) +(k+1)*(nx+1)*(ny+1);
-          element[tmp2][6]=j+1 +(i+1)*(nx+1) +(k+1)*(nx+1)*(ny+1);
-          element[tmp2][7]=j   +(i+1)*(nx+1) +(k+1)*(nx+1)*(ny+1);
-          tmp2++;
+        element[tmp2][0]=j   +i*(nx+1) +k*(nx+1)*(ny+1);
+        element[tmp2][1]=j+1 +i*(nx+1) +k*(nx+1)*(ny+1);
+        element[tmp2][2]=j+1 +(i+1)*(nx+1) +k*(nx+1)*(ny+1);
+        element[tmp2][3]=j   +(i+1)*(nx+1) +k*(nx+1)*(ny+1);
+        element[tmp2][4]=j   +i*(nx+1) +(k+1)*(nx+1)*(ny+1);
+        element[tmp2][5]=j+1 +i*(nx+1) +(k+1)*(nx+1)*(ny+1);
+        element[tmp2][6]=j+1 +(i+1)*(nx+1) +(k+1)*(nx+1)*(ny+1);
+        element[tmp2][7]=j   +(i+1)*(nx+1) +(k+1)*(nx+1)*(ny+1);
+        tmp2++;
       }
     }
   }
@@ -73,7 +72,6 @@ void FEM::prepare()
 }
 
 
-
 void FEM::setBoundary(){
   
   for(int ic=0;ic<numOfElmGlobal;ic++){
@@ -84,11 +82,11 @@ void FEM::setBoundary(){
       for(int j=0;j<3;j++){
         bd_iu[element[ic][i]][j] = 0;
         bd_u[element[ic][i]][j] = 0;
+        //bd_ip[element[ic][i]] = 0;
+        //bd_p[element[ic][i]] = 0;
       }
     }
   }
-
-
 
   int count = 0;
   vector<double> vecDbTmp(3,0);
@@ -102,15 +100,18 @@ void FEM::setBoundary(){
         DirichletBCs_tmp.push_back(vecDbTmp);
         count++;
       }
+      if(bd_ip[i] == 0){
+        vecDbTmp[0] = i;
+        vecDbTmp[1] = 3;
+        vecDbTmp[2] = bd_p[i];
+        DirichletBCs_tmp.push_back(vecDbTmp);
+        count++;
+      }
     }
   }
-  
+
   ///pressure///
-  vecDbTmp[0] = 0;
-  vecDbTmp[1] = 3;
-  vecDbTmp[2] = 0e0;
-  DirichletBCs_tmp.push_back(vecDbTmp);
-  count++;
+
   numOfBdNode = count;
 
 }

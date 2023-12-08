@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <omp.h>
 
 #include "gauss.h"
 #include "metis.h"
@@ -40,6 +41,7 @@ class FEM :public DomainFEM{
     PetscSolver  *solverPetsc;
 
     double rho,mu,nu;
+    int numOfOMP;
 
     vector<double> phi;
     vector<double> phiEX;
@@ -60,7 +62,7 @@ class FEM :public DomainFEM{
 
     int deallocate();
 
-    void Stokes();
+    void stokes();
    
     void calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     void calcStokesMatrixXFEM(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
@@ -85,5 +87,6 @@ class FEM :public DomainFEM{
     void export_vti_domain(const string &file);
     void export_vti_result(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &w, vector<double> &p);
     void export_vti_result_2D(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &p);
+
 };
 

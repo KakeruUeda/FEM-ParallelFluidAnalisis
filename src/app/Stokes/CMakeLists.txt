@@ -22,11 +22,7 @@ target_link_libraries( ${main_target} PRIVATE
   solver
   stokes
   postprocess
-  stdc++ 
-  m 
-  superlu  
-  blas 
-  lapack 
+  omp
 )
 
 target_include_directories(${main_target} PRIVATE

@@ -26,9 +26,21 @@ void FEM::prepareMatrix(){
     nodeTypePrev[DirichletBCs_tmp[ii][0]][DirichletBCs_tmp[ii][1]] = true;
   }
 
+  if(myId == 0){
+    ofstream nodeTypeP("nodeTypePrev0.dat"); 
+    for(int ic=0; ic<numOfNodeGlobal; ic++){
+      for(int j=0; j<4; j++){
+        nodeTypeP << "ic = " << ic << " nodeTypePrev[ic][j] = " << nodeTypePrev[ic][j] << " ";
+      } 
+      nodeTypeP << endl;
+    }
+    nodeTypeP.close();
+  }
+
+  
   numOfDofsGlobal = 0;
-  for(int ii=0;ii<numOfNodeGlobal;++ii){
-    for(int jj=0;jj<numOfDofsNode;++jj){
+  for(int ii=0;ii<numOfNodeGlobal;ii++){
+    for(int jj=0;jj<numOfDofsNode;jj++){
         nodeDofArrayPrev[ii][jj] = numOfDofsGlobal;
         nodeDofArrayBCsPrev[ii][jj] = numOfDofsGlobal++;
       if(nodeTypePrev[ii][jj]){
@@ -39,14 +51,14 @@ void FEM::prepareMatrix(){
 
   if(myId == 0)
   {
-    cout << " Mesh statistics .....\n" << endl;
+    cout << "\n Mesh statistics\n" << endl;
     cout << " numOfElmGlobal   = " << '\t' << numOfElmGlobal << endl;
     cout << " numOfNodeGlobal  = " << '\t' << numOfNodeGlobal  << endl;
     cout << " numOfNodeInElm   = " << '\t' << numOfNodeInElm << endl;
-    cout << " numOfDofsNode             = " << '\t' << numOfDofsNode << endl;
+    cout << " numOfDofsNode    = " << '\t' << numOfDofsNode << endl;
     cout << " numOfDofsLocal   = " << '\t' << numOfDofsLocal  << endl;
     cout << " numOfDofsGlobal  = " << '\t' << numOfDofsGlobal << endl;
-    cout << " numOfId      = " << '\t' << numOfId << endl;
+    cout << " numOfId          = " << '\t' << numOfId << endl;
   }
 
   if(numOfId == 1)
@@ -81,19 +93,18 @@ void FEM::prepareMatrix(){
       nodeDofArrayBCs[ii] = nodeDofArrayBCsPrev[ii];
     }
   }else{
-    PetscPrintf(MPI_COMM_WORLD, "\n\n    Before partitionMesh ... \n\n");
+    PetscPrintf(MPI_COMM_WORLD, "\n Mesh division start");
     divideMesh();
-    PetscPrintf(MPI_COMM_WORLD, "\n    After partitionMesh ... \n\n"); 
-  
+    PetscPrintf(MPI_COMM_WORLD, " Mesh division end \n\n");
     MPI_Barrier(MPI_COMM_WORLD);
   
-    PetscPrintf(MPI_COMM_WORLD, "\n\n    Before prepareDataForParallel ... \n\n");
+    PetscPrintf(MPI_COMM_WORLD, " Parallel preparation start \n\n");
     prepareForParallel();
-    PetscPrintf(MPI_COMM_WORLD, "\n    After prepareDataForParallel ... \n\n");
+    PetscPrintf(MPI_COMM_WORLD, "\n Parallel preparation end \n\n");
     
     MPI_Barrier(MPI_COMM_WORLD);
   }
-    
+
   SolnData.nodeMapPrev = nodeMapPrev;
   SolnData.nodeMap = nodeMap;
 
@@ -108,40 +119,42 @@ void FEM::prepareMatrix(){
 
       elm[ee]->nodeForAssyBCs.resize(nsize);
       elm[ee]->nodeForAssy.resize(nsize);
-      for(ii=0; ii<numOfNodeInElm; ++ii){
-        jpn = numOfDofsNode *ii;
+      for(ii=0; ii<numOfNodeInElm; ii++){
+        jpn = numOfDofsNode*ii;
         kk = elm[ee]->nodeNums[ii];
-        for(jj=0;jj<numOfDofsNode ;++jj){
+        for(jj=0; jj<numOfDofsNode; jj++){
           elm[ee]->nodeForAssyBCs[jpn+jj] = nodeDofArrayBCs[kk][jj];
           elm[ee]->nodeForAssy[jpn+jj] =  nodeDofArray[kk][jj];
         }
       }
     }
   }   
+  
   if(myId == 0){
-    ofstream Assy("nodeForAssy0.dat"); 
+    ofstream Assy("nodeForAssyBCs0.dat"); 
     for(int ic=0; ic<numOfElmGlobal; ic++){
       int size = elm[ic]->nodeForAssyBCs.size();
       for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy << " ";
-        Assy << elm[ic]->nodeForAssy[ii] << " ";
+        Assy << elm[ic]->nodeForAssyBCs[ii] << " ";
       } 
       Assy << endl;
     }
     Assy.close();
   }
   if(myId == 1){
-    ofstream Assy1("nodeForAssy1.dat"); 
+    ofstream Assy1("nodeForAssyBCs1.dat"); 
     for(int ic=0; ic<numOfElmGlobal; ic++){
       int size = elm[ic]->nodeForAssyBCs.size();
       for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy1 << " ";
-        Assy1 << elm[ic]->nodeForAssy[ii] << " ";
+        Assy1 << elm[ic]->nodeForAssyBCs[ii] << " ";
       } 
       Assy1 << endl;
     }
     Assy1.close();
   }
+  
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
@@ -155,11 +168,11 @@ void FEM::prepareMatrix(){
     }
   }
 
-  PetscPrintf(MPI_COMM_WORLD, "\n\n Element DOF values initialised \n\n");
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
-  cout << " Total DOF   = " << '\t' << numOfDofsLocal << '\t' << numOfDofsGlobal << endl;
-
+  printf(" numOfDofsLocal = %5d \t numOfDofsGlobal = %5d \t myId = %5d \n",numOfDofsLocal, numOfDofsGlobal, myId);
+  
+  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
   vector<set<int> > forAssyMat;
   set<int>::iterator it;
 
@@ -169,32 +182,41 @@ void FEM::prepareMatrix(){
   {
     if(elm[ee]->getSubdomainId() == myId)
     {
+      
       tt = &(elm[ee]->nodeForAssy[0]);
       nsize = elm[ee]->nodeForAssy.size();
 
       for(ii=0;ii<nsize;ii++)
       {
-          r = tt[ii];
-
-          if(r != -1)
+        r = tt[ii];
+        //printf(" ee = %5d \t ii = %5d \t tt[ii] = %5d \t elm[ee]->getSubdomainId() %5d \t myId = %5d \n",ee, ii, r, elm[ee]->getSubdomainId(), myId);
+        if(r >= row_start && r <= row_end)
+        {
+          //printf("IN... ee = %5d \t r = %5d \t elm[ee]->getSubdomainId() %5d \t myId = %5d \n",ee, r, elm[ee]->getSubdomainId(), myId);
+          for(jj=0;jj<nsize;jj++)
           {
-            if(r >= row_start && r <= row_end)
-            {
-            for(jj=0;jj<nsize;jj++)
-              {
-                if(tt[jj] != -1)
-                {
-                  forAssyMat[r].insert(tt[jj]);
-                }
-              }
-            }
+            forAssyMat[r].insert(tt[jj]);
           }
+        }
       }
     }
   }
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n\n Preparing matrix pattern DONE \n\n");
+  MPI_Barrier(MPI_COMM_WORLD);
+  int c=0;
 
+  for(ii=row_start; ii<=row_end; ii++)
+  {
+    nsize = elm[ii]->nodeForAssy.size();
+    for(int r=0; r<numOfElmGlobal; r++)
+    {
+      for(it=forAssyMat[ii].begin(); it!=forAssyMat[ii].end(); ++it)
+      {
+        tempInt = *it;
+        //printf(" r = %5d \t count = %5d \t tmpInt = %5d \t myId = %5d\n",r, c, tempInt, myId);
+        c++;
+      }
+    }
+  }
 
   PetscInt  *diag_nnz, *offdiag_nnz;
 
@@ -226,12 +248,12 @@ void FEM::prepareMatrix(){
   }
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n\n Initialising petsc solver \n\n");
 
-  solverPetsc->initialise(numOfDofsLocal, numOfDofsGlobal, diag_nnz, offdiag_nnz);
+  PetscPrintf(MPI_COMM_WORLD, "\n Petsc solver initialize start\n");
+  solverPetsc->initialise(numOfDofsLocal, numOfDofsGlobal, diag_nnz, offdiag_nnz, nnz_max_row);
+  PetscPrintf(MPI_COMM_WORLD, " Petsc solver initialize done\n\n");
+  
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-
-  PetscPrintf(MPI_COMM_WORLD, " Initialise the Matrix pattern \n", errpetsc);
 
   jpn = numOfNodeInElm*numOfDofsNode;
   jpn = jpn*jpn;
@@ -243,6 +265,7 @@ void FEM::prepareMatrix(){
   for(ee=0; ee<numOfElmGlobal; ee++)
   {  
     for(ii=0; ii<jpn; ii++)  Klocal[ii] = 0.0;
+    
     if(elm[ee]->getSubdomainId() == myId)
     {
       size1 = elm[ee]->nodeForAssyBCs.size();
@@ -382,15 +405,14 @@ int FEM::divideMesh()
 
     options[METIS_OPTION_NUMBERING] = 0;  // C-style numbering is assumed that starts from 0.
 
-    cout << " Executing METIS subroutine " << endl;
-
+    //cout << " Executing METIS subroutine " << endl;
     // METIS partition routine
     int ret = METIS_PartMeshDual(&numOfElmGlobal, &numOfNodeGlobal, eptr, eind, NULL, NULL, &ncommon_nodes, &nparts, NULL, options, &objval, &elmId[0], &nodeId[0]);
 
     if(ret == METIS_OK)
-      cout << " METIS partition routine successful "  << endl;
+      cout << "\n\n METIS partition routine success "  << endl << endl;
     else
-      cout << " METIS partition routine FAILED "  << endl;
+      cout << " METIS partition routine FAILED "  << endl << endl;
 
     errpetsc = PetscFree(eptr); CHKERRQ(errpetsc);
     errpetsc = PetscFree(eind); CHKERRQ(errpetsc);
@@ -425,7 +447,7 @@ int FEM::divideMesh()
 
   MPI_Barrier(MPI_COMM_WORLD);
   numOfElmLocal = count(elmId.begin(), elmId.end(), myId);
-  cout << " nunOfElmLocal =  " << numOfElmLocal << '\t' << myId << '\t' << numOfId << endl;
+  //cout << " nunOfElmLocal =  " << numOfElmLocal << '\t' << myId << '\t' << numOfId << endl;
   
   MPI_Barrier(MPI_COMM_WORLD);
   
@@ -441,8 +463,8 @@ int FEM::prepareForParallel()
   int ee, ii, jj, kk, n1, n2, jpn;
 
   nNode_owned = count(nodeId.begin(), nodeId.end(), myId);
-  cout << " nNode_owned =  " << nNode_owned << '\t' << myId << '\t' << numOfId << endl;
-
+  printf(" nNode_owned =  %5d \t numOfId = %5d \t myId = %5d \n",node_start, numOfId, myId);
+  
   MPI_Barrier(MPI_COMM_WORLD);
   PetscPrintf(MPI_COMM_WORLD, "\n"); 
   MPI_Barrier(MPI_COMM_WORLD);
@@ -474,7 +496,8 @@ int FEM::prepareForParallel()
   if(myId > 0) node_start = nNode_owned_sum[myId-1];
   node_end   = nNode_owned_sum[myId]-1;
 
-  cout << " node_start =  " << node_start << '\t' << node_end << '\t' << myId << endl;
+  //cout << " node_start =  " << node_start << '\t' << node_end << '\t' << myId << endl;
+  printf(" node_start = %5d \t node_end = %5d \t myId = %5d \n",node_start, node_end, myId);
   
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -581,12 +604,8 @@ int FEM::prepareForParallel()
       //}
     }
   }
-
-  cout << " numOfDofsLocal = " << numOfDofsLocal << '\t' << numOfDofsGlobal << '\t' << myId << endl;
-
-  cout << " row_start  = " << row_start  << '\t' << row_end  << '\t' << myId << endl;
-  MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n"); 
+  printf(" numOfDofsLocal = %5d/%5d \t row_start  = %5d \t row_end  = %5d \t myId  = %5d \n", numOfDofsLocal, numOfDofsGlobal, row_start, row_end, myId);
+  
   MPI_Barrier(MPI_COMM_WORLD);
   //check if the sum of local problem sizes is equal to that of global problem size
   jpn=0;

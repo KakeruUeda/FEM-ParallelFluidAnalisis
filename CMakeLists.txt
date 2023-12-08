@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_COMPILER "/opt/petsc/bin/mpic++")
-set(base_compile_options ${base_compile_options} " -fopenmp -O2")
+set(base_compile_options ${base_compile_options} "-O3")
 #set(CMAKE_CXX_FLAGS_RELEASE "-pg")
 string(REPLACE " " " " compile_options ${base_compile_options})
 
@@ -12,9 +12,18 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/cmake)
 
 
+##################################
+         # Display #
+##################################
+message(" ")
+message("${PROJECT_NAME}")
+message( STATUS "Destination PATH      : "      ${CMAKE_INSTALL_PREFIX})
+message( STATUS "CMAKE_CXX_COMPILER    : "      ${CMAKE_CXX_COMPILER})
+message( STATUS "COMPILE_OPTIONS       : "      ${compile_options})
+message(" ")
 
 ##################################
-# include directories
+     # include directories #
 ##################################
 include_directories(
   /opt/homebrew/include
@@ -24,12 +33,13 @@ include_directories(
 )
 
 ##################################
-# lib directories
+      # lib directories #
 ##################################
 link_directories(
   /opt/homebrew/lib
   /opt/TextParser/lib
   /opt/petsc/lib
+  /opt/homebrew/opt/libomp/lib
 )
 
 

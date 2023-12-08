@@ -26,7 +26,7 @@ PetscSolver::~PetscSolver()
 // diag_nnz - number of nonzeros in the diagonal matrix
 // offdiag_nnz - number of nonzeros in the off-diagonal matrix
 // 
-int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int* offdiag_nnz)
+int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int* offdiag_nnz, int nnz_max_row)
 {
     nRow = nCol = size_global;
 
@@ -61,10 +61,10 @@ int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int*
     errpetsc = MatSetFromOptions(mtx);
     CHKERRQ(errpetsc);
 
-    errpetsc = MatMPIAIJSetPreallocation(mtx, dummy, diag_nnz, dummy, offdiag_nnz);
+    errpetsc = MatMPIAIJSetPreallocation(mtx, nnz_max_row, NULL, nnz_max_row, NULL);
     CHKERRQ(errpetsc);
 
-    errpetsc = MatSeqAIJSetPreallocation(mtx, dummy, diag_nnz);
+    errpetsc = MatSeqAIJSetPreallocation(mtx, nnz_max_row, NULL);
     CHKERRQ(errpetsc);
 
     errpetsc = MatSetOption(mtx, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
@@ -150,11 +150,11 @@ int PetscSolver::solve()
 
   errpetsc = VecZeroEntries(solnVec); CHKERRQ(errpetsc);
 
-  PetscPrintf(MPI_COMM_WORLD, "  SolverPetsc::solve() ... vec zero ...  \n\n");
+  PetscPrintf(MPI_COMM_WORLD, " Slove start \n");
 
   KSPSolve(ksp, rhsVec, solnVec); CHKERRQ(errpetsc);
 
-  PetscPrintf(MPI_COMM_WORLD, "  SolverPetsc::solve() ... KSP solve ...  \n\n");
+  PetscPrintf(MPI_COMM_WORLD, " Solve done \n\n");
 
   KSPConvergedReason reason;
   KSPGetConvergedReason(ksp, &reason);
@@ -165,14 +165,14 @@ int PetscSolver::solve()
 
   if(reason<0)
   {
-    PetscPrintf(MPI_COMM_WORLD, "\n Divergence... %d iterations. \n\n", its);
+    PetscPrintf(MPI_COMM_WORLD, " Divergence... %d iterations. \n\n", its);
     cout <<  reason << endl;
     exit(1);
     return -1;
   }
   else
   {
-    PetscPrintf(MPI_COMM_WORLD, "\n Convergence in %d iterations.\n\n", its);
+    PetscPrintf(MPI_COMM_WORLD, " Convergence in %d iterations.\n\n", its);
   }
 
   return 0;
@@ -185,7 +185,7 @@ int PetscSolver::factoriseAndSolve()
 
   if(currentStatus != ASSEMBLY_OK)
   {
-    cerr << " SolverPetsc::factoriseAndSolve ... assemble matrix first!" << endl;
+    cerr << "SolverPetsc::factoriseAndSolve ... assemble matrix first!" << endl;
     return -1;
   }
 
@@ -204,7 +204,6 @@ int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, vector<
 
   VecSetValues(rhsVec, size1, &forAssyElemRHS[0], &Flocal[0], INSERT_VALUES);
   MatSetValues(mtx,    size1, &forAssyElem[0], size1, &forAssyElemRHS[0], &Klocal2(0,0), ADD_VALUES);
-
   return 0;
 }
 

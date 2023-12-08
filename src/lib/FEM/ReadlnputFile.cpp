@@ -43,6 +43,12 @@ void FEM::readInput(){
     exit(0);
   }
 
+  label = base_label + "/OMPnumThreads";
+  if ( !tp.getInspectedValue(label, numOfOMP)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
   bd_u.resize(numOfNodeGlobal,vector<double>(3,0));
   bd_iu.resize(numOfNodeGlobal,vector<int>(3,0));
 
@@ -94,6 +100,49 @@ void FEM::readInput(){
       exit(0);
     }
     int tmp = 0;
+    for(int i=0;i<nz+1;i++){
+      for(int j=0; j<nx+1; j++){
+        bd_ip[i*(nx+1)*(ny+1)+tmp+j] = 0;
+        bd_p[i*(nx+1)*(ny+1)+tmp+j] = value;
+      }
+    }
+  }else if(bdType=="free"){
+  }else{
+    cout << bdType << " is undefined. Exit..." << endl;
+  }
+
+
+    label = base_label + "/top/type";
+  if ( !tp.getInspectedValue(label,bdType)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+  //ofstream top["top.dat");
+
+  if(bdType=="v"){
+    double value[3];
+    label = base_label + "/top/value";
+    if ( !tp.getInspectedVector(label,value,3)){
+      cout << label << " is not set" << endl;
+      exit(0);
+    }
+    int tmp = (nx+1)*ny;
+    for(int i=0;i<nz+1;i++){
+      for(int j=0; j<nx+1; j++){
+        for(int k=0;k<3;k++){
+          bd_iu[i*(nx+1)*(ny+1)+tmp+j][k] = 0;
+          bd_u[i*(nx+1)*(ny+1)+tmp+j][k]  = value[k];
+        }
+      }
+    }
+  }else if(bdType=="p"){
+    double value;
+    label = base_label + "/top/value";
+    if ( !tp.getInspectedValue(label,value)){
+      cout << label << " is not set" << endl;
+      exit(0);
+    }
+    int tmp = (nx+1)*ny;
     for(int i=0;i<nz+1;i++){
       for(int j=0; j<nx+1; j++){
         bd_ip[i*(nx+1)*(ny+1)+tmp+j] = 0;
@@ -195,47 +244,7 @@ void FEM::readInput(){
     cout << bdType << " is undefined. Exit..." << endl;
   }
 
-  label = base_label + "/top/type";
-  if ( !tp.getInspectedValue(label,bdType)){
-    cout << label << " is not set" << endl;
-    exit(0);
-  }
-  //ofstream top["top.dat");
 
-  if(bdType=="v"){
-    double value[3];
-    label = base_label + "/top/value";
-    if ( !tp.getInspectedVector(label,value,3)){
-      cout << label << " is not set" << endl;
-      exit(0);
-    }
-    int tmp = (nx+1)*ny;
-    for(int i=0;i<nz+1;i++){
-      for(int j=0; j<nx+1; j++){
-        for(int k=0;k<3;k++){
-          bd_iu[i*(nx+1)*(ny+1)+tmp+j][k] = 0;
-          bd_u[i*(nx+1)*(ny+1)+tmp+j][k]  = value[k];
-        }
-      }
-    }
-  }else if(bdType=="p"){
-    double value;
-    label = base_label + "/top/value";
-    if ( !tp.getInspectedValue(label,value)){
-      cout << label << " is not set" << endl;
-      exit(0);
-    }
-    int tmp = (nx+1)*ny;
-    for(int i=0;i<nz+1;i++){
-      for(int j=0; j<nx+1; j++){
-        bd_ip[i*(nx+1)*(ny+1)+tmp+j] = 0;
-        bd_p[i*(nx+1)*(ny+1)+tmp+j] = value;
-      }
-    }
-  }else if(bdType=="free"){
-  }else{
-    cout << bdType << " is undefined. Exit..." << endl;
-  }
 
   
   label = base_label + "/front/type";
@@ -405,5 +414,6 @@ void FEM::readInput(){
     }
   }
   fclose(fp);
+  
 
 }

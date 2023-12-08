@@ -28,16 +28,18 @@ void FEM::postCaluculation(){
   export_vti_result_2D(vtiFile,u,v,p);
 
 
-  double Q1 = 0e0;
-  double Q2 = 0e0;
+  double QINLET = 0e0;
+  double QHALF = 0e0;
+  double QOUTLET = 0e0;
 
   for(kk=0; kk<nz+1; kk++){
     for(ii=0; ii<nx+1; ii++){
-      Q1 += v[kk*(nx+1)*(ny+1)+ii]*dx*dy;
-      Q2 += v[kk*(nx+1)*(ny+1)+(nx+1)*(ny)+ii]*dx*dy;
+      QINLET += v[kk*(nx+1)*(ny+1)+ii]*dx*dz;
+      QHALF += v[kk*(nx+1)*(ny+1)+(nx+1)*(ny/2)+ii]*dx*dz;
+      QOUTLET += v[kk*(nx+1)*(ny+1)+(nx+1)*(ny)+ii]*dx*dz;
     }
   }
 
-  printf("Q1 = %lf Q2 = %lf \n", Q1,Q2);
+  printf("QINLET = %lf QHALF = %lf QOUTLET = %lf \n", QINLET,QHALF,QOUTLET);
 
 }
