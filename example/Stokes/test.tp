@@ -1,20 +1,29 @@
 //Domain
 //{
 //  nx=(32,32,32)  //element size
-//  Lx=(1e2,1e2,1e2)  //domain size
-//  image = "INPUT/square/image32x32x32.dat"
-//  imageEX = "INPUT/square/image32x32x32_around.dat"
-//  sdf = "INPUT/square/sdf32x32x32.dat"
+//  Lx=(1e0,1e0,1e0)  //domain size
+//  image = "INPUT/square/image128x128x128.dat" 
+//  imageEX = "INPUT/square/image128x128x128_around.dat"
+//  sdf = "INPUT/square/sdf128x128x128.dat"
 //}
 
 Domain
 {
-  nx=(32,32,32)  //element size
-  Lx=(1e2,1e2,1e2)  //domain size
-  image = "INPUT/straightTube/image32x32x32.dat"
-  imageEX = "INPUT/straightTube/image32x32x32_around.dat"
-  sdf = "INPUT/straightTube/sdf32x32x32.dat"
+  nx=(64,128,64)  //element size
+  Lx=(1e0,2e0,1e0)  //domain size
+  image = "INPUT/straightTube/image64x128x64.dat"
+  imageEX = "INPUT/straightTube/image64x128x64_around.dat"
+  sdf = "INPUT/straightTube/sdf64x128x64.dat"
 }
+
+//Domain
+//{
+//  nx=(4,8,4)  //element size
+//  Lx=(1e2,2e2,1e2)  //domain size
+//  image = "INPUT/straightTube/image4x8x4_rectangle.dat"
+//  imageEX = "INPUT/straightTube/image4x8x4_rectangle.dat"
+//  sdf = "INPUT/straightTube/sdf4x8x4_rectangle.dat"
+//}
 
 Boundary
 {
@@ -45,5 +54,8 @@ back{
 
 Parameter
 {
-  mu = 1e0
+  mu = 0.0035
+  OMPnumThreads = 1
 }
+
+

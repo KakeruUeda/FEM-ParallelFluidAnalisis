@@ -6,19 +6,31 @@ void FEM::postCaluculation(){
 
   int ii, kk, nn, mm;
 
+  vector<double> uFluid(numOfNodeGlobalFluid,0);
+  vector<double> vFluid(numOfNodeGlobalFluid,0);
+  vector<double> wFluid(numOfNodeGlobalFluid,0);
+  vector<double> pFluid(numOfNodeGlobalFluid,0);
+
   vector<double> u(numOfNodeGlobal,0);
   vector<double> v(numOfNodeGlobal,0);
   vector<double> w(numOfNodeGlobal,0);
   vector<double> p(numOfNodeGlobal,0);
 
-  for(ii=0; ii<numOfNodeGlobal; ii++){
-      nn = nodeMap[ii];
-      mm = nn*numOfDofsNode;
-      u[ii] = SolnData.soln[mm];
-      v[ii] = SolnData.soln[mm+1];
-      w[ii] = SolnData.soln[mm+2];
-      p[ii] = SolnData.soln[mm+3];
+
+  for(ii=0; ii<numOfNodeGlobalFluid; ii++){
+    nn = nodeMapFluid[ii];
+    mm = nn*numOfDofsNode;
+    uFluid[ii] = SolnDataFluid.soln[mm];
+    vFluid[ii] = SolnDataFluid.soln[mm+1];
+    wFluid[ii] = SolnDataFluid.soln[mm+2];
+    pFluid[ii] = SolnDataFluid.soln[mm+3];
+
+    u[sortNode[ii]] = uFluid[ii];
+    v[sortNode[ii]] = vFluid[ii];
+    w[sortNode[ii]] = wFluid[ii];   
+    p[sortNode[ii]] = pFluid[ii];
   }
+
         
   string vtiFile;
   vtiFile = "resutls.vti";
@@ -28,16 +40,18 @@ void FEM::postCaluculation(){
   export_vti_result_2D(vtiFile,u,v,p);
 
 
-  double Q1 = 0e0;
-  double Q2 = 0e0;
+  double QINLET = 0e0;
+  double QHALF = 0e0;
+  double QOUTLET = 0e0;
 
   for(kk=0; kk<nz+1; kk++){
     for(ii=0; ii<nx+1; ii++){
-      Q1 += v[kk*(nx+1)*(ny+1)+ii]*dx*dy;
-      Q2 += v[kk*(nx+1)*(ny+1)+(nx+1)*(ny)+ii]*dx*dy;
+      QINLET += v[kk*(nx+1)*(ny+1)+ii]*dx*dz;
+      QHALF += v[kk*(nx+1)*(ny+1)+(nx+1)*(ny/2)+ii]*dx*dz;
+      QOUTLET += v[kk*(nx+1)*(ny+1)+(nx+1)*(ny)+ii]*dx*dz;
     }
   }
 
-  printf("Q1 = %lf Q2 = %lf \n", Q1,Q2);
+  printf("QINLET = %lf QHALF = %lf QOUTLET = %lf \n", QINLET,QHALF,QOUTLET);
 
 }

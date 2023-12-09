@@ -5,9 +5,9 @@
 int main(void){
 
   int nx,ny,nz;
-  nx = 16,ny=16,nz=32;
+  nx = 4,ny=8,nz=4;
   double Lx,Ly,Lz;
-  Lx = 1e0; Ly = 1e0; Lz=2e0;
+  Lx = 1e0; Ly = 2e0; Lz=1e0;
   double dx,dy,dz;
   dx = Lx/(double)nx;
   dy = Ly/(double)ny;
@@ -19,11 +19,20 @@ int main(void){
   double value;
 
   FILE *fp; 
-  fp=fopen("image32x32x32.dat","w");
-    for(int k=0; k<nz; k++){
+  fp=fopen("image4x8x4.dat","w");
+  for(int k=0; k<nz; k++){
     for(int j=0;j<ny;j++){
       for(int i=0;i<nx;i++){
-        value = 1;
+        if(k>=1 && k<=2){
+          if(i>=1 && i<=2){
+            value = 1;
+          }else{
+            value = 0;
+          }
+        }else{
+          value = 0;
+        }
+
         fprintf(fp,"%d %d %d %e\n",i,j,k,value);
       }
     }
@@ -39,7 +48,7 @@ int main(void){
     }
   }
 
-  fp=fopen("sdf32x32x32.dat","w");
+  fp=fopen("sdf4x8x4.dat","w");
   for(int k=0; k<nz; k++){
     for(int j=0; j<ny; j++){
       for(int i=0; i<nx; i++){

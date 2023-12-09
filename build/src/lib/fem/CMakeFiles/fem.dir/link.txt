@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libfem.a CMakeFiles/fem.dir/FEM.cpp.o CMakeFiles/fem.dir/BaseFEM.cpp.o CMakeFiles/fem.dir/InitializeFEM.cpp.o CMakeFiles/fem.dir/DomainFEM.cpp.o CMakeFiles/fem.dir/MathFEM.cpp.o CMakeFiles/fem.dir/SolutionData.cpp.o CMakeFiles/fem.dir/ElementBaseFEM.cpp.o CMakeFiles/fem.dir/ReadlnputFile.cpp.o CMakeFiles/fem.dir/PrepareMatrix.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libfem.a

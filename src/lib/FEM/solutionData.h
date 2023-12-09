@@ -31,6 +31,9 @@ class  SolutionData
     VectorXd  td;
 
     vector<int>  nodeMapPrev, nodeMap;
+    
+    /// ONLY FLUID ///
+    vector<int>  nodeMapPrevFluid, nodeMapFluid;
 
     SolutionData();
     ~SolutionData(){}

@@ -7,45 +7,46 @@ void FEM::prepareMatrix(){
   int  r, ii, jj, ee, kk, nsize;
   int  *tt, nnz_max_row;
   int  count_diag, count_offdiag, tempInt;
-  
-  nodeMapPrev.resize(numOfNodeGlobal, 0);
-  nodeMap.resize(numOfNodeGlobal, 0);
-  nodeId.resize(numOfNodeGlobal, 0);
+
+  nodeMapPrevFluid.resize(numOfNodeGlobalFluid, 0);
+  nodeMapFluid.resize(numOfNodeGlobalFluid, 0);
+  nodeIdFluid.resize(numOfNodeGlobalFluid, 0);
 
   vector<bool>  vecBoolTempFalse(numOfDofsNode, false);
-  nodeTypePrev.resize(numOfNodeGlobal, vecBoolTempFalse);
-  nodeType.resize(numOfNodeGlobal, vecBoolTempFalse);
+  nodeTypePrevFluid.resize(numOfNodeGlobalFluid, vecBoolTempFalse);
+  nodeTypeFluid.resize(numOfNodeGlobalFluid, vecBoolTempFalse);
 
   vector<int>  vecIntTempM1(numOfDofsNode, -1);
-  nodeDofArrayBCsPrev.resize(numOfNodeGlobal, vecIntTempM1);
-  nodeDofArrayPrev.resize(numOfNodeGlobal, vecIntTempM1);
-  nodeDofArrayBCs.resize(numOfNodeGlobal, vecIntTempM1);
-  nodeDofArray.resize(numOfNodeGlobal, vecIntTempM1);
+  nodeDofArrayBCsPrevFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
+  nodeDofArrayPrevFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
+  nodeDofArrayBCsFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
+  nodeDofArrayFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
   
-  for(ii=0; ii<numOfBdNode; ii++){
-    nodeTypePrev[DirichletBCs_tmp[ii][0]][DirichletBCs_tmp[ii][1]] = true;
+  for(ii=0; ii<numOfBdNodeFluid; ii++){
+    nodeTypePrevFluid[DirichletBCsFluid_tmp[ii][0]][DirichletBCsFluid_tmp[ii][1]] = true;
   }
 
-  numOfDofsGlobal = 0;
-  for(int ii=0;ii<numOfNodeGlobal;++ii){
+  numOfDofsGlobalFluid = 0;
+  for(int ii=0;ii<numOfNodeGlobalFluid;++ii){
     for(int jj=0;jj<numOfDofsNode;++jj){
-        nodeDofArrayPrev[ii][jj] = numOfDofsGlobal;
-        nodeDofArrayBCsPrev[ii][jj] = numOfDofsGlobal++;
-      if(nodeTypePrev[ii][jj]){
-        nodeDofArrayBCsPrev[ii][jj] = -1;
+        nodeDofArrayPrevFluid[ii][jj] = numOfDofsGlobalFluid;
+        nodeDofArrayBCsPrevFluid[ii][jj] = numOfDofsGlobalFluid++;
+      if(nodeTypePrevFluid[ii][jj]){
+        nodeDofArrayBCsPrevFluid[ii][jj] = -1;
       }
     }
   }
 
+
   if(myId == 0)
   {
     cout << " Mesh statistics .....\n" << endl;
-    cout << " numOfElmGlobal   = " << '\t' << numOfElmGlobal << endl;
-    cout << " numOfNodeGlobal  = " << '\t' << numOfNodeGlobal  << endl;
+    cout << " numOfElmGlobalFluid   = " << '\t' << numOfElmGlobalFluid << endl;
+    cout << " numOfNodeGlobalFluid  = " << '\t' << numOfNodeGlobalFluid << endl;
     cout << " numOfNodeInElm   = " << '\t' << numOfNodeInElm << endl;
     cout << " numOfDofsNode             = " << '\t' << numOfDofsNode << endl;
-    cout << " numOfDofsLocal   = " << '\t' << numOfDofsLocal  << endl;
-    cout << " numOfDofsGlobal  = " << '\t' << numOfDofsGlobal << endl;
+    cout << " numOfDofsLocalFluid   = " << '\t' << numOfDofsLocalFluid  << endl;
+    cout << " numOfDofsGlobalFluid  = " << '\t' << numOfDofsGlobalFluid << endl;
     cout << " numOfId      = " << '\t' << numOfId << endl;
   }
 
@@ -54,164 +55,163 @@ void FEM::prepareMatrix(){
     elem_start = 0;
     elem_end   = numOfElmGlobal-1;
    
-    numOfElmLocal = numOfElmGlobal;
-    numOfNodeLocal = numOfNodeGlobal;
-    numOfDofsLocal  = numOfDofsGlobal;
+    numOfElmLocalFluid = numOfElmGlobalFluid;
+    numOfNodeLocalFluid = numOfNodeGlobalFluid;
+    numOfDofsLocalFluid  = numOfDofsGlobalFluid;
    
     row_start = 0;
-    row_end   = numOfDofsGlobal-1;
+    row_end   = numOfDofsGlobalFluid-1;
    
-    for(ii=0; ii<numOfNodeGlobal; ii++)
+    for(ii=0; ii<numOfNodeGlobalFluid; ii++)
     {
-      nodeMapPrev[ii] = ii;
-      nodeMap[ii] = ii;
+      nodeMapPrevFluid[ii] = ii;
+      nodeMapFluid[ii] = ii;
     }
 
-    for(ee=0; ee<numOfElmGlobal; ee++){
-      elm[ee]->nodeNumsPrev = element[ee];
-      elm[ee]->nodeNums = element[ee];
-      element[ee].clear();
+    for(ee=0; ee<numOfElmGlobalFluid; ee++){
+      elmFluid[ee]->nodeNumsPrevFluid = elementFluid[ee];
+      elmFluid[ee]->nodeNumsFluid = elementFluid[ee];
+      elementFluid[ee].clear();
     }
-    element.clear();
+    elementFluid.clear();
    
-    for(ii=0;ii<numOfNodeGlobal;++ii)
+    for(ii=0;ii<numOfNodeGlobalFluid;++ii)
     {
-      nodeType[ii] = nodeTypePrev[ii];
-      nodeDofArray[ii] = nodeDofArrayPrev[ii];
-      nodeDofArrayBCs[ii] = nodeDofArrayBCsPrev[ii];
+      nodeTypeFluid[ii] = nodeTypePrevFluid[ii];
+      nodeDofArrayFluid[ii] = nodeDofArrayPrevFluid[ii];
+      nodeDofArrayBCsFluid[ii] = nodeDofArrayBCsPrevFluid[ii];
     }
   }else{
-    PetscPrintf(MPI_COMM_WORLD, "\n\n    Before partitionMesh ... \n\n");
+    PetscPrintf(MPI_COMM_WORLD, "\n Mesh division start \n");
     divideMesh();
-    PetscPrintf(MPI_COMM_WORLD, "\n    After partitionMesh ... \n\n"); 
-  
+    PetscPrintf(MPI_COMM_WORLD, "\n Mesh division end \n");
     MPI_Barrier(MPI_COMM_WORLD);
-  
-    PetscPrintf(MPI_COMM_WORLD, "\n\n    Before prepareDataForParallel ... \n\n");
+
+    PetscPrintf(MPI_COMM_WORLD, "\n Parallel preparation start \n\n");
     prepareForParallel();
-    PetscPrintf(MPI_COMM_WORLD, "\n    After prepareDataForParallel ... \n\n");
-    
+    PetscPrintf(MPI_COMM_WORLD, "\n Parallel preparation end \n");
     MPI_Barrier(MPI_COMM_WORLD);
   }
-    
-  SolnData.nodeMapPrev = nodeMapPrev;
-  SolnData.nodeMap = nodeMap;
+  
+ /// FLUID ONLY ///
+  SolnDataFluid.nodeMapPrevFluid = nodeMapPrevFluid;
+  SolnDataFluid.nodeMapFluid = nodeMapFluid;
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
-  for(ee=0; ee<numOfElmGlobal; ee++){
-    if(elm[ee]->getSubdomainId() == myId){
+  for(ee=0; ee<numOfElmGlobalFluid; ee++){
+    if(elmFluid[ee]->getSubdomainId() == myId){
 
       nsize = numOfDofsNode*numOfNodeInElm;
-      elm[ee]->prepareElemData(nsize);
-      numOfNodeInElm = elm[ee]->nodeNums.size();
+      elmFluid[ee]->prepareElemData(nsize);
+      numOfNodeInElm = elmFluid[ee]->nodeNumsFluid.size();
 
-      elm[ee]->nodeForAssyBCs.resize(nsize);
-      elm[ee]->nodeForAssy.resize(nsize);
+      elmFluid[ee]->nodeForAssyBCsFluid.resize(nsize);
+      elmFluid[ee]->nodeForAssyFluid.resize(nsize);
       for(ii=0; ii<numOfNodeInElm; ++ii){
         jpn = numOfDofsNode *ii;
-        kk = elm[ee]->nodeNums[ii];
+        kk = elmFluid[ee]->nodeNumsFluid[ii];
         for(jj=0;jj<numOfDofsNode ;++jj){
-          elm[ee]->nodeForAssyBCs[jpn+jj] = nodeDofArrayBCs[kk][jj];
-          elm[ee]->nodeForAssy[jpn+jj] =  nodeDofArray[kk][jj];
+          elmFluid[ee]->nodeForAssyBCsFluid[jpn+jj] = nodeDofArrayBCsFluid[kk][jj];
+          elmFluid[ee]->nodeForAssyFluid[jpn+jj] =  nodeDofArrayFluid[kk][jj];
         }
       }
     }
   }   
+  /*
   if(myId == 0){
-    ofstream Assy("nodeForAssy0.dat"); 
-    for(int ic=0; ic<numOfElmGlobal; ic++){
-      int size = elm[ic]->nodeForAssyBCs.size();
+    ofstream Assy("nodeForAssyFluid0.dat"); 
+    for(int ic=0; ic<numOfElmGlobalFluid; ic++){
+      int size = elmFluid[ic]->nodeForAssyBCsFluid.size();
       for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy << " ";
-        Assy << elm[ic]->nodeForAssy[ii] << " ";
+        Assy << elmFluid[ic]->nodeForAssyFluid[ii] << " ";
       } 
       Assy << endl;
     }
     Assy.close();
   }
   if(myId == 1){
-    ofstream Assy1("nodeForAssy1.dat"); 
-    for(int ic=0; ic<numOfElmGlobal; ic++){
-      int size = elm[ic]->nodeForAssyBCs.size();
+    ofstream Assy1("nodeForAssyFluid1.dat"); 
+    for(int ic=0; ic<numOfElmGlobalFluid; ic++){
+      int size = elmFluid[ic]->nodeForAssyBCsFluid.size();
       for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy1 << " ";
-        Assy1 << elm[ic]->nodeForAssy[ii] << " ";
+        Assy1 << elmFluid[ic]->nodeForAssyFluid[ii] << " ";
       } 
       Assy1 << endl;
     }
     Assy1.close();
   }
+  */
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
-  assyForSoln.resize(numOfDofsGlobal);
+  assyForSolnFluid.resize(numOfDofsGlobalFluid);
   jpn = 0;
-  for(ii=0;ii<numOfNodeGlobal;++ii)
+  for(ii=0; ii<numOfNodeGlobalFluid; ii++)
   {
-    for(jj=0;jj<numOfDofsNode ;++jj)
+    for(jj=0; jj<numOfDofsNode; jj++)
     {
-      assyForSoln[jpn++] = ii*numOfDofsNode+jj;
+      assyForSolnFluid[jpn++] = ii*numOfDofsNode+jj;
     }
   }
-
-  PetscPrintf(MPI_COMM_WORLD, "\n\n Element DOF values initialised \n\n");
+  PetscPrintf(MPI_COMM_WORLD, "\n");
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
-  cout << " Total DOF   = " << '\t' << numOfDofsLocal << '\t' << numOfDofsGlobal << endl;
-
-  vector<set<int> > forAssyMat;
+  printf(" numOfDofsLocalFluid = %5d \t numOfDofsGlobalFluid = %5d \t myId = %5d \n",numOfDofsLocalFluid, numOfDofsGlobalFluid, myId);
+  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
+  
+  vector<set<int>> forAssyMatFluid;
   set<int>::iterator it;
 
-  forAssyMat.resize(numOfDofsGlobal);
+  forAssyMatFluid.resize(numOfDofsGlobalFluid);
 
-  for(ee=0; ee<numOfElmGlobal; ee++)
+  for(ee=0; ee<numOfElmGlobalFluid; ee++)
   {
-    if(elm[ee]->getSubdomainId() == myId)
+    if(elmFluid[ee]->getSubdomainId() == myId)
     {
-      tt = &(elm[ee]->nodeForAssy[0]);
-      nsize = elm[ee]->nodeForAssy.size();
+      tt = &(elmFluid[ee]->nodeForAssyFluid[0]);
+      nsize = elmFluid[ee]->nodeForAssyFluid.size();
 
       for(ii=0;ii<nsize;ii++)
       {
-          r = tt[ii];
+        r = tt[ii];
 
-          if(r != -1)
+        if(r != -1)
+        {
+          if(r >= row_start && r <= row_end)
           {
-            if(r >= row_start && r <= row_end)
+          for(jj=0;jj<nsize;jj++)
             {
-            for(jj=0;jj<nsize;jj++)
+              if(tt[jj] != -1)
               {
-                if(tt[jj] != -1)
-                {
-                  forAssyMat[r].insert(tt[jj]);
-                }
+                forAssyMatFluid[r].insert(tt[jj]);
               }
             }
           }
+        }
       }
     }
   }
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n\n Preparing matrix pattern DONE \n\n");
-
 
   PetscInt  *diag_nnz, *offdiag_nnz;
 
-  errpetsc  = PetscMalloc1(numOfDofsLocal,  &diag_nnz);
-  errpetsc  = PetscMalloc1(numOfDofsLocal,  &offdiag_nnz);
+  errpetsc  = PetscMalloc1(numOfDofsLocalFluid,  &diag_nnz);
+  errpetsc  = PetscMalloc1(numOfDofsLocalFluid,  &offdiag_nnz);
 
 
   kk = 0;
   nnz_max_row = 0;
   for(ii=row_start; ii<=row_end; ii++)
   {
-    size1 = forAssyMat[ii].size();
+    size1 = forAssyMatFluid[ii].size();
 
     nnz_max_row = max(nnz_max_row, size1);
 
     count_diag=0, count_offdiag=0;
-    for(it=forAssyMat[ii].begin(); it!=forAssyMat[ii].end(); ++it)
+    for(it=forAssyMatFluid[ii].begin(); it!=forAssyMatFluid[ii].end(); ++it)
     {
       tempInt = *it;
 
@@ -226,13 +226,13 @@ void FEM::prepareMatrix(){
   }
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n\n Initialising petsc solver \n\n");
+  
+  PetscPrintf(MPI_COMM_WORLD, "\n Petsc solver initialize start\n");
+  solverPetscFluid->initialise(numOfDofsLocalFluid, numOfDofsGlobalFluid, diag_nnz, offdiag_nnz, nnz_max_row);
+  PetscPrintf(MPI_COMM_WORLD, " Petsc solver initialize done\n\n");
 
-  solverPetsc->initialise(numOfDofsLocal, numOfDofsGlobal, diag_nnz, offdiag_nnz);
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-
-  PetscPrintf(MPI_COMM_WORLD, " Initialise the Matrix pattern \n", errpetsc);
-
+  
   jpn = numOfNodeInElm*numOfDofsNode;
   jpn = jpn*jpn;
   PetscScalar  Klocal[jpn];
@@ -240,20 +240,20 @@ void FEM::prepareMatrix(){
   MatrixXd Klocal_tmp(numOfNodeInElm*numOfDofsNode,numOfNodeInElm*numOfDofsNode);
 
   vector<int>  vecIntTemp;
-  for(ee=0; ee<numOfElmGlobal; ee++)
+  for(ee=0; ee<numOfElmGlobalFluid; ee++)
   {  
     for(ii=0; ii<jpn; ii++)  Klocal[ii] = 0.0;
-    if(elm[ee]->getSubdomainId() == myId)
+    if(elmFluid[ee]->getSubdomainId() == myId)
     {
-      size1 = elm[ee]->nodeForAssyBCs.size();
-      vecIntTemp = elm[ee]->nodeForAssy;
+      size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
+      vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
       for(ii=0; ii<size1; ii++){
-        if(elm[ee]->nodeForAssyBCs[ii] == -1){
+        if(elmFluid[ee]->nodeForAssyBCsFluid[ii] == -1){
           Klocal[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
         }
       }
       //MatrixXdRM Klocal2_tmp = Klocal_tmp;
-      errpetsc = MatSetValues(solverPetsc->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
+      errpetsc = MatSetValues(solverPetscFluid->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
     }
   }
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
@@ -304,32 +304,35 @@ void FEM::prepareMatrix(){
     Assy1.close();
   }
   */
+
   
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
-  solverPetsc->currentStatus = PATTERN_OK;
+  solverPetscFluid->currentStatus = PATTERN_OK;
 
   PetscFree(diag_nnz); 
   PetscFree(offdiag_nnz);  
 
   //TODO: use vector<T>().swap[x) to empty the vector and also deallocate the memory
-  for(ii=0; ii<nodeDofArrayBCs.size(); ii++)
+  for(ii=0; ii<nodeDofArrayBCsFluid.size(); ii++)
   {
-    nodeDofArrayBCsPrev[ii].clear();
-    nodeDofArrayBCs[ii].clear();
-    nodeDofArrayPrev[ii].clear();
-    nodeDofArray[ii].clear();
+    nodeDofArrayBCsPrevFluid[ii].clear();
+    nodeDofArrayBCsFluid[ii].clear();
+    nodeDofArrayPrevFluid[ii].clear();
+    nodeDofArrayFluid[ii].clear();
   }
-  nodeDofArrayBCsPrev.clear();
-  nodeDofArrayBCs.clear();
-  nodeDofArrayPrev.clear();
-  nodeDofArray.clear();
+  nodeDofArrayBCsPrevFluid.clear();
+  nodeDofArrayBCsFluid.clear();
+  nodeDofArrayPrevFluid.clear();
+  nodeDofArrayFluid.clear();
+
 }
 
 int FEM::divideMesh()
 {
 
   vector<int>  elmId(numOfElmGlobal, 0);
+  vector<int>  elmIdFluid(numOfElmGlobalFluid, 0);
 
   if(myId == 0)
   {
@@ -344,18 +347,18 @@ int FEM::divideMesh()
 
     PetscInt  *eptr, *eind;
 
-    errpetsc  = PetscMalloc1(numOfElmGlobal+1,  &eptr);CHKERRQ(errpetsc);
-    errpetsc  = PetscMalloc1(numOfElmGlobal*numOfNodeInElm,  &eind);CHKERRQ(errpetsc);
+    errpetsc  = PetscMalloc1(numOfElmGlobalFluid+1,  &eptr);CHKERRQ(errpetsc);
+    errpetsc  = PetscMalloc1(numOfElmGlobalFluid*numOfNodeInElm,  &eind);CHKERRQ(errpetsc);
 
     vector<int>  vecTemp2;
 
     eptr[0] = 0;
     kk = 0;
-    for(ee=0; ee<numOfElmGlobal; ee++)
+    for(ee=0; ee<numOfElmGlobalFluid; ee++)
     {
       eptr[ee+1] = (ee+1)*numOfNodeInElm;
       //vecTemp2 = elems[ee]->nodeNums ;
-      vecTemp2 = element[ee];
+      vecTemp2 = elementFluid[ee];
       //printVector(vecTemp2);
       for(ii=0; ii<numOfNodeInElm; ii++)
         eind[kk+ii] = vecTemp2[ii] ;
@@ -382,10 +385,8 @@ int FEM::divideMesh()
 
     options[METIS_OPTION_NUMBERING] = 0;  // C-style numbering is assumed that starts from 0.
 
-    cout << " Executing METIS subroutine " << endl;
-
     // METIS partition routine
-    int ret = METIS_PartMeshDual(&numOfElmGlobal, &numOfNodeGlobal, eptr, eind, NULL, NULL, &ncommon_nodes, &nparts, NULL, options, &objval, &elmId[0], &nodeId[0]);
+    int ret = METIS_PartMeshDual(&numOfElmGlobalFluid, &numOfNodeGlobalFluid, eptr, eind, NULL, NULL, &ncommon_nodes, &nparts, NULL, options, &objval, &elmIdFluid[0], &nodeIdFluid[0]);
 
     if(ret == METIS_OK)
       cout << " METIS partition routine successful "  << endl;
@@ -396,12 +397,29 @@ int FEM::divideMesh()
     errpetsc = PetscFree(eind); CHKERRQ(errpetsc);
     
     /// check ///
+    int tmp=0;
+    for(int ii=0; ii<numOfElmGlobal; ii++){
+      if(phi[ii]<1e-12){
+        elmId[ii] = -1;
+      }else{
+        elmId[ii] = elmIdFluid[tmp++];
+      }
+    }
+    nodeId.resize(numOfNodeGlobal,-1);
+    
+    int n1; 
+    for(int ii=0; ii<numOfNodeGlobalFluid; ii++){
+      n1 = nodeIdFluid[ii];
+      nodeId[sortNode[ii]] = n1;
+    }
+
     string vtiFile;
     vtiFile = "check_MeshPartition.vti";
     export_vti(vtiFile, nodeId, elmId);
   }
+  /**** prev
   MPI_Barrier(MPI_COMM_WORLD);
-
+  exit(1);
   errpetsc = MPI_Bcast(&elmId[0], numOfElmGlobal, MPI_INT, 0, MPI_COMM_WORLD); CHKERRQ(errpetsc);
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -413,7 +431,7 @@ int FEM::divideMesh()
     elm[ee]->setSubdomainId(elmId[ee]);
   }
 
-  /*
+  
   if(myId == 0){
     ofstream getsubdomain("getSubDomainId.dat");
     for(int ee=0; ee<numOfElmGlobal; ee++){
@@ -421,13 +439,32 @@ int FEM::divideMesh()
     }
     getsubdomain.close();
   }
-  */
 
   MPI_Barrier(MPI_COMM_WORLD);
   numOfElmLocal = count(elmId.begin(), elmId.end(), myId);
   cout << " nunOfElmLocal =  " << numOfElmLocal << '\t' << myId << '\t' << numOfId << endl;
   
   MPI_Barrier(MPI_COMM_WORLD);
+  */
+  MPI_Barrier(MPI_COMM_WORLD);
+  errpetsc = MPI_Bcast(&elmIdFluid[0], numOfElmGlobalFluid, MPI_INT, 0, MPI_COMM_WORLD); CHKERRQ(errpetsc);
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  errpetsc = MPI_Bcast(&nodeIdFluid[0], numOfNodeGlobalFluid, MPI_INT, 0, MPI_COMM_WORLD); CHKERRQ(errpetsc);
+  MPI_Barrier(MPI_COMM_WORLD);
+  
+  for(int ee=0; ee<numOfElmGlobalFluid; ee++)
+  {
+    elmFluid[ee]->setSubdomainId(elmIdFluid[ee]);
+  }
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  numOfElmLocal = count(elmIdFluid.begin(), elmIdFluid.end(), myId);
+  cout << " nunOfElmLocalFluid =  " << numOfElmLocalFluid << '\t' << myId << '\t' << numOfId << endl;
+  
+  MPI_Barrier(MPI_COMM_WORLD);
+
+
   
   return 0;
 }
@@ -436,167 +473,166 @@ int FEM::divideMesh()
 int FEM::prepareForParallel()
 {
 
-  int numOfSubDomain = numOfId;
-  int subdomain=0;
-  int ee, ii, jj, kk, n1, n2, jpn;
+ int numOfSubDomain = numOfId;
+ int subdomain=0;
+ int ee, ii, jj, kk, n1, n2, jpn;
 
-  nNode_owned = count(nodeId.begin(), nodeId.end(), myId);
-  cout << " nNode_owned =  " << nNode_owned << '\t' << myId << '\t' << numOfId << endl;
+ nNode_owned = count(nodeIdFluid.begin(), nodeIdFluid.end(), myId);
+ printf(" nNode_owned =  %5d \t numOfId = %5d \t myId = %5d \n",node_start, numOfId, myId);
 
-  MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n"); 
-  MPI_Barrier(MPI_COMM_WORLD);
+ MPI_Barrier(MPI_COMM_WORLD);
+ PetscPrintf(MPI_COMM_WORLD, "\n"); 
+ MPI_Barrier(MPI_COMM_WORLD);
 
-  vector<int>  nodelist_owned(nNode_owned);
+ vector<int>  nodelist_owned(nNode_owned);
 
-  kk=0;
-  for(ii=0; ii<numOfNodeGlobal; ii++)
-    {
-      if( nodeId[ii] == myId )
-      {
-        nodelist_owned[kk++] = ii;
-      }
-    }
+ kk=0;
+ for(ii=0; ii<numOfNodeGlobalFluid; ii++)
+   {
+     if( nodeIdFluid[ii] == myId )
+     {
+       nodelist_owned[kk++] = ii;
+     }
+   }
 
-  MPI_Barrier(MPI_COMM_WORLD);
+ MPI_Barrier(MPI_COMM_WORLD);
 
-  vector<int>  nNode_owned_vector(numOfId), nNode_owned_sum(numOfId);
+ vector<int>  nNode_owned_vector(numOfId), nNode_owned_sum(numOfId);
 
-  MPI_Allgather(&nNode_owned, 1, MPI_INT, &nNode_owned_vector[0], 1, MPI_INT, MPI_COMM_WORLD);
+ MPI_Allgather(&nNode_owned, 1, MPI_INT, &nNode_owned_vector[0], 1, MPI_INT, MPI_COMM_WORLD);
 
-  nNode_owned_sum = nNode_owned_vector;
-  for(ii=1; ii<numOfId; ii++)
-  {
-    nNode_owned_sum[ii] += nNode_owned_sum[ii-1];
-  }
+ nNode_owned_sum = nNode_owned_vector;
+ for(ii=1; ii<numOfId; ii++)
+ {
+   nNode_owned_sum[ii] += nNode_owned_sum[ii-1];
+ }
 
-  node_start = 0;
-  if(myId > 0) node_start = nNode_owned_sum[myId-1];
-  node_end   = nNode_owned_sum[myId]-1;
+ node_start = 0;
+ if(myId > 0) node_start = nNode_owned_sum[myId-1];
+ node_end   = nNode_owned_sum[myId]-1;
 
-  cout << " node_start =  " << node_start << '\t' << node_end << '\t' << myId << endl;
-  
-  MPI_Barrier(MPI_COMM_WORLD);
+ printf(" node_start = %5d \t node_end = %5d \t myId = %5d \n",node_start, node_end, myId);
+ 
+ MPI_Barrier(MPI_COMM_WORLD);
 
-  vector<int>  displs(numOfId);
+ vector<int>  displs(numOfId);
 
-  displs[0] = 0;
-  for(ii=0; ii<numOfId-1; ii++) displs[ii+1] = displs[ii] + nNode_owned_vector[ii];
+ displs[0] = 0;
+ for(ii=0; ii<numOfId-1; ii++) displs[ii+1] = displs[ii] + nNode_owned_vector[ii];
 
-  errpetsc = MPI_Allgatherv(&nodelist_owned[0], nNode_owned, MPI_INT, &nodeMapPrev[0], &nNode_owned_vector[0], &displs[0], MPI_INT, MPI_COMM_WORLD);
+ errpetsc = MPI_Allgatherv(&nodelist_owned[0], nNode_owned, MPI_INT, &nodeMapPrevFluid[0], &nNode_owned_vector[0], &displs[0], MPI_INT, MPI_COMM_WORLD);
 
-  for(ii=0; ii<numOfNodeGlobal; ii++){
-    n1 = nodeMapPrev[ii];
-    nodeMap[n1] = ii;
-  }
-  /*
-  if(myId == 0){
-    ofstream node_map_old("nodeMapPrev.dat");
-    for(ii=0; ii<numOfNodeGlobal; ii++)
-    { 
-      node_map_old << nodeMapPrev[ii] << endl;
-    }
-    node_map_old.close();
-  }
-  */
-
-  for(ee=0; ee<numOfElmGlobal; ee++){
-
-    elm[ee]->nodeNumsPrev = element[ee];
-    
-    for(ii=0; ii<numOfNodeInElm; ii++) element[ee][ii] = nodeMap[element[ee][ii]];
-    
-    elm[ee]->nodeNums = element[ee];
-    element[ee].clear();
-  
-  }
-  element.clear();
-
-  // update Dirichlet BC information with new node numbers
-  for(ii=0; ii<numOfBdNode; ii++)
-  { 
-    n1 = nodeMap[DirichletBCs_tmp[ii][0]];
-    DirichletBCs_tmp[ii][0] = n1;
-    nodeType[n1][DirichletBCs_tmp[ii][1]] = true;
-  }
-  MPI_Barrier(MPI_COMM_WORLD);
-
-  jpn = 0;
-  for(ii=0; ii<numOfNodeGlobal; ii++)
-  {
-    for(jj=0; jj<numOfDofsNode; jj++)
-    {
-      nodeDofArray[ii][jj] = jpn;
-      nodeDofArrayBCs[ii][jj] = jpn++;
-      if(nodeType[ii][jj]){
-        nodeDofArrayBCs[ii][jj] = -1;
-      }
-    }
-  }
+ for(ii=0; ii<numOfNodeGlobalFluid; ii++){
+   n1 = nodeMapPrevFluid[ii];
+   nodeMapFluid[n1] = ii;
+ }
 
  /*
-  if(myId == 0){  
-    ofstream NodeNew("nodeDofArrayBCs.dat");
-    for(ii=0; ii<numOfNodeGlobal; ii++)
-    {
-      for(jj=0; jj<numOfDofsNode; jj++)
-      {
-        NodeNew << nodeDofArrayBCs[ii][jj] << " ";
-      }
-      NodeNew << endl;
-    }
-    NodeNew.close();
-  }
-  */
-  
-  if(jpn != numOfDofsGlobal)
-  {
-    cerr << "Something wrong with NodeDofArrayNew " << endl;
-    cout << "jpn = " << jpn << '\t' << numOfDofsGlobal << '\t' << myId << endl;
-  }
+ if(myId == 0){
+   ofstream node_map_old("nodeMapPrev.dat");
+   for(ii=0; ii<numOfNodeGlobal; ii++)
+   { 
+     node_map_old << nodeMapPrev[ii] << endl;
+   }
+   node_map_old.close();
+ }
+ */
 
-  MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n"); 
-  MPI_Barrier(MPI_COMM_WORLD);
+ for(ee=0; ee<numOfElmGlobalFluid; ee++){
 
-  // compute first and last row indices of the rows owned by the local processor
-  //row_start  =  1e9;
-  //row_end    = -1e9;
-  numOfDofsLocal = 0;
-  
-  row_start = node_start*numOfDofsNode;
-  row_end = node_end*numOfDofsNode+numOfDofsNode-1;
+   elmFluid[ee]->nodeNumsPrevFluid = elementFluid[ee];
+   
+   for(ii=0; ii<numOfNodeInElm; ii++) elementFluid[ee][ii] = nodeMapFluid[elementFluid[ee][ii]];
+   
+   elmFluid[ee]->nodeNumsFluid = elementFluid[ee];
+   elementFluid[ee].clear();
+ 
+ }
+ elementFluid.clear();
 
-  for(ii=node_start; ii<=node_end; ii++)
-  {
-    for(jj=0; jj<numOfDofsNode; jj++)
-    {
-      ////erase////
-      //if(NodeTypeNew[ii][jj] == false)
-      //{
-        //ind = NodeDofArrayNew[ii][jj];
-        //row_start  = min(row_start, ind);
-        //row_end    = max(row_end,   ind);
-        numOfDofsLocal++;
-      //}
-    }
-  }
+ // update Dirichlet BC information with new node numbers
+ for(ii=0; ii<numOfBdNodeFluid; ii++)
+ { 
+   n1 = nodeMapFluid[DirichletBCsFluid_tmp[ii][0]];
+   DirichletBCsFluid_tmp[ii][0] = n1;
+   nodeTypeFluid[n1][DirichletBCsFluid_tmp[ii][1]] = true;
+ }
+ MPI_Barrier(MPI_COMM_WORLD);
 
-  cout << " numOfDofsLocal = " << numOfDofsLocal << '\t' << numOfDofsGlobal << '\t' << myId << endl;
+ jpn = 0;
+ for(ii=0; ii<numOfNodeGlobalFluid; ii++)
+ {
+   for(jj=0; jj<numOfDofsNode; jj++)
+   {
+     nodeDofArrayFluid[ii][jj] = jpn;
+     nodeDofArrayBCsFluid[ii][jj] = jpn++;
+     if(nodeTypeFluid[ii][jj]){
+       nodeDofArrayBCsFluid[ii][jj] = -1;
+     }
+   }
+ }
 
-  cout << " row_start  = " << row_start  << '\t' << row_end  << '\t' << myId << endl;
-  MPI_Barrier(MPI_COMM_WORLD);
-  PetscPrintf(MPI_COMM_WORLD, "\n"); 
-  MPI_Barrier(MPI_COMM_WORLD);
-  //check if the sum of local problem sizes is equal to that of global problem size
-  jpn=0;
-  errpetsc = MPI_Allreduce(&numOfDofsLocal, &jpn, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+ /*
+ if(myId == 0){  
+   ofstream NodeNew("nodeDofArrayBCsFluid.dat");
+   for(ii=0; ii<numOfNodeGlobalFluid; ii++)
+   {
+     for(jj=0; jj<numOfDofsNode; jj++)
+     {
+       NodeNew << nodeDofArrayBCsFluid[ii][jj] << " ";
+     }
+     NodeNew << endl;
+   }
+   NodeNew.close();
+ }
+ */
+ 
+ if(jpn != numOfDofsGlobalFluid)
+ {
+   cerr << "Something wrong with NodeDofArrayNew " << endl;
+   cout << "jpn = " << jpn << '\t' << numOfDofsGlobalFluid << '\t' << myId << endl;
+ }
 
-  if(jpn != numOfDofsGlobal)
-  {
-    //cerr << " Sum of local problem sizes is not equal to global size" << endl;
-    cout << " jpn = " << jpn << '\t' << numOfDofsGlobal << '\t' << myId << endl;
-  }
-  return 0;
+ MPI_Barrier(MPI_COMM_WORLD);
+ PetscPrintf(MPI_COMM_WORLD, "\n");
+ 
+
+ // compute first and last row indices of the rows owned by the local processor
+ //row_start  =  1e9;
+ //row_end    = -1e9;
+ numOfDofsLocalFluid = 0;
+ 
+ row_start = node_start*numOfDofsNode;
+ row_end = node_end*numOfDofsNode+numOfDofsNode-1;
+
+ for(ii=node_start; ii<=node_end; ii++)
+ {
+   for(jj=0; jj<numOfDofsNode; jj++)
+   {
+     ////erase////
+     //if(NodeTypeNew[ii][jj] == false)
+     //{
+       //ind = NodeDofArrayNew[ii][jj];
+       //row_start  = min(row_start, ind);
+       //row_end    = max(row_end,   ind);
+       numOfDofsLocalFluid++;
+     //}
+   }
+ }
+
+ printf(" numOfDofsLocalFluid = %5d/%5d \t row_start  = %5d \t row_end  = %5d \t myId  = %5d \n", numOfDofsLocalFluid, numOfDofsGlobalFluid, row_start, row_end, myId);
+
+ MPI_Barrier(MPI_COMM_WORLD);
+
+ //check if the sum of local problem sizes is equal to that of global problem size
+ jpn=0;
+ errpetsc = MPI_Allreduce(&numOfDofsLocalFluid, &jpn, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+ if(jpn != numOfDofsGlobalFluid)
+ {
+   cerr << " Sum of local problem sizes is not equal to global size" << endl;
+   cout << " jpn = " << jpn << '\t' << numOfDofsGlobalFluid << '\t' << myId << endl;
+ }
+ return 0;
   
 }

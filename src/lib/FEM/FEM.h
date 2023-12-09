@@ -26,25 +26,47 @@ class FEM :public DomainFEM{
     int numOfDofsNode=4;
     PetscInt  numOfId, myId, nNode_owned;
     PetscInt  node_start, node_end, elem_start, elem_end;
-    PetscInt  row_start, row_end, numOfDofsLocal, numOfDofsGlobal;
+    PetscInt  row_start, row_end;
+    //PetscInt numOfDofsLocal, numOfDofsGlobal;
 
-    vector<int>  assyForSoln, OutputNodes;
-    vector<double> DirichletBCs; 
-    vector<vector<double>> DirichletBCs_tmp; 
+    //vector<int>  assyForSoln, OutputNodes;
+    //vector<double> DirichletBCs; 
+    //vector<vector<double>> DirichletBCs_tmp; 
 
-    vector<vector<int>>  nodeDofArrayBCsPrev, nodeDofArrayPrev, nodeDofArrayBCs, nodeDofArray;
-    vector<vector<bool>>  nodeTypePrev, nodeType;
+    //vector<vector<int>>  nodeDofArrayBCsPrev, nodeDofArrayPrev, nodeDofArrayBCs, nodeDofArray;
+    //vector<vector<bool>>  nodeTypePrev, nodeType;
     
-    SolutionData  SolnData;
-    ElementBaseFEM **elm;
-    PetscSolver  *solverPetsc;
+    //SolutionData  SolnData;
+    //ElementBaseFEM **elm;
+    //PetscSolver  *solverPetsc;
 
     double rho,mu,nu;
-
+  
     vector<double> phi;
     vector<double> phiEX;
     vector<double> sdf;
-  
+
+
+  ///// FLUID ONLY /////
+  public:
+    PetscInt numOfDofsLocalFluid, numOfDofsGlobalFluid;
+    vector<int>  assyForSolnFluid;
+    vector<double> DirichletBCsFluid; 
+    vector<vector<double>> DirichletBCsFluid_tmp; 
+
+    vector<vector<int>>  nodeDofArrayBCsPrevFluid, nodeDofArrayPrevFluid, nodeDofArrayBCsFluid, nodeDofArrayFluid;
+    vector<vector<bool>>  nodeTypePrevFluid, nodeTypeFluid;
+
+    SolutionData  SolnDataFluid;
+    ElementBaseFEM **elmFluid;
+    PetscSolver  *solverPetscFluid;
+    
+    vector<double> phiFluid;
+    vector<double> phiEXFluid;
+    vector<double> sdfFluid;
+
+    vector<int> sortElm, sortNode;
+
   public:
     FEM();
     ~FEM();
@@ -53,6 +75,7 @@ class FEM :public DomainFEM{
     void setDomain();
     void prepare();
     void setBoundary();
+    void setFluidDomain();
 
     void prepareMatrix();
     int divideMesh();
