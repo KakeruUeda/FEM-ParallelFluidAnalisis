@@ -169,10 +169,10 @@ void FEM::readInput(){
     }
     int tmp=0;
     for(int i=0; i<nz+1; i++){
-      for(int j=0; j<nx+1; j++){
+      for(int j=0; j<ny+1; j++){
         for(int k=0; k<3; k++){
-          bd_iu[(nx+1)*j+(nx+1)*(ny+1)*i][k] = 0;
-          bd_u[(nx+1)*j+(nx+1)*(ny+1)*i][k] = value[k];
+          bd_iu[(nx+1)*(ny+1)*i+(nx+1)*j][k] = 0;
+          bd_u[(nx+1)*(ny+1)*i+(nx+1)*j][k] = value[k];
         }
       }
     }
@@ -185,9 +185,9 @@ void FEM::readInput(){
     }
     int tmp = 0;
     for(int i=0;i<nz+1;i++){
-      for(int j=0; j<nx+1; j++){
-        bd_ip[(nx+1)*j+(nx+1)*(ny+1)*i] = 0;
-        bd_p[(nx+1)*j+(nx+1)*(ny+1)*i] = value;
+      for(int j=0; j<ny+1; j++){
+        bd_ip[(nx+1)*(ny+1)*i+(nx+1)*j] = 0;
+        bd_p[(nx+1)*(ny+1)*i+(nx+1)*j] = value;
       }
     }
   }else if(bdType=="free"){
@@ -210,10 +210,10 @@ void FEM::readInput(){
     }
     int tmp = nx;
     for(int i=0;i<nz+1;i++){
-      for(int j=0; j<nx+1; j++){
+      for(int j=0; j<ny+1; j++){
         for(int k=0;k<3;k++){
-          bd_iu[(nx+1)*j+(nx+1)*(ny+1)*i+tmp][k] = 0;
-          bd_u[(nx+1)*j+(nx+1)*(ny+1)*i+tmp][k] = value[k];
+          bd_iu[(nx+1)*(ny+1)*i+(nx+1)*j+tmp][k] = 0;
+          bd_u[(nx+1)*(ny+1)*i+(nx+1)*j+tmp][k] = value[k];
         }
       }
     }
@@ -234,9 +234,9 @@ void FEM::readInput(){
     }
     int tmp = 0;
     for(int i=0; i<nz+1;i++){
-      for(int j=0; j<nx+1; j++){
-        bd_ip[(nx+1)*j+(nx+1)*(ny+1)*i+tmp] = 0;
-        bd_p[(nx+1)*j+(nx+1)*(ny+1)*i+tmp] = value;
+      for(int j=0; j<ny+1; j++){
+        bd_ip[(nx+1)*(ny+1)*i+(nx+1)*j+tmp] = 0;
+        bd_p[(nx+1)*(ny+1)*i+(nx+1)*j+tmp] = value;
       }
     }
   }else if(bdType=="free"){
@@ -405,7 +405,7 @@ void FEM::readInput(){
       for(int i=0;i<nx+1;i++){
         int tmp1,tmp2,tmp3;
         fscanf(fp,"%d %d %d %lf\n",&tmp1,&tmp2,&tmp3,&value);
-        value = -value;
+        //value = -value;
         if(fabs(value)<1e-10) {
           value = 0e0;
         }
@@ -415,5 +415,6 @@ void FEM::readInput(){
   }
   fclose(fp);
   
+
 
 }

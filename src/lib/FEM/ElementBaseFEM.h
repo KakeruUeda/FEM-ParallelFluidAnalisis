@@ -3,12 +3,12 @@
 class ElementBaseFEM{
   public:
     int subdomainId,numOfDofsNode,numOfNodeInElm;
-    vector<int>  nodeNums,nodeNumsPrev,nodeForAssyBCs,nodeForAssy,globalDOFnums;
+    //vector<int>  nodeNums,nodeNumsPrev,nodeForAssyBCs,nodeForAssy,globalDOFnums;
 
     ElementBaseFEM();
     virtual ~ElementBaseFEM();
     
-    SolutionData  *SolnData;
+    //SolutionData  *SolnData;
 
     void  setSubdomainId(int sid)
     {  subdomainId = sid; return;  }
@@ -17,6 +17,13 @@ class ElementBaseFEM{
     {  return  subdomainId;  }
     
     void prepareElemData(const int nsize);
+
+
+    /// ONLY FLUID ///
+    vector<int>  nodeNumsFluid,nodeNumsPrevFluid,nodeForAssyBCsFluid,nodeForAssyFluid,globalDOFnumsFluid;
+
+    SolutionData  *SolnDataFluid;
+
 
   private:
 };

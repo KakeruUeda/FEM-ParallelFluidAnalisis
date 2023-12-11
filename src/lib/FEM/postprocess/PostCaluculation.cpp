@@ -6,19 +6,31 @@ void FEM::postCaluculation(){
 
   int ii, kk, nn, mm;
 
+  vector<double> uFluid(numOfNodeGlobalFluid,0);
+  vector<double> vFluid(numOfNodeGlobalFluid,0);
+  vector<double> wFluid(numOfNodeGlobalFluid,0);
+  vector<double> pFluid(numOfNodeGlobalFluid,0);
+
   vector<double> u(numOfNodeGlobal,0);
   vector<double> v(numOfNodeGlobal,0);
   vector<double> w(numOfNodeGlobal,0);
   vector<double> p(numOfNodeGlobal,0);
 
-  for(ii=0; ii<numOfNodeGlobal; ii++){
-      nn = nodeMap[ii];
-      mm = nn*numOfDofsNode;
-      u[ii] = SolnData.soln[mm];
-      v[ii] = SolnData.soln[mm+1];
-      w[ii] = SolnData.soln[mm+2];
-      p[ii] = SolnData.soln[mm+3];
+
+  for(ii=0; ii<numOfNodeGlobalFluid; ii++){
+    nn = nodeMapFluid[ii];
+    mm = nn*numOfDofsNode;
+    uFluid[ii] = SolnDataFluid.soln[mm];
+    vFluid[ii] = SolnDataFluid.soln[mm+1];
+    wFluid[ii] = SolnDataFluid.soln[mm+2];
+    pFluid[ii] = SolnDataFluid.soln[mm+3];
+
+    u[sortNode[ii]] = uFluid[ii];
+    v[sortNode[ii]] = vFluid[ii];
+    w[sortNode[ii]] = wFluid[ii];   
+    p[sortNode[ii]] = pFluid[ii];
   }
+
         
   string vtiFile;
   vtiFile = "resutls.vti";

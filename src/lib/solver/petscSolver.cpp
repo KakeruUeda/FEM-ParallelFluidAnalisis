@@ -66,7 +66,7 @@ int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int*
 
     errpetsc = MatSeqAIJSetPreallocation(mtx, nnz_max_row, NULL);
     CHKERRQ(errpetsc);
-
+    
     errpetsc = MatSetOption(mtx, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
     CHKERRQ(errpetsc);
 
@@ -150,12 +150,10 @@ int PetscSolver::solve()
 
   errpetsc = VecZeroEntries(solnVec); CHKERRQ(errpetsc);
 
-  PetscPrintf(MPI_COMM_WORLD, " Slove start \n");
 
   KSPSolve(ksp, rhsVec, solnVec); CHKERRQ(errpetsc);
 
-  PetscPrintf(MPI_COMM_WORLD, " Solve done \n\n");
-
+>>>>>>> OnlyFluid
   KSPConvergedReason reason;
   KSPGetConvergedReason(ksp, &reason);
 
@@ -165,14 +163,16 @@ int PetscSolver::solve()
 
   if(reason<0)
   {
-    PetscPrintf(MPI_COMM_WORLD, " Divergence... %d iterations. \n\n", its);
+    PetscPrintf(MPI_COMM_WORLD, "\n Divergence... %d iterations. \n", its);
+>>>>>>> OnlyFluid
     cout <<  reason << endl;
     exit(1);
     return -1;
   }
   else
   {
-    PetscPrintf(MPI_COMM_WORLD, " Convergence in %d iterations.\n\n", its);
+    PetscPrintf(MPI_COMM_WORLD, "\n Convergence in %d iterations. \n", its);
+>>>>>>> OnlyFluid
   }
 
   return 0;

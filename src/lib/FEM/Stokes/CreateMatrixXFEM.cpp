@@ -22,22 +22,30 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
-  double minSDF = dx/2;
+  double minSDF = dx;
   
   int check = 0;
   for(int i=0;i<numOfNodeInElm;i++){
-    sdf_current[i] = sdf[elm[ic]->nodeNumsPrev[i]];
+    sdf_current[i] = sdfFluid[elmFluid[ic]->nodeNumsPrevFluid[i]];
+>>>>>>> OnlyFluid
     if(sdf_current[i] <= 0e0){
       check = check +1;
     }
     if(sdf_current[i]>0e0 && sdf_current[i]<minSDF_node) minSDF_node = sdf_current[i];
     for(int j=0;j<3;j++){
-      x_current[i][j] = x[elm[ic]->nodeNumsPrev[i]][j];
+      x_current[i][j] = xFluid[elmFluid[ic]->nodeNumsPrevFluid[i]][j];
     }
   }
 
   if((minSDF_node < dx/20) && (check == 3)){
     //return;
+
+  }
+  bool flag = false;
+  if(check==8){
+    flag = true;
+    cout << "**** ERROR ****" << endl;
+>>>>>>> OnlyFluid
   }
   bool flag = false;
   if(check==8){
@@ -47,7 +55,8 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 
 
 
-  int division = 10;
+
+  int division = 12;
   vector<double> b(division);
   localRefinement(division,b);
 
@@ -62,8 +71,8 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   double sdf_gauss;
   double g1_local, g2_local, g3_local;
   double detJ, weight;
-  //bool flag = false;
-
+  int countMinus = 0;
+>>>>>>> OnlyFluid
   //#pragma omp parallel for
   for(int n1=0;n1<division;n1++){
     for(int n2=0;n2<division;n2++){
@@ -83,30 +92,27 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
               
               double sdf_gauss = 0e0;
               for(int p=0;p<numOfNodeInElm;p++) sdf_gauss += NP[p] * sdf_current[p];
-              
-              if(!flag){
-                if(sdf_gauss<=0){
-                  continue; 
-                }
-              }
-              
-              /*
+
               if(sdf_gauss<=0){
-                continue; 
-              }
-              */
-
-              if(sdf_gauss/minSDF<1e0){
-                double dfdr[3]={0e0,0e0,0e0};
-                for(int i=0;i<3;i++){
-                  for(int p=0;p<numOfNodeInElm;p++) dfdr[i] += sdf_current[p]/minSDF * dNPdr[p][i];
-                }
+                countMinus++; 
+>>>>>>> OnlyFluid
                 for(int p=0;p<numOfNodeInElm;p++){
-                  for(int i=0;i<3;i++) dNVdr[p][i] = dNPdr[p][i]*sdf_gauss/minSDF + NP[p]*dfdr[i];
-                  NV[p] = NP[p]*sdf_gauss/minSDF;
+                  NV[p] = 0;
+                }
+              }else{
+                if(sdf_gauss/minSDF<1e0){
+                  double dfdr[3]={0e0,0e0,0e0};
+                  for(int i=0;i<3;i++){
+                    for(int p=0;p<numOfNodeInElm;p++) dfdr[i] += sdf_current[p]/minSDF * dNPdr[p][i];
+                  }
+                  for(int p=0;p<numOfNodeInElm;p++){
+                    for(int i=0;i<3;i++) dNVdr[p][i] = dNPdr[p][i]*sdf_gauss/minSDF + NP[p]*dfdr[i];
+                    NV[p] = NP[p]*sdf_gauss/minSDF;
+                  }
                 }
               }
-
+              
+>>>>>>> OnlyFluid
               MathFEM::calc_dxdr(dxdr,dNPdr,x_current,numOfNodeInElm);
             
               detJ = dxdr[0][0]*dxdr[1][1]*dxdr[2][2]+dxdr[0][1]*dxdr[1][2]*dxdr[2][0]+dxdr[0][2]*dxdr[1][0]*dxdr[2][1]
@@ -116,6 +122,15 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
               MathFEM::calc_dNdx(dNVdx,dNVdr,dxdr,numOfNodeInElm);
               MathFEM::calc_dNdx(dNPdx,dNPdr,dxdr,numOfNodeInElm);
 
+              if(sdf_gauss<=0){
+                for(int p=0;p<numOfNodeInElm;p++){
+                  for(int i=0;i<3;i++){
+                    dNVdx[p][i] = 0;
+                  }
+                }
+              }
+
+>>>>>>> OnlyFluid
               
               for(ii=0;ii<numOfNodeInElm;ii++)
               {  
