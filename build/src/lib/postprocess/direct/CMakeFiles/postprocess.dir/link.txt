@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libpostprocess.a CMakeFiles/postprocess.dir/PostCaluculation.cpp.o CMakeFiles/postprocess.dir/PrepareForDA.cpp.o CMakeFiles/postprocess.dir/ExportFEM.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libpostprocess.a

@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libsolver.a CMakeFiles/solver.dir/PetscSolver.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libsolver.a
