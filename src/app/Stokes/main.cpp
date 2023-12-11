@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
 
   omp_set_num_threads(fem.numOfOMP);
 
-  fem.stokes();
+  fem.Stokes();
   MPI_Barrier(MPI_COMM_WORLD);
 
   fem.postCaluculation();

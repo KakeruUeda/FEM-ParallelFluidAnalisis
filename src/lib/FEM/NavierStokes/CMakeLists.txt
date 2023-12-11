@@ -4,7 +4,8 @@ string(REPLACE " " ";" compile_options_tmp ${compile_options_tmp})
 add_library(navierstokes STATIC)
 target_sources(navierstokes
   PRIVATE
-  CreateMatrix.cpp
+  CreateMatrix_SNS.cpp
+  CreateMatrixXFEM_SNS.cpp
   NavierStokes.cpp
 )
 

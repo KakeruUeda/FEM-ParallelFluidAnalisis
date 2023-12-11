@@ -1,13 +1,19 @@
 #include "FEM.h"
 using namespace std;
 
-void FEM::stokes(){
+void FEM::Stokes(){
 
-  PetscPrintf(MPI_COMM_WORLD, "\n\n\n Solve Stokes equation \n");
+  PetscPrintf(MPI_COMM_WORLD, "\n\n\n STEADY STOKES EQUATION \n");
 
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;
 
   double  norm_rhs, timer;
+
+  uFluid.resize(numOfNodeGlobalFluid,0); u.resize(numOfNodeGlobal,0);
+  vFluid.resize(numOfNodeGlobalFluid,0); v.resize(numOfNodeGlobal,0);
+  wFluid.resize(numOfNodeGlobalFluid,0); w.resize(numOfNodeGlobal,0);
+  pFluid.resize(numOfNodeGlobalFluid,0); p.resize(numOfNodeGlobal,0);
+
 
   VectorXd  reacVec(numOfNodeGlobalFluid*numOfDofsNode);
   jpn = numOfNodeInElm*numOfDofsNode;
@@ -24,14 +30,13 @@ void FEM::stokes(){
   solverPetscFluid->zeroMtx();
   reacVec.setZero();
 
-  
   assignBoundaryConditions();
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
   PetscPrintf(MPI_COMM_WORLD, "\n ****** ELEMENT LOOP START ******* \n", timer);
   
   timer = MPI_Wtime();
-  
+
   for(int ic=0;ic<numOfElmGlobalFluid;ic++){
     if(elmFluid[ic]->getSubdomainId() == myId){
       
@@ -39,19 +44,16 @@ void FEM::stokes(){
       Flocal.setZero();
 
       if(phiEXFluid[ic]>0.999){
-        calcStokesMatrix(ic,Klocal,Flocal);
+        StokesMatrix(ic,Klocal,Flocal);
       }else{
-        calcStokesMatrixXFEM(ic,Klocal,Flocal);
+        XFEM_StokesMatrix(ic,Klocal,Flocal);
       }
 
-      
-      size1 = elmFluid[ic]->nodeForAssyBCsFluid.size();
-      applyBoundaryConditions(Flocal, size1, ic);
       solverPetscFluid->assembleMatrixAndVectorSerial(elmFluid[ic]->nodeForAssyBCsFluid, elmFluid[ic]->nodeForAssyFluid, Klocal, Flocal);
     }
-  }
-    
+  }  
   MPI_Barrier(MPI_COMM_WORLD);
+
 
   timer = MPI_Wtime() - timer;
   //computerTimeAssembly += timerVal;
@@ -81,10 +83,7 @@ void FEM::stokes(){
   PetscPrintf(MPI_COMM_WORLD, "\n ****** SOLVING LINEAR EQUATION END ****** \n\n", timer);
   
 
-  /////////////////////////////////////////////////////////////////////////////
-  // get the solution vector onto all the processors
-  /////////////////////////////////////////////////////////////////////////////
-  
+  //get the solution vector 
   VecScatterBegin(ctx, solverPetscFluid->solnVec, vec_SEQ, INSERT_VALUES, SCATTER_FORWARD);
   VecScatterEnd(ctx, solverPetscFluid->solnVec, vec_SEQ, INSERT_VALUES, SCATTER_FORWARD);
 
@@ -104,25 +103,4 @@ void FEM::stokes(){
 }
 
 
-void FEM::assignBoundaryConditions(){
 
-  int ii, n1, n2, n3;
-  DirichletBCsFluid.resize(numOfDofsNode*numOfNodeGlobalFluid);
-  for(ii=0; ii<numOfBdNodeFluid; ii++){
-    n1 = int(DirichletBCsFluid_tmp[ii][0]);
-    n2 = int(DirichletBCsFluid_tmp[ii][1]);
-    n3 = n1*numOfDofsNode+n2;
-    DirichletBCsFluid[n3] = DirichletBCsFluid_tmp[ii][2];
-  }
-  return;
-}
-
-void FEM::applyBoundaryConditions(VectorXd& Flocal, const int size, const int ic)
-{
-  int ii;
-  for(ii=0; ii<size; ii++){
-    if(elmFluid[ic]->nodeForAssyBCsFluid[ii] == -1) {
-      Flocal(ii) = DirichletBCsFluid[elmFluid[ic]->globalDOFnumsFluid[ii]];    
-    }
-  }
-}

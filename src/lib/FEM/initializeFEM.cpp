@@ -1,5 +1,4 @@
 #include "FEM.h"
-using namespace std;
 
 void FEM::initialize()
 { 
@@ -8,7 +7,6 @@ void FEM::initialize()
   setBoundary();
   setFluidDomain();
   prepareMatrix();
-
 }
 
 
@@ -261,6 +259,14 @@ void FEM::setFluidDomain()
       count++;
     }
   }
+
+  /*
+  vecDbTmp[0] = 0;
+  vecDbTmp[1] = 3;
+  vecDbTmp[2] = 0e0;
+  DirichletBCsFluid_tmp.push_back(vecDbTmp);
+  count++;
+  */
   numOfBdNodeFluid = count;
 
 

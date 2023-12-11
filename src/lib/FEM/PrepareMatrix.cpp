@@ -40,7 +40,7 @@ void FEM::prepareMatrix(){
 
   if(myId == 0)
   {
-    cout << " Mesh statistics .....\n" << endl;
+    cout << "\n Mesh statistics .....\n" << endl;
     cout << " numOfElmGlobalFluid   = " << '\t' << numOfElmGlobalFluid << endl;
     cout << " numOfNodeGlobalFluid  = " << '\t' << numOfNodeGlobalFluid << endl;
     cout << " numOfNodeInElm   = " << '\t' << numOfNodeInElm << endl;
@@ -247,11 +247,11 @@ void FEM::prepareMatrix(){
     {
       size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
       vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
-      for(ii=0; ii<size1; ii++){
-        if(elmFluid[ee]->nodeForAssyBCsFluid[ii] == -1){
-          Klocal[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
-        }
-      }
+      //for(ii=0; ii<size1; ii++){
+      //  if(elmFluid[ee]->nodeForAssyBCsFluid[ii] == -1){
+      //    Klocal[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
+      //  }
+      //}
       //MatrixXdRM Klocal2_tmp = Klocal_tmp;
       errpetsc = MatSetValues(solverPetscFluid->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
     }
@@ -338,12 +338,6 @@ int FEM::divideMesh()
   {
     int  ee, ii, jj, kk, n2;
     int  nparts = numOfId, subdomain=0;
-
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Partition the mesh. Here, METIS is used.
-    // 
-    /////////////////////////////////////////////////////////////////////////////
 
     PetscInt  *eptr, *eind;
 

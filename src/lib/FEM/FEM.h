@@ -49,6 +49,11 @@ class FEM :public DomainFEM{
     vector<double> phiEX;
     vector<double> sdf;
 
+    vector<double> u;
+    vector<double> v;
+    vector<double> w;
+    vector<double> p;
+
 
   ///// FLUID ONLY /////
   public:
@@ -70,6 +75,11 @@ class FEM :public DomainFEM{
 
     vector<int> sortElm, sortNode;
 
+    vector<double> uFluid;
+    vector<double> vFluid;
+    vector<double> wFluid;
+    vector<double> pFluid;
+
   public:
     FEM();
     ~FEM();
@@ -86,10 +96,15 @@ class FEM :public DomainFEM{
 
     int deallocate();
 
-    void stokes();
+    void Stokes();
    
-    void calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
-    void calcStokesMatrixXFEM(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    void StokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_StokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+
+    void SteadyNavierStokes();
+   
+    void SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     
     void DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
     void PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<double> &N,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
@@ -102,10 +117,9 @@ class FEM :public DomainFEM{
     
     void assignBoundaryConditions();
     void applyBoundaryConditions(VectorXd& Flocal, const int size, const int ic);
-    void getSolution();
-    
-
+  
     void postCaluculation();
+    void postCaluculation_itr(const int loop);
     
     void export_vti(const string &file, vector<int> &node, vector<int> &element);
     void export_vti_domain(const string &file);

@@ -1,11 +1,11 @@
-//Domain
-//{
-//  nx=(32,32,32)  //element size
-//  Lx=(1e0,1e0,1e0)  //domain size
-//  image = "input/square/image128x128x128.dat" 
-//  imageEX = "input/square/image128x128x128_around.dat"
-//  sdf = "input/square/sdf128x128x128.dat"
-//}
+Domain
+{
+  nx=(32,32,32)  //element size
+  Lx=(1e0,1e0,1e0)  //domain size
+  image = "input/square/image128x128x128.dat" 
+  imageEX = "input/square/image128x128x128_around.dat"
+  sdf = "input/square/sdf128x128x128.dat"
+}
 
 //Domain
 //{
@@ -16,14 +16,14 @@
 //  sdf = "input/straightTube/sdf64x128x64.dat"
 //}
 
-Domain
-{
-  nx=(240,80,80)  //element size
-  Lx=(50,15,12)  //domain size
-  image = "input/vessel/image240x80x80.dat"
-  imageEX = "input/vessel/image240x80x80_around.dat"
-  sdf = "input/vessel/sdf240x80x80.dat"
-}
+//Domain
+//{
+//  nx=(240,80,80)  //element size
+//  Lx=(50,15,12)  //domain size
+//  image = "input/vessel/image240x80x80.dat"
+//  imageEX = "input/vessel/image240x80x80_around.dat"
+//  sdf = "input/vessel/sdf240x80x80.dat"
+//}
 
 //Domain
 //{
@@ -37,33 +37,35 @@ Domain
 Boundary
 {
  top{
-    type = "free"
+    type = "v"
+    value = (1,0,0)
  }
  bottom{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  left{
     type = "v"
-    value = (1,0,0)
+    value = (0,0,0)
  }
  right{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  front{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 back{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 }
 
 Parameter
 {
-  mu = 0.0035
+  rho = 1
+  mu = 1
   OMPnumThreads = 1
 }
 
@@ -71,4 +73,3 @@ Output
 {
   outputDir    = "vessel"
 }
-

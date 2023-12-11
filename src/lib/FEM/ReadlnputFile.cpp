@@ -48,7 +48,15 @@ void FEM::readInput(){
   numOfElmGlobal=nx*ny*nz;
   numOfNodeInElm=8;
 
+  
   /////param/////
+  base_label = "/Parameter";
+  label = base_label + "/rho";
+  if ( !tp.getInspectedValue(label, rho)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
   base_label = "/Parameter";
   label = base_label + "/mu";
   if ( !tp.getInspectedValue(label, mu)){
