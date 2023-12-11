@@ -22,7 +22,7 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
-  double minSDF = dx/2;
+  double minSDF = dx;
   
   int check = 0;
   for(int i=0;i<numOfNodeInElm;i++){
@@ -46,8 +46,7 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   }
 
 
-
-  int division = 8;
+  int division = 12;
   vector<double> b(division);
   localRefinement(division,b);
 

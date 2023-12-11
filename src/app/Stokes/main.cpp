@@ -3,10 +3,8 @@
 int main(int argc, char* argv[]){
 
   MPI_Init(NULL, NULL);
-  
   string  petscfile   = argv[2];
   PetscInitialize(NULL, NULL, petscfile.c_str(), NULL);
-  
   FEM fem;
   
   //input and check tp file
@@ -16,11 +14,9 @@ int main(int argc, char* argv[]){
    printf("\tError at reading '%s' file\n", input_file.c_str());
     return 1;
   }
-
   MPI_Barrier(MPI_COMM_WORLD);
 
   fem.initialize();
-
   MPI_Barrier(MPI_COMM_WORLD);
   
   if(fem.myId == 1){

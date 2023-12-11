@@ -7,13 +7,22 @@
 //  sdf = "INPUT/square/sdf128x128x128.dat"
 //}
 
+//Domain
+//{
+//  nx=(64,128,64)  //element size
+//  Lx=(1e0,2e0,1e0)  //domain size
+//  image = "INPUT/straightTube/image64x128x64.dat"
+//  imageEX = "INPUT/straightTube/image64x128x64_around.dat"
+//  sdf = "INPUT/straightTube/sdf64x128x64.dat"
+//}
+
 Domain
 {
-  nx=(64,128,64)  //element size
-  Lx=(1e0,2e0,1e0)  //domain size
-  image = "INPUT/straightTube/image64x128x64.dat"
-  imageEX = "INPUT/straightTube/image64x128x64_around.dat"
-  sdf = "INPUT/straightTube/sdf64x128x64.dat"
+  nx=(240,80,80)  //element size
+  Lx=(50,15,12)  //domain size
+  image = "INPUT/vessel/image240x80x80.dat"
+  imageEX = "INPUT/vessel/image240x80x80_around.dat"
+  sdf = "INPUT/vessel/sdf240x80x80.dat"
 }
 
 //Domain
@@ -31,23 +40,23 @@ Boundary
     type = "free"
  }
  bottom{
-    type = "v"
-    value = (0,1,0)
+    type = "free"
+    value = (0,0,0)
  }
  left{
     type = "v"
-    value = (0,0,0)
+    value = (1,0,0)
  }
  right{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  front{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 back{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 }

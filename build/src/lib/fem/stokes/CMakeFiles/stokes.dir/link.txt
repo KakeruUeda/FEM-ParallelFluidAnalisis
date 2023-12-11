@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libstokes.a CMakeFiles/stokes.dir/CreateMatrix.cpp.o CMakeFiles/stokes.dir/CreateMatrixXFEM.cpp.o CMakeFiles/stokes.dir/Stokes.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libstokes.a
