@@ -1,3 +1,2 @@
 add_subdirectory(stokes)
-#add_subdirectory(navierstokes)
-add_subdirectory(testpetsc)
+add_subdirectory(navierstokes)

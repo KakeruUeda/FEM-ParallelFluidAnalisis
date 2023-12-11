@@ -1,7 +1,7 @@
 #include "FEM.h"
 using namespace std;
 
-void FEM::calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
+void FEM::StokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
 {
 
   int ii, jj;

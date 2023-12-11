@@ -23,8 +23,9 @@ class PetscSolver
     PetscReal norm; // norm of solution error
 
     PetscErrorCode errpetsc;
+     
+    double vectorNorm(const int &nump, VectorXd &x);
 
-    
     PetscSolver();
     virtual ~PetscSolver();
 
