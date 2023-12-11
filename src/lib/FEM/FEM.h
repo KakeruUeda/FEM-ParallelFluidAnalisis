@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <sys/stat.h>
 #include <omp.h>
 
 #include "gauss.h"
@@ -23,23 +24,24 @@ class FEM :public DomainFEM{
   public:
     TextParser tp;
     PetscErrorCode  errpetsc;
-
+    string outputDir,fileName;
+    
     int numOfDofsNode=4;
     PetscInt  numOfId, myId, nNode_owned;
     PetscInt  node_start, node_end, elem_start, elem_end;
     PetscInt  row_start, row_end;
-    //PetscInt numOfDofsLocal, numOfDofsGlobal;
+    PetscInt numOfDofsLocal, numOfDofsGlobal;
 
-    //vector<int>  assyForSoln, OutputNodes;
-    //vector<double> DirichletBCs; 
-    //vector<vector<double>> DirichletBCs_tmp; 
+    vector<int>  assyForSoln, OutputNodes;
+    vector<double> DirichletBCs; 
+    vector<vector<double>> DirichletBCs_tmp; 
 
-    //vector<vector<int>>  nodeDofArrayBCsPrev, nodeDofArrayPrev, nodeDofArrayBCs, nodeDofArray;
-    //vector<vector<bool>>  nodeTypePrev, nodeType;
+    vector<vector<int>>  nodeDofArrayBCsPrev, nodeDofArrayPrev, nodeDofArrayBCs, nodeDofArray;
+    vector<vector<bool>>  nodeTypePrev, nodeType;
     
-    //SolutionData  SolnData;
-    //ElementBaseFEM **elm;
-    //PetscSolver  *solverPetsc;
+    SolutionData  SolnData;
+    ElementBaseFEM **elm;
+    PetscSolver  *solverPetsc;
 
     double rho,mu,nu;
     int numOfOMP;

@@ -1,3 +1,5 @@
 add_subdirectory(base)
 add_subdirectory(fem)
+add_subdirectory(postprocess)
+add_subdirectory(preprocess)
 add_subdirectory(solver)

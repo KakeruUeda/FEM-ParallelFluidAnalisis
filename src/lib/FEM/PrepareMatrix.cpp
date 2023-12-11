@@ -415,7 +415,7 @@ int FEM::divideMesh()
     }
 
     string vtiFile;
-    vtiFile = "check_MeshPartition.vti";
+    vtiFile = outputDir + "/meshPartition.vti";
     export_vti(vtiFile, nodeId, elmId);
   }
   /**** prev

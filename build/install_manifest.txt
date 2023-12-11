@@ -1,0 +1,2 @@
+/Users/kakeru/Documents/Projects/CFDMPI/bin/SteadyStokesSolver
+/Users/kakeru/Documents/Projects/CFDMPI/bin/testPetsc

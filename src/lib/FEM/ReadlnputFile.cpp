@@ -8,6 +8,19 @@ void FEM::readInput(){
   int tmp[3];
   double dummy[3];
 
+  ////Output////
+  base_label = "/Output";
+  label = base_label + "/outputDir";
+  if ( !tp.getInspectedValue(label, outputDir)){
+    cout << "outputDir is not set" << endl;
+    exit(0);
+  }
+
+  string outputDir_tmp = ("./output");
+  mkdir(outputDir_tmp.c_str(), 0777);
+  outputDir = ("./output/" + outputDir);
+  mkdir(outputDir.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
+
   /////domain/////
   base_label = "/Domain";
   label = base_label + "/nx";

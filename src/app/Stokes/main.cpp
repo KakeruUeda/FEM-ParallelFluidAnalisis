@@ -21,7 +21,7 @@ int main(int argc, char* argv[]){
   
   if(fem.myId == 1){
     string vtiFile;
-    vtiFile = "domain.vti";
+    vtiFile = fem.outputDir + "/domain.vti";
     fem.export_vti_domain(vtiFile);
   }
 

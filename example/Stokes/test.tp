@@ -2,36 +2,36 @@
 //{
 //  nx=(32,32,32)  //element size
 //  Lx=(1e0,1e0,1e0)  //domain size
-//  image = "INPUT/square/image128x128x128.dat" 
-//  imageEX = "INPUT/square/image128x128x128_around.dat"
-//  sdf = "INPUT/square/sdf128x128x128.dat"
+//  image = "input/square/image128x128x128.dat" 
+//  imageEX = "input/square/image128x128x128_around.dat"
+//  sdf = "input/square/sdf128x128x128.dat"
 //}
 
 //Domain
 //{
 //  nx=(64,128,64)  //element size
 //  Lx=(1e0,2e0,1e0)  //domain size
-//  image = "INPUT/straightTube/image64x128x64.dat"
-//  imageEX = "INPUT/straightTube/image64x128x64_around.dat"
-//  sdf = "INPUT/straightTube/sdf64x128x64.dat"
+//  image = "input/straightTube/image64x128x64.dat"
+//  imageEX = "input/straightTube/image64x128x64_around.dat"
+//  sdf = "input/straightTube/sdf64x128x64.dat"
 //}
 
 Domain
 {
   nx=(240,80,80)  //element size
   Lx=(50,15,12)  //domain size
-  image = "INPUT/vessel/image240x80x80.dat"
-  imageEX = "INPUT/vessel/image240x80x80_around.dat"
-  sdf = "INPUT/vessel/sdf240x80x80.dat"
+  image = "input/vessel/image240x80x80.dat"
+  imageEX = "input/vessel/image240x80x80_around.dat"
+  sdf = "input/vessel/sdf240x80x80.dat"
 }
 
 //Domain
 //{
 //  nx=(4,8,4)  //element size
 //  Lx=(1e2,2e2,1e2)  //domain size
-//  image = "INPUT/straightTube/image4x8x4_rectangle.dat"
-//  imageEX = "INPUT/straightTube/image4x8x4_rectangle.dat"
-//  sdf = "INPUT/straightTube/sdf4x8x4_rectangle.dat"
+//  image = "input/straightTube/image4x8x4_rectangle.dat"
+//  imageEX = "input/straightTube/image4x8x4_rectangle.dat"
+//  sdf = "input/straightTube/sdf4x8x4_rectangle.dat"
 //}
 
 Boundary
@@ -67,4 +67,8 @@ Parameter
   OMPnumThreads = 1
 }
 
+Output
+{
+  outputDir    = "vessel"
+}
 

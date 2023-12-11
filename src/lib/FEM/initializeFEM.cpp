@@ -8,6 +8,7 @@ void FEM::initialize()
   setBoundary();
   setFluidDomain();
   prepareMatrix();
+
 }
 
 

@@ -24,4 +24,3 @@ target_compile_options(fem PUBLIC ${compile_options_tmp})
 
 add_subdirectory(navierstokes)
 add_subdirectory(stokes)
-add_subdirectory(postprocess)

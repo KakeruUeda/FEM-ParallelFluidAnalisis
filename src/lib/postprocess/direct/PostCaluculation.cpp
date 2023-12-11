@@ -33,10 +33,11 @@ void FEM::postCaluculation(){
 
         
   string vtiFile;
-  vtiFile = "resutls.vti";
+  
+  vtiFile = outputDir + "/resutls.vti";
   export_vti_result(vtiFile,u,v,w,p);
 
-  vtiFile = "resutls_2D.vti";
+  vtiFile = outputDir + "/resutls_2D.vti";
   export_vti_result_2D(vtiFile,u,v,p);
 
 
