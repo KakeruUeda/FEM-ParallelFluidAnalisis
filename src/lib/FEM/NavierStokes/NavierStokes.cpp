@@ -12,15 +12,15 @@ void FEM::SteadyNavierStokes(){
   double norm,norm0;
   double tmp = 1e12;
 
-  uFluid.resize(numOfNodeGlobalFluid,0);
-  vFluid.resize(numOfNodeGlobalFluid,0);
-  wFluid.resize(numOfNodeGlobalFluid,0);
-  pFluid.resize(numOfNodeGlobalFluid,0);
+  uFluid.resize(numOfNodeGlobalFluid,0e0);
+  vFluid.resize(numOfNodeGlobalFluid,0e0);
+  wFluid.resize(numOfNodeGlobalFluid,0e0);
+  pFluid.resize(numOfNodeGlobalFluid,0e0);
 
-  u.resize(numOfNodeGlobal,0);
-  v.resize(numOfNodeGlobal,0);
-  w.resize(numOfNodeGlobal,0);
-  p.resize(numOfNodeGlobal,0);
+  u.resize(numOfNodeGlobal,0e0);
+  v.resize(numOfNodeGlobal,0e0);
+  w.resize(numOfNodeGlobal,0e0);
+  p.resize(numOfNodeGlobal,0e0);
 
   VectorXd  reacVec(numOfNodeGlobalFluid*numOfDofsNode);
   jpn = numOfNodeInElm*numOfDofsNode;
@@ -40,9 +40,7 @@ void FEM::SteadyNavierStokes(){
     solverPetscFluid->zeroMtx();
     reacVec.setZero();
     
-    Klocal.setZero();
-    Flocal.setZero();
-    assignBoundaryConditions(Klocal,Flocal);
+    assignBoundaryConditions();
 
     MPI_Barrier(MPI_COMM_WORLD);
     PetscPrintf(MPI_COMM_WORLD, "\n ****** ELEMENT LOOP START ******* \n", timer);
@@ -111,7 +109,7 @@ void FEM::SteadyNavierStokes(){
     postCaluculation_itr(loop);
 
     if(myId == 0){
-      printf("NR iter.=%d norm/norm0=%e\n",loop,norm/norm0);
+      printf(" NR iter.=%d norm/norm0=%e\n",loop,norm/norm0);
     }
 
     if(norm/norm0<NRtolerance) break;

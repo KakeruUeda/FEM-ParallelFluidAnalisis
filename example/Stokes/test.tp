@@ -1,29 +1,29 @@
-//Domain
-//{
-//  nx=(32,32,32)  //element size
-//  Lx=(1e0,1e0,1e0)  //domain size
-//  image = "input/square/image128x128x128.dat" 
-//  imageEX = "input/square/image128x128x128_around.dat"
-//  sdf = "input/square/sdf128x128x128.dat"
-//}
-
-//Domain
-//{
-//  nx=(32,32,32)  //element size
-//  Lx=(1e0,1e0,1e0)  //domain size
-//  image = "input/straightTube/image32x32x32_rectangle.dat"
-//  imageEX = "input/straightTube/image32x32x32_rectangle.dat"
-//  sdf = "input/square/sdf128x128x128.dat"
-//}
-
 Domain
 {
-  nx=(240,80,80)  //element size
-  Lx=(50,15,12)  //domain size
-  image = "input/vessel/image240x80x80.dat"
-  imageEX = "input/vessel/image240x80x80_around.dat"
-  sdf = "input/vessel/sdf240x80x80.dat"
+  nx=(32,32,32)  //element size
+  Lx=(1e0,1e0,1e0)  //domain size
+  image = "input/square/image128x128x128.dat" 
+  imageEX = "input/square/image128x128x128_around.dat"
+  sdf = "input/square/sdf128x128x128.dat"
 }
+
+//Domain
+//{
+//  nx=(64,128,64)  //element size
+//  Lx=(1e0,2e0,1e0)  //domain size
+//  image = "input/straightTube/image64x128x64.dat"
+//  imageEX = "input/straightTube/image64x128x64_around.dat"
+//  sdf = "input/straightTube/sdf64x128x64.dat"
+//}
+
+//Domain
+//{
+//  nx=(240,80,80)  //element size
+//  Lx=(50,15,12)  //domain size
+//  image = "input/vessel/image240x80x80.dat"
+//  imageEX = "input/vessel/image240x80x80_around.dat"
+//  sdf = "input/vessel/sdf240x80x80.dat"
+//}
 
 //Domain
 //{
@@ -37,34 +37,34 @@ Domain
 Boundary
 {
  top{
-    type = "free"
-    value = (0.01,0,0)
- }
- bottom{
-    type = "free"
-    value = (0,1,0)
- }
- left{
     type = "v"
     value = (1,0,0)
  }
+ bottom{
+    type = "v"
+    value = (0,0,0)
+ }
+ left{
+    type = "v"
+    value = (0,0,0)
+ }
  right{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  front{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 back{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 }
 
 Parameter
 {
-  rho = 0
+  rho = 1
   mu = 1
   OMPnumThreads = 1
 }
@@ -73,4 +73,3 @@ Output
 {
   outputDir    = "vessel"
 }
-

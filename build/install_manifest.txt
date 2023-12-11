@@ -1,0 +1,2 @@
+/Users/kakeru/Documents/Projects/FluidDataAssimilation/bin/SteadyStokesSolver
+/Users/kakeru/Documents/Projects/FluidDataAssimilation/bin/SteadyNavierStokesSolver

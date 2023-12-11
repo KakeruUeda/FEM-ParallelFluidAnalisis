@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libnavierstokes.a CMakeFiles/navierstokes.dir/CreateMatrix_SNS.cpp.o CMakeFiles/navierstokes.dir/CreateMatrixXFEM_SNS.cpp.o CMakeFiles/navierstokes.dir/NavierStokes.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libnavierstokes.a

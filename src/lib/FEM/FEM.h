@@ -115,9 +115,9 @@ class FEM :public DomainFEM{
     void PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<double> &NP, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm, const double weight, const int ic);
     void PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNPdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
     
-    void assignBoundaryConditions(MatrixXd& Klocal, VectorXd& Flocal);
+    void assignBoundaryConditions();
+    void applyBoundaryConditions(VectorXd& Flocal, const int size, const int ic);
   
-
     void postCaluculation();
     void postCaluculation_itr(const int loop);
     

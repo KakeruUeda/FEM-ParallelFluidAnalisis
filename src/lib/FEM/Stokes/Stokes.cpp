@@ -30,9 +30,7 @@ void FEM::Stokes(){
   solverPetscFluid->zeroMtx();
   reacVec.setZero();
 
-  Klocal.setZero();
-  Flocal.setZero();
-  assignBoundaryConditions(Klocal,Flocal);
+  assignBoundaryConditions();
 
   MPI_Barrier(MPI_COMM_WORLD);
   PetscPrintf(MPI_COMM_WORLD, "\n ****** ELEMENT LOOP START ******* \n", timer);
@@ -50,6 +48,7 @@ void FEM::Stokes(){
       }else{
         XFEM_StokesMatrix(ic,Klocal,Flocal);
       }
+
       solverPetscFluid->assembleMatrixAndVectorSerial(elmFluid[ic]->nodeForAssyBCsFluid, elmFluid[ic]->nodeForAssyFluid, Klocal, Flocal);
     }
   }  
@@ -102,3 +101,6 @@ void FEM::Stokes(){
   VecScatterDestroy(&ctx);
   VecDestroy(&vec_SEQ);
 }
+
+
+

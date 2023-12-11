@@ -21,12 +21,10 @@ void FEM::SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Floc
     }
   }
 
-  Gauss g1(1),g2(2),g3(3);
-
   double dxdr[3][3];
-
-
   double detJ, weight;
+  
+  Gauss g1(1),g2(2),g3(3);
   
   for(int i1=0; i1<2; i1++){
     for(int i2=0; i2<2; i2++){
@@ -102,6 +100,7 @@ void FEM::SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Floc
         double tau=pow(2e0*vMag/h,2e0)+9e0*pow(4e0*nu/(h*h),2e0);
         tau = 1e0/sqrt(tau);
 
+
         for(ii=0;ii<numOfNodeInElm;ii++)
         {  
           IU = 4*ii;
@@ -122,9 +121,9 @@ void FEM::SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Floc
             }
 
             //// disfusion ////
-            Klocal(IU, JU) -= mu * K[ii][jj] * detJ * weight;
-            Klocal(IV, JV) -= mu * K[ii][jj] * detJ * weight;
-            Klocal(IW, JW) -= mu * K[ii][jj] * detJ * weight;
+            Klocal(IU, JU) += mu * K[ii][jj] * detJ * weight;
+            Klocal(IV, JV) += mu * K[ii][jj] * detJ * weight;
+            Klocal(IW, JW) += mu * K[ii][jj] * detJ * weight;
 
             /// advection ///
             Klocal(IU, JU) += rho * N[ii] * N[jj] * dvdx[0][0] * detJ * weight;
@@ -142,57 +141,58 @@ void FEM::SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Floc
             Klocal(IW, JW) += rho * N[ii]*tmp[jj] * detJ * weight;
             
             //// pressure ////
-            Klocal(IU, JP) += N[jj] * dNdx[ii][0] * detJ * weight;
-            Klocal(IV, JP) += N[jj] * dNdx[ii][1] * detJ * weight;
-            Klocal(IW, JP) += N[jj] * dNdx[ii][2] * detJ * weight;
-        
+            Klocal(IU, JP) -= N[jj] * dNdx[ii][0] * detJ * weight;
+            Klocal(IV, JP) -= N[jj] * dNdx[ii][1] * detJ * weight;
+            Klocal(IW, JP) -= N[jj] * dNdx[ii][2] * detJ * weight;
+  
             //// continuity ////
-            Klocal(IP, JU) += N[ii] * dNdx[jj][0] * detJ * weight;
-            Klocal(IP, JV) += N[ii] * dNdx[jj][1] * detJ * weight;
-            Klocal(IP, JW) += N[ii] * dNdx[jj][2] * detJ * weight;
+            Klocal(IP, JU) -= N[ii] * dNdx[jj][0] * detJ * weight;
+            Klocal(IP, JV) -= N[ii] * dNdx[jj][1] * detJ * weight;
+            Klocal(IP, JW) -= N[ii] * dNdx[jj][2] * detJ * weight;
+
             
             //// SUPG ////
 
             //pressure term
-            Klocal(IU, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[0] * detJ * weight;
-            Klocal(IU, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[0] * detJ * weight;
-            Klocal(IU, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[0] * detJ * weight;
-            Klocal(IV, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[1] * detJ * weight;
-            Klocal(IV, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[1] * detJ * weight;
-            Klocal(IV, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[1] * detJ * weight;
-            Klocal(IW, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[2] * detJ * weight;
-            Klocal(IW, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[2] * detJ * weight;
-            Klocal(IW, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[2] * detJ * weight;
-            
-            Klocal(IU, JP) += tau * tmp[ii] * dNdx[jj][0] * detJ * weight;
-            Klocal(IV, JP) += tau * tmp[ii] * dNdx[jj][1] * detJ * weight;
-            Klocal(IW, JP) += tau * tmp[ii] * dNdx[jj][2] * detJ * weight;
-            
-            //advection term
-            for(int kk=0;kk<3;kk++){
-              Klocal(IU, JU) += rho * tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[0][kk] * detJ * weight;
-              Klocal(IU, JV) += rho * tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[0][kk] * detJ * weight;
-              Klocal(IU, JW) += rho * tau * N[jj] * dNdx[ii][2] * vel[kk] * dvdx[0][kk] * detJ * weight;
-              Klocal(IV, JU) += rho * tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[1][kk] * detJ * weight;
-              Klocal(IV, JV) += rho * tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[1][kk] * detJ * weight;
-              Klocal(IV, JW) += rho * tau * N[jj] * dNdx[ii][2] * vel[kk] * dvdx[1][kk] * detJ * weight;
-              Klocal(IW, JU) += rho * tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[2][kk] * detJ * weight;
-              Klocal(IW, JV) += rho * tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[2][kk] * detJ * weight;
-              Klocal(IW, JW) += rho * tau * N[jj] * dNdx[ii][2] * vel[kk] * dvdx[2][kk] * detJ * weight;
-            }
-            Klocal(IU, JU) += rho * tau * tmp[ii] * N[jj] * dvdx[0][0] * detJ * weight;
-            Klocal(IU, JV) += rho * tau * tmp[ii] * N[jj] * dvdx[0][1] * detJ * weight;
-            Klocal(IU, JW) += rho * tau * tmp[ii] * N[jj] * dvdx[0][2] * detJ * weight;
-            Klocal(IV, JU) += rho * tau * tmp[ii] * N[jj] * dvdx[1][0] * detJ * weight;
-            Klocal(IV, JV) += rho * tau * tmp[ii] * N[jj] * dvdx[1][1] * detJ * weight;
-            Klocal(IV, JW) += rho * tau * tmp[ii] * N[jj] * dvdx[1][2] * detJ * weight;
-            Klocal(IW, JU) += rho * tau * tmp[ii] * N[jj] * dvdx[2][0] * detJ * weight;
-            Klocal(IW, JV) += rho * tau * tmp[ii] * N[jj] * dvdx[2][1] * detJ * weight;
-            Klocal(IW, JW) += rho * tau * tmp[ii] * N[jj] * dvdx[2][2] * detJ * weight;
+           //Klocal(IU, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[0] * detJ * weight;
+           //Klocal(IU, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[0] * detJ * weight;
+           //Klocal(IU, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[0] * detJ * weight;
+           //Klocal(IV, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[1] * detJ * weight;
+           //Klocal(IV, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[1] * detJ * weight;
+           //Klocal(IV, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[1] * detJ * weight;
+           //Klocal(IW, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[2] * detJ * weight;
+           //Klocal(IW, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[2] * detJ * weight;
+           //Klocal(IW, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[2] * detJ * weight;
+           //
+           //Klocal(IU, JP) += tau * tmp[ii] * dNdx[jj][0] * detJ * weight;
+           //Klocal(IV, JP) += tau * tmp[ii] * dNdx[jj][1] * detJ * weight;
+           //Klocal(IW, JP) += tau * tmp[ii] * dNdx[jj][2] * detJ * weight;
+           //
+           ////advection term
+           //for(int kk=0;kk<3;kk++){
+           //  Klocal(IU, JU) += rho * tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[0][kk] * detJ * weight;
+           //  Klocal(IU, JV) += rho * tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[0][kk] * detJ * weight;
+           //  Klocal(IU, JW) += rho * tau * N[jj] * dNdx[ii][2] * vel[kk] * dvdx[0][kk] * detJ * weight;
+           //  Klocal(IV, JU) += rho * tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[1][kk] * detJ * weight;
+           //  Klocal(IV, JV) += rho * tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[1][kk] * detJ * weight;
+           //  Klocal(IV, JW) += rho * tau * N[jj] * dNdx[ii][2] * vel[kk] * dvdx[1][kk] * detJ * weight;
+           //  Klocal(IW, JU) += rho * tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[2][kk] * detJ * weight;
+           //  Klocal(IW, JV) += rho * tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[2][kk] * detJ * weight;
+           //  Klocal(IW, JW) += rho * tau * N[jj] * dNdx[ii][2] * vel[kk] * dvdx[2][kk] * detJ * weight;
+           //}
+           //Klocal(IU, JU) += rho * tau * tmp[ii] * N[jj] * dvdx[0][0] * detJ * weight;
+           //Klocal(IU, JV) += rho * tau * tmp[ii] * N[jj] * dvdx[0][1] * detJ * weight;
+           //Klocal(IU, JW) += rho * tau * tmp[ii] * N[jj] * dvdx[0][2] * detJ * weight;
+           //Klocal(IV, JU) += rho * tau * tmp[ii] * N[jj] * dvdx[1][0] * detJ * weight;
+           //Klocal(IV, JV) += rho * tau * tmp[ii] * N[jj] * dvdx[1][1] * detJ * weight;
+           //Klocal(IV, JW) += rho * tau * tmp[ii] * N[jj] * dvdx[1][2] * detJ * weight;
+           //Klocal(IW, JU) += rho * tau * tmp[ii] * N[jj] * dvdx[2][0] * detJ * weight;
+           //Klocal(IW, JV) += rho * tau * tmp[ii] * N[jj] * dvdx[2][1] * detJ * weight;
+           //Klocal(IW, JW) += rho * tau * tmp[ii] * N[jj] * dvdx[2][2] * detJ * weight;
 
-            Klocal(IU, JU) += rho * tau * tmp[ii] * tmp[jj] * detJ * weight;
-            Klocal(IV, JV) += rho * tau * tmp[ii] * tmp[jj] * detJ * weight;
-            Klocal(IW, JW) += rho * tau * tmp[ii] * tmp[jj] * detJ * weight;
+           //Klocal(IU, JU) += rho * tau * tmp[ii] * tmp[jj] * detJ * weight;
+           //Klocal(IV, JV) += rho * tau * tmp[ii] * tmp[jj] * detJ * weight;
+           //Klocal(IW, JW) += rho * tau * tmp[ii] * tmp[jj] * detJ * weight;
   
 
             //// PSPG ////
@@ -225,14 +225,14 @@ void FEM::SteadyNavierStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Floc
           Flocal[IP] += 1e0 * N[ii] * div * detJ * weight;
 
           //// SUPG ////
-          Flocal[IU] += tau * tmp[ii] * dpdx[0] * detJ * weight; //pressure term
-          Flocal[IV] += tau * tmp[ii] * dpdx[1] * detJ * weight;
-          Flocal[IW] += tau * tmp[ii] * dpdx[2] * detJ * weight;
-          for(int kk=0;kk<3;kk++){
-            Flocal[IU] += rho* tau * tmp[ii] * vel[kk]*dvdx[0][kk] * detJ * weight; //advection
-            Flocal[IV] += rho* tau * tmp[ii] * vel[kk]*dvdx[1][kk] * detJ * weight;
-            Flocal[IW] += rho* tau * tmp[ii] * vel[kk]*dvdx[2][kk] * detJ * weight;
-          }
+          //Flocal[IU] += tau * tmp[ii] * dpdx[0] * detJ * weight; //pressure term
+          //Flocal[IV] += tau * tmp[ii] * dpdx[1] * detJ * weight;
+          //Flocal[IW] += tau * tmp[ii] * dpdx[2] * detJ * weight;
+          //for(int kk=0;kk<3;kk++){
+          //  Flocal[IU] += rho* tau * tmp[ii] * vel[kk]*dvdx[0][kk] * detJ * weight; //advection
+          //  Flocal[IV] += rho* tau * tmp[ii] * vel[kk]*dvdx[1][kk] * detJ * weight;
+          //  Flocal[IW] += rho* tau * tmp[ii] * vel[kk]*dvdx[2][kk] * detJ * weight;
+          //}
 
           //// PSPG ////
           Flocal[IP] += (tau/rho) * dNdx[ii][0] * dpdx[0] * detJ * weight;

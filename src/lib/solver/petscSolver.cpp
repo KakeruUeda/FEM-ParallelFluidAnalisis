@@ -202,9 +202,7 @@ int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, vector<
 
   VecSetValues(rhsVec, size1, &forAssyElem[0], &Flocal[0], ADD_VALUES);
   MatSetValues(mtx,    size1, &forAssyElem[0], size1, &forAssyElemRHS[0], &Klocal2(0,0), ADD_VALUES);
-  //MatAssemblyBegin(mtx,MAT_FINAL_ASSEMBLY);
-  //MatAssemblyEnd(mtx,MAT_FINAL_ASSEMBLY);
-  //MatView(mtx, PETSC_VIEWER_STDOUT_WORLD);
+
   return 0;
 }
 
@@ -212,13 +210,12 @@ int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, vector<
 int PetscSolver::zeroMtx()
 {
 
-  errpetsc = MatAssemblyBegin(mtx,MAT_FINAL_ASSEMBLY);//CHKERRQ(errpetsc);
-  errpetsc = MatAssemblyEnd(mtx,MAT_FINAL_ASSEMBLY);//CHKERRQ(errpetsc);
-  //MatZeroEntries(mtx);
+  MatAssemblyBegin(mtx,MAT_FINAL_ASSEMBLY);
+  MatAssemblyEnd(mtx,MAT_FINAL_ASSEMBLY);
+  MatZeroEntries(mtx);
   
   VecAssemblyBegin(rhsVec);
   VecAssemblyEnd(rhsVec);
-  //PetscPrintf(MPI_COMM_WORLD, " 2 \n\n\n");
   VecZeroEntries(rhsVec);
 
   VecAssemblyBegin(reacVec);

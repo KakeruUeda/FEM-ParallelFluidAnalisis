@@ -247,12 +247,12 @@ void FEM::prepareMatrix(){
     {
       size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
       vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
-      for(ii=0; ii<size1; ii++){
-        if(elmFluid[ee]->nodeForAssyBCsFluid[ii] == -1){
-          Klocal[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
-        }
-      }
-      MatrixXdRM Klocal2_tmp = Klocal_tmp;
+      //for(ii=0; ii<size1; ii++){
+      //  if(elmFluid[ee]->nodeForAssyBCsFluid[ii] == -1){
+      //    Klocal[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
+      //  }
+      //}
+      //MatrixXdRM Klocal2_tmp = Klocal_tmp;
       errpetsc = MatSetValues(solverPetscFluid->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
     }
   }
