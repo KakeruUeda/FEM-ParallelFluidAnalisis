@@ -1,11 +1,10 @@
 #include "FEM.h"
 using namespace std;
 
-void FEM::Stokes(){
+void FEM::stokes(){
 
   PetscPrintf(MPI_COMM_WORLD, "\n\n\n Solve Stokes equation \n");
 
->>>>>>> OnlyFluid
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;
 
   double  norm_rhs, timer;
@@ -23,12 +22,8 @@ void FEM::Stokes(){
   MPI_Barrier(MPI_COMM_WORLD);
 
   solverPetscFluid->zeroMtx();
->>>>>>> OnlyFluid
   reacVec.setZero();
-  
-  PetscPrintf(MPI_COMM_WORLD, " First assembly done \n\n");
-  timer = MPI_Wtime() - timer;
-  PetscPrintf(MPI_COMM_WORLD, " ***** Time for first assembly  = %f seconds ***** \n\n", timer);
+
   
   assignBoundaryConditions();
   
@@ -44,7 +39,6 @@ void FEM::Stokes(){
       Flocal.setZero();
 
       if(phiEXFluid[ic]>0.999){
->>>>>>> OnlyFluid
         calcStokesMatrix(ic,Klocal,Flocal);
       }else{
         calcStokesMatrixXFEM(ic,Klocal,Flocal);
@@ -52,7 +46,6 @@ void FEM::Stokes(){
 
       
       size1 = elmFluid[ic]->nodeForAssyBCsFluid.size();
->>>>>>> OnlyFluid
       applyBoundaryConditions(Flocal, size1, ic);
       solverPetscFluid->assembleMatrixAndVectorSerial(elmFluid[ic]->nodeForAssyBCsFluid, elmFluid[ic]->nodeForAssyFluid, Klocal, Flocal);
     }
@@ -64,7 +57,6 @@ void FEM::Stokes(){
   //computerTimeAssembly += timerVal;
 
   PetscPrintf(MPI_COMM_WORLD, "\n Time for matrix assembly = %f seconds \n", timer);
->>>>>>> OnlyFluid
 
   PetscPrintf(MPI_COMM_WORLD, "\n ****** ELEMENT LOOP END ****** \n\n", timer);
 
@@ -77,7 +69,6 @@ void FEM::Stokes(){
   MPI_Barrier(MPI_COMM_WORLD);
 
   PetscPrintf(MPI_COMM_WORLD, "\n ****** SOLVING LINEAR EQUATION ****** \n", timer);
->>>>>>> OnlyFluid
   timer = MPI_Wtime();
 
   solverPetscFluid->factoriseAndSolve();
@@ -96,14 +87,12 @@ void FEM::Stokes(){
   
   VecScatterBegin(ctx, solverPetscFluid->solnVec, vec_SEQ, INSERT_VALUES, SCATTER_FORWARD);
   VecScatterEnd(ctx, solverPetscFluid->solnVec, vec_SEQ, INSERT_VALUES, SCATTER_FORWARD);
->>>>>>> OnlyFluid
 
   VecGetArray(vec_SEQ, &arrayTempSolnFluid);
 
   // update solution vector
   for(ii=0; ii<numOfDofsGlobalFluid; ii++){
     SolnDataFluid.soln[assyForSolnFluid[ii]]   +=  arrayTempSolnFluid[ii];
->>>>>>> OnlyFluid
   }
 
   MPI_Barrier(MPI_COMM_WORLD);
@@ -116,8 +105,7 @@ void FEM::Stokes(){
 
 
 void FEM::assignBoundaryConditions(){
-  
->>>>>>> OnlyFluid
+
   int ii, n1, n2, n3;
   DirichletBCsFluid.resize(numOfDofsNode*numOfNodeGlobalFluid);
   for(ii=0; ii<numOfBdNodeFluid; ii++){

@@ -22,7 +22,6 @@ void FEM::calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
     }
   }
 
->>>>>>> OnlyFluid
   Gauss g1(1),g2(2),g3(3);
 
   double dxdr[3][3];
@@ -86,9 +85,6 @@ void FEM::calcStokesMatrix(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
             Klocal(IP, JP) += tau * K[ii][jj] * detJ * weight;
           }
         }
-        //DiffusionInGaussIntegral(Klocal,Flocal,dNdr,x_current,numOfNodeInElm,g1.weight[i1]*g1.weight[i2]*g1.weight[i3],ic);
-        //PressureInGaussIntegral(Klocal,Flocal,N,dNdr,x_current,numOfNodeInElm,g1.weight[i1]*g1.weight[i2]*g1.weight[i3],ic);
-        //PSPGInGaussIntegral(Klocal,Flocal,dNdr,x_current,numOfNodeInElm,g1.weight[i1]*g1.weight[i2]*g1.weight[i3],ic);
       }
     }
   }
@@ -127,7 +123,6 @@ void FEM::DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vec
       TJp3 = TJ+3;
       
       K[ii][jj] = 0e0;
->>>>>>> OnlyFluid
 
       for(int k=0;k<3;k++)
       {
@@ -201,7 +196,6 @@ void FEM::PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<d
   
   double h = dx/2;
   double tau = h*h/(4e0*mu)/3e0;
->>>>>>> OnlyFluid
 
   for(ii=0;ii<numOfNodeInElm;ii++){
     TI   = 4*ii;

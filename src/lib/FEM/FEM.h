@@ -42,7 +42,7 @@ class FEM :public DomainFEM{
     //PetscSolver  *solverPetsc;
 
     double rho,mu,nu;
-  
+    int numOfOMP;
     vector<double> phi;
     vector<double> phiEX;
     vector<double> sdf;

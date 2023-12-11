@@ -27,7 +27,6 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   int check = 0;
   for(int i=0;i<numOfNodeInElm;i++){
     sdf_current[i] = sdfFluid[elmFluid[ic]->nodeNumsPrevFluid[i]];
->>>>>>> OnlyFluid
     if(sdf_current[i] <= 0e0){
       check = check +1;
     }
@@ -45,16 +44,7 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   if(check==8){
     flag = true;
     cout << "**** ERROR ****" << endl;
->>>>>>> OnlyFluid
   }
-  bool flag = false;
-  if(check==8){
-    flag = true;
-    //cout << "**** ERROR ****" << endl;
-  }
-
-
-
 
   int division = 12;
   vector<double> b(division);
@@ -72,7 +62,6 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   double g1_local, g2_local, g3_local;
   double detJ, weight;
   int countMinus = 0;
->>>>>>> OnlyFluid
   //#pragma omp parallel for
   for(int n1=0;n1<division;n1++){
     for(int n2=0;n2<division;n2++){
@@ -95,7 +84,6 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 
               if(sdf_gauss<=0){
                 countMinus++; 
->>>>>>> OnlyFluid
                 for(int p=0;p<numOfNodeInElm;p++){
                   NV[p] = 0;
                 }
@@ -112,7 +100,6 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                 }
               }
               
->>>>>>> OnlyFluid
               MathFEM::calc_dxdr(dxdr,dNPdr,x_current,numOfNodeInElm);
             
               detJ = dxdr[0][0]*dxdr[1][1]*dxdr[2][2]+dxdr[0][1]*dxdr[1][2]*dxdr[2][0]+dxdr[0][2]*dxdr[1][0]*dxdr[2][1]
@@ -130,7 +117,6 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                 }
               }
 
->>>>>>> OnlyFluid
               
               for(ii=0;ii<numOfNodeInElm;ii++)
               {  
@@ -172,9 +158,6 @@ void FEM::calcStokesMatrixXFEM(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                   Klocal(IP, JP) += tau * L[ii][jj] * detJ * weight;
                 }
               }
-              //PressureInGaussIntegralXFEM(Klocal,Flocal,NP,dNPdr,dNVdr,x_current,numOfNodeInElm,g1.weight[i1]*g1.weight[i2]*g1.weight[i3]/(division*division*division),ic);
-              //DiffusionInGaussIntegralXFEM(Klocal,Flocal,dNPdr,dNVdr,x_current,numOfNodeInElm,g1.weight[i1]*g1.weight[i2]*g1.weight[i3]/(division*division*division),ic);
-              //PSPGInGaussIntegralXFEM(Klocal,Flocal,dNPdr,x_current,numOfNodeInElm,g1.weight[i1]*g1.weight[i2]*g1.weight[i3]/(division*division*division),ic);
             }
           }
         }

@@ -33,7 +33,6 @@ void FEM::prepareMatrix(){
         nodeDofArrayBCsPrevFluid[ii][jj] = numOfDofsGlobalFluid++;
       if(nodeTypePrevFluid[ii][jj]){
         nodeDofArrayBCsPrevFluid[ii][jj] = -1;
->>>>>>> OnlyFluid
       }
     }
   }
@@ -49,7 +48,6 @@ void FEM::prepareMatrix(){
     cout << " numOfDofsLocalFluid   = " << '\t' << numOfDofsLocalFluid  << endl;
     cout << " numOfDofsGlobalFluid  = " << '\t' << numOfDofsGlobalFluid << endl;
     cout << " numOfId      = " << '\t' << numOfId << endl;
->>>>>>> OnlyFluid
   }
 
   if(numOfId == 1)
@@ -98,7 +96,6 @@ void FEM::prepareMatrix(){
  /// FLUID ONLY ///
   SolnDataFluid.nodeMapPrevFluid = nodeMapPrevFluid;
   SolnDataFluid.nodeMapFluid = nodeMapFluid;
->>>>>>> OnlyFluid
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
@@ -117,7 +114,6 @@ void FEM::prepareMatrix(){
         for(jj=0;jj<numOfDofsNode ;++jj){
           elmFluid[ee]->nodeForAssyBCsFluid[jpn+jj] = nodeDofArrayBCsFluid[kk][jj];
           elmFluid[ee]->nodeForAssyFluid[jpn+jj] =  nodeDofArrayFluid[kk][jj];
->>>>>>> OnlyFluid
         }
       }
     }
@@ -130,7 +126,6 @@ void FEM::prepareMatrix(){
       for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy << " ";
         Assy << elmFluid[ic]->nodeForAssyFluid[ii] << " ";
->>>>>>> OnlyFluid
       } 
       Assy << endl;
     }
@@ -143,14 +138,12 @@ void FEM::prepareMatrix(){
       for(int ii=0; ii<size; ii++){
         if(ii != 0 && ii%4 == 0) Assy1 << " ";
         Assy1 << elmFluid[ic]->nodeForAssyFluid[ii] << " ";
->>>>>>> OnlyFluid
       } 
       Assy1 << endl;
     }
     Assy1.close();
   }
   */
->>>>>>> OnlyFluid
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
@@ -170,7 +163,6 @@ void FEM::prepareMatrix(){
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
   
   vector<set<int>> forAssyMatFluid;
->>>>>>> OnlyFluid
   set<int>::iterator it;
 
   forAssyMatFluid.resize(numOfDofsGlobalFluid);
@@ -181,7 +173,6 @@ void FEM::prepareMatrix(){
     {
       tt = &(elmFluid[ee]->nodeForAssyFluid[0]);
       nsize = elmFluid[ee]->nodeForAssyFluid.size();
->>>>>>> OnlyFluid
 
       for(ii=0;ii<nsize;ii++)
       {
@@ -198,14 +189,12 @@ void FEM::prepareMatrix(){
                 forAssyMatFluid[r].insert(tt[jj]);
               }
             }
->>>>>>> OnlyFluid
           }
         }
       }
     }
   }
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
->>>>>>> OnlyFluid
 
   PetscInt  *diag_nnz, *offdiag_nnz;
 
@@ -243,8 +232,7 @@ void FEM::prepareMatrix(){
   PetscPrintf(MPI_COMM_WORLD, " Petsc solver initialize done\n\n");
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-  
->>>>>>> OnlyFluid
+
   jpn = numOfNodeInElm*numOfDofsNode;
   jpn = jpn*jpn;
   PetscScalar  Klocal[jpn];
@@ -256,7 +244,6 @@ void FEM::prepareMatrix(){
   {  
     for(ii=0; ii<jpn; ii++)  Klocal[ii] = 0.0;
     if(elmFluid[ee]->getSubdomainId() == myId)
->>>>>>> OnlyFluid
     {
       size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
       vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
@@ -399,7 +386,6 @@ int FEM::divideMesh()
     options[METIS_OPTION_NUMBERING] = 0;  // C-style numbering is assumed that starts from 0.
 
 
->>>>>>> OnlyFluid
     // METIS partition routine
     int ret = METIS_PartMeshDual(&numOfElmGlobalFluid, &numOfNodeGlobalFluid, eptr, eind, NULL, NULL, &ncommon_nodes, &nparts, NULL, options, &objval, &elmIdFluid[0], &nodeIdFluid[0]);
 
@@ -498,7 +484,6 @@ int FEM::prepareForParallel()
  MPI_Barrier(MPI_COMM_WORLD);
  PetscPrintf(MPI_COMM_WORLD, "\n"); 
  MPI_Barrier(MPI_COMM_WORLD);
->>>>>>> OnlyFluid
 
  vector<int>  nodelist_owned(nNode_owned);
 
@@ -530,7 +515,6 @@ int FEM::prepareForParallel()
  printf(" node_start = %5d \t node_end = %5d \t myId = %5d \n",node_start, node_end, myId);
  
  MPI_Barrier(MPI_COMM_WORLD);
->>>>>>> OnlyFluid
 
  vector<int>  displs(numOfId);
 
@@ -609,7 +593,6 @@ int FEM::prepareForParallel()
    cerr << "Something wrong with NodeDofArrayNew " << endl;
    cout << "jpn = " << jpn << '\t' << numOfDofsGlobalFluid << '\t' << myId << endl;
  }
->>>>>>> OnlyFluid
 
  MPI_Barrier(MPI_COMM_WORLD);
  PetscPrintf(MPI_COMM_WORLD, "\n");

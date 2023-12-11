@@ -153,7 +153,6 @@ int PetscSolver::solve()
 
   KSPSolve(ksp, rhsVec, solnVec); CHKERRQ(errpetsc);
 
->>>>>>> OnlyFluid
   KSPConvergedReason reason;
   KSPGetConvergedReason(ksp, &reason);
 
@@ -164,7 +163,6 @@ int PetscSolver::solve()
   if(reason<0)
   {
     PetscPrintf(MPI_COMM_WORLD, "\n Divergence... %d iterations. \n", its);
->>>>>>> OnlyFluid
     cout <<  reason << endl;
     exit(1);
     return -1;
@@ -172,7 +170,6 @@ int PetscSolver::solve()
   else
   {
     PetscPrintf(MPI_COMM_WORLD, "\n Convergence in %d iterations. \n", its);
->>>>>>> OnlyFluid
   }
 
   return 0;

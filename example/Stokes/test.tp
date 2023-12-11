@@ -14,7 +14,6 @@
 //  image = "INPUT/straightTube/image64x128x64.dat"
 //  imageEX = "INPUT/straightTube/image64x128x64_around.dat"
 //  sdf = "INPUT/straightTube/sdf64x128x64.dat"
->>>>>>> OnlyFluid
 //}
 
 Domain
@@ -33,7 +32,6 @@ Domain
 //  image = "INPUT/straightTube/image4x8x4_rectangle.dat"
 //  imageEX = "INPUT/straightTube/image4x8x4_rectangle.dat"
 //  sdf = "INPUT/straightTube/sdf4x8x4_rectangle.dat"
->>>>>>> OnlyFluid
 //}
 
 Boundary

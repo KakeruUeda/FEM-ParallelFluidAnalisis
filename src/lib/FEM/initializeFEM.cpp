@@ -93,7 +93,6 @@ void FEM::setBoundary(){
   }
   
   /*
->>>>>>> OnlyFluid
   int count = 0;
   vector<double> vecDbTmp(3,0);
 
