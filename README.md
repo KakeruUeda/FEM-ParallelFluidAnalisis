@@ -1,4 +1,4 @@
-## --- Fluid Data Assimilation ---
+# Fluid Data Assimilation
 ## Overview
 This code optimizes MRI velociy field using adjoint variable method. <br>
 ・FEM <br>
@@ -10,9 +10,9 @@ This code optimizes MRI velociy field using adjoint variable method. <br>
     * cd /<example_dir>
     * mpirun -n <process> ./<solver_dir>/<solver> test.tp
 ## Features
-・SteadyStokesSolver: Solve stokes equation <br>
-・SteadyNavierStokesSolver: Solve navier stokes equation <br>
-・BCsOptimization: Not yet implemented <br>
+・SteadyStokesSolver: solve Stokes equation <br>
+・SteadyNavierStokesSolver: solve Navier Stokes equation <br>
+・BCsOptimization: not yet implemented <br>
 ## Reference
 ## Author
 Kakeru Ueda
