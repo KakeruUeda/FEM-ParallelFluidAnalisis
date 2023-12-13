@@ -64,12 +64,12 @@ back{
 
 Parameter
 {
-  rho = 1
+  rho = 200
   mu = 1
   OMPnumThreads = 1
 }
 
 Output
 {
-  outputDir    = "vessel"
+  outputDir = "cavity"
 }

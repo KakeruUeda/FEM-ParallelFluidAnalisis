@@ -12,7 +12,7 @@ target_sources(postprocess
 target_include_directories(postprocess PUBLIC
   ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/solver
-  ${PROJECT_SOURCE_DIR}/src/lib/fem
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
 )
 
 target_compile_options(postprocess PUBLIC ${compile_options_tmp})

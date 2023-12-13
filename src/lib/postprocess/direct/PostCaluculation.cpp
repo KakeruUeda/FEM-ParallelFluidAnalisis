@@ -3,10 +3,8 @@
 
 void FEM::postCaluculation_itr(const int loop){
 
-  if(myId>0) return;
-
   int ii, kk, nn, mm;
-  double relaxationParam = 5e-1;
+  double relaxationParam = 2e-1;
 
   for(ii=0; ii<numOfNodeGlobalFluid; ii++){
     nn = nodeMapFluid[ii];
@@ -20,16 +18,17 @@ void FEM::postCaluculation_itr(const int loop){
     v[sortNode[ii]] = vFluid[ii];
     w[sortNode[ii]] = wFluid[ii];   
     p[sortNode[ii]] = pFluid[ii];
-    if(wFluid[ii] != 0) cout << wFluid[ii] << endl;
   }
- 
-  string vtiFile;
+  if(myId==0){
+    string vtiFile;
+    
+    vtiFile = outputDir + "/NS_itr_"+to_string(loop)+".vti";
+    export_vti_result(vtiFile,u,v,w,p);
   
-  vtiFile = outputDir + "/NS_itr_"+to_string(loop)+".vti";
-  export_vti_result(vtiFile,u,v,w,p);
+    vtiFile = outputDir + "/NS_itr_2D_"+to_string(loop)+".vti";
+    export_vti_result_2D(vtiFile,u,v,p);
+  }
 
-  vtiFile = outputDir + "/NS_itr_2D_"+to_string(loop)+".vti";
-  export_vti_result_2D(vtiFile,u,v,p);
 }
 
 void FEM::postCaluculation(){

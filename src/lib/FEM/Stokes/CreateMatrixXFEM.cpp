@@ -3,7 +3,6 @@ using namespace std;
 
 void FEM::XFEM_StokesMatrix(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 {
-
   int ii, jj;
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
@@ -22,7 +21,7 @@ void FEM::XFEM_StokesMatrix(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
-  double minSDF = dx;
+  double minSDF = dx/2;
   
   int check = 0;
   for(int i=0;i<numOfNodeInElm;i++){
@@ -38,8 +37,8 @@ void FEM::XFEM_StokesMatrix(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 
   if((minSDF_node < dx/20) && (check == 3)){
     //return;
-
   }
+
   bool flag = false;
   if(check==8){
     flag = true;
@@ -116,7 +115,6 @@ void FEM::XFEM_StokesMatrix(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                   }
                 }
               }
-
               
               for(ii=0;ii<numOfNodeInElm;ii++)
               {  
