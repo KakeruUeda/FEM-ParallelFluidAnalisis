@@ -2,10 +2,10 @@
 ## Overview
 This code includes CFD and Optimization solvers based on Message Passing Interface. <br>
 The equations are discretized in orthogonal grid using Finite Element Method. <br>
-To express discontinuity, eXtended Finite Element Method is also used on the boundary elements.
+To express discontinuity on the interface, eXtended Finite Element Method is also used.
 ## Dependencies
 ・metis: Domain partitioning (these sub domains are owned by each MPI process) <br>
-・PETSc: MPI based solver for matrix system <br>
+・PETSc: MPI based library for soling matrix system <br>
 ・TextParser: Enables us to handle text parameter
 ## Usage
     * sh build.sh
