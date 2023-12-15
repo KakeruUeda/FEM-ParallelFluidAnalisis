@@ -1,17 +1,20 @@
 # Fluid Data Assimilation
 ## Overview
-This code optimizes MRI velociy field using adjoint variable method. <br>
-FEM &nbsp; &nbsp; &nbsp;・・・ Discretization in orthogonal grid <br>
-XFEM &nbsp; &nbsp;・・・ Interface discretization <br>
-PETSC &nbsp; &nbsp;・・・ Solver for matrix system <br>
-MPICH &nbsp;・・・ Parallel algorithm
+This code includes CFD and Optimization solvers based on Message Passing Interface. <br>
+The equations are discretized in orthogonal grid using Finite Element Method. <br>
+To express discontinuity, eXtended Finite Element Method is also used on the boundary elements.
+## Dependencies
+・metis: Domain partitioning (these sub domains are owned by each MPI process) <br>
+・PETSc: MPI based solver for matrix system <br>
+・TextParser: Enables us to handle text parameter
 ## Usage
     * sh build.sh
     * cd /<example_dir>
     * mpirun -n <process> ./<solver_dir>/<solver_name> test.tp petsc_options.dat
 ## Features
 ・SteadyStokesSolver: Solve Stokes equation <br>
-・SteadyNavierStokesSolver: Solve Navier Stokes equation <br>
+・SteadyNavierStokesSolver: Solve Steady Navier Stokes equation <br>
+・UnsteadyNavierStokesSolver: Solve Unsteady Navier Stokes equation <br>
 ・BCsOptimization: Not yet implemented <br>
 ## Reference
 ## Author
