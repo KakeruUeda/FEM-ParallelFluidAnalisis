@@ -1,4 +1,8 @@
+#include <omp.h>
+#include <string>
 #include <iostream>
+#include <cmath>
+
 using namespace std;
 
 class BasicFunctions {

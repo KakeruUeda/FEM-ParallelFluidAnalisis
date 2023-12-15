@@ -4,9 +4,9 @@ string(REPLACE " " ";" compile_options_tmp ${compile_options_tmp})
 add_library(stokes STATIC)
 target_sources(stokes
   PRIVATE
-  CreateMatrix.cpp
-  CreateMatrixXFEM.cpp
-  Stokes.cpp
+  MatrixAssemblySST.cpp
+  XFEM_MatrixAssemblySST.cpp
+  SteadyStokes.cpp
 )
 
 target_include_directories(stokes PUBLIC

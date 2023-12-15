@@ -16,6 +16,7 @@ void FEM::assignBCs()
   return;
 }
 
+
 void FEM::applyBCs()
 {
   int ii, ic, size;
@@ -45,6 +46,7 @@ void FEM::applyBCs()
         if(elmFluid[ic]->nodeForAssyBCsFluid[ii] == -1){
           Klocal_tmp[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
           Flocal_tmp[ii] = DirichletBCsFluid[elmFluid[ic]->globalDOFnumsFluid[ii]];    
+
         }
       }
       VecSetValues(solverPetscFluid->rhsVec, size, &vecIntTemp[0], Flocal_tmp, INSERT_VALUES);
@@ -59,4 +61,58 @@ void FEM::applyBCs()
   VecAssemblyEnd(solverPetscFluid->rhsVec);
 
   return;
+}
+
+double FEM::calc_tau(const double (&dxdr)[3][3], const double (&vel)[3])
+{
+  double tau = 0e0;
+  double drdx[3][3];
+  BasicFunctions::calcInverseMatrix_3x3(drdx,dxdr);
+
+  double term1 = (2e0/dt)*(2e0/dt);
+  
+  double G[3][3];
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      G[i][j] = 0e0;
+      for(int k=0;k<3;k++) G[i][j] += drdx[k][i] * drdx[k][j];
+    }
+  }
+ 
+  double term2 = 0e0;
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      term2 += vel[i] * G[i][j] * vel[j];
+    }
+  }
+  
+  double CI = 36e0;
+  
+  double term3 = 0e0;
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      term3 += G[i][j] * G[i][j];
+    }
+  }
+  term3 = 0e0;//CI * term3 / Re / Re;
+  
+  return tau = pow(term1+term2+term3,-5e-1);
+}
+
+
+
+double FEM::calc_tau2(vector<vector<double>> &dNdx, const double (&vel)[3])
+{
+  double tau = 0e0;
+  double velMag = sqrt(vel[0]*vel[0] + vel[1]*vel[1] + vel[2]*vel[2]);
+
+  double term1 = (2e0/dt)*(2e0/dt);
+
+  double he = dx;
+  double term2 = (2e0*velMag/he)*(2e0*velMag/he);
+  
+  double term3 = (4e0/(Re*he*he)) * (4e0/(Re*he*he));
+  //cout << term1 << " " <<  term2 << " " << term3 << endl;
+  
+  return tau = pow(term1+term2+term3,-5e-1);
 }

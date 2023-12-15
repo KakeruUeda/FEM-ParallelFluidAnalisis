@@ -1,18 +1,65 @@
 #include "FEM.h"
 using namespace std;
 
-void FEM::readInput(){
+void FEM::readInput()
+{
+  if(solver == SOLVER::STEADY_STOKES)
+  {
+    readMPI();
+    readOutput();
+    readPysicalParam();
+    readDomain();
+    readBoundary();
+    readImage();
+  }
+  else if(solver == SOLVER::STEADY_NAVIERSTOKES)
+  {
+    readMPI();
+    readOutput();
+    readPysicalParam();
+    readNRParam();
+    readDomain();
+    readBoundary();
+    readImage();
+  }
+  else if(solver == SOLVER::UNSTEADY_NAVIERSTOKES)
+  {
+    readMPI();
+    readOutput();
+    readPysicalParam();
+    readTimeParam();
+    readDomain();
+    readBoundary();
+    readImage();
+  }
+  else{
+    cout << "solver is not set" << endl;
+    exit(0);
+  }  
+}
 
+
+void FEM::readMPI()
+{
+  string str,base_label,label;
+  
+  base_label = "/MPI";
+  label = base_label + "/numOfOMP";
+  if ( !tp.getInspectedValue(label, numOfOMP)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+}
+
+
+void FEM::readOutput()
+{
   string str,base_label,label;
 
-  int tmp[3];
-  double dummy[3];
-
-  ////Output////
   base_label = "/Output";
   label = base_label + "/outputDir";
   if ( !tp.getInspectedValue(label, outputDir)){
-    cout << "outputDir is not set" << endl;
+    cout << label << " is not set" << endl;
     exit(0);
   }
 
@@ -21,7 +68,14 @@ void FEM::readInput(){
   outputDir = ("./output/" + outputDir);
   mkdir(outputDir.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
 
-  /////domain/////
+}
+
+void FEM::readDomain()
+{
+  string str,base_label,label;
+  int tmp[3];
+  double dummy[3];
+  
   base_label = "/Domain";
   label = base_label + "/nx";
   if ( !tp.getInspectedVector(label,tmp,3)){
@@ -47,28 +101,100 @@ void FEM::readInput(){
   numOfNodeGlobal=(nx+1)*(ny+1)*(nz+1);
   numOfElmGlobal=nx*ny*nz;
   numOfNodeInElm=8;
+}
 
+
+void FEM::readPysicalParam()
+{
+  string str,base_label,label;
+
+  base_label = "/PysicalParameter";
   
-  /////param/////
-  base_label = "/Parameter";
   label = base_label + "/rho";
   if ( !tp.getInspectedValue(label, rho)){
     cout << label << " is not set" << endl;
     exit(0);
   }
 
-  base_label = "/Parameter";
   label = base_label + "/mu";
   if ( !tp.getInspectedValue(label, mu)){
     cout << label << " is not set" << endl;
     exit(0);
   }
 
-  label = base_label + "/OMPnumThreads";
-  if ( !tp.getInspectedValue(label, numOfOMP)){
+  label = base_label + "/U";
+  if ( !tp.getInspectedValue(label, U)){
     cout << label << " is not set" << endl;
     exit(0);
   }
+
+  label = base_label + "/D";
+  if ( !tp.getInspectedValue(label, D)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+}
+
+
+void FEM::readNRParam()
+{
+  string str,base_label,label;
+
+  base_label = "/NRParameter";
+
+  label = base_label + "/NRtolerance";
+  if ( !tp.getInspectedValue(label, NRtolerance)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+  label = base_label + "/NRitr";
+  if ( !tp.getInspectedValue(label, NRitr)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+    
+  label = base_label + "/NRitr_initial";
+  if ( !tp.getInspectedValue(label, NRitr_initial)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+    
+  label = base_label + "/relaxationParam";
+  if ( !tp.getInspectedValue(label, relaxationParam)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+  
+  label = base_label + "/relaxationParam_initial";
+  if ( !tp.getInspectedValue(label, relaxationParam_initial)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+}
+
+void FEM::readTimeParam(){
+  string str,base_label,label;
+
+  base_label = "/TimeParameter";
+  
+  label = base_label + "/dt";
+  if ( !tp.getInspectedValue(label, dt)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+  label = base_label + "/timeMax";
+  if ( !tp.getInspectedValue(label, timeMax)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+}
+
+void FEM::readBoundary()
+{
+  string str,base_label,label;
+
 
   bd_u.resize(numOfNodeGlobal,vector<double>(3,0));
   bd_iu.resize(numOfNodeGlobal,vector<int>(3,0));
@@ -265,9 +391,6 @@ void FEM::readInput(){
     cout << bdType << " is undefined. Exit..." << endl;
   }
 
-
-
-  
   label = base_label + "/front/type";
   if ( !tp.getInspectedValue(label,bdType)){
     cout << label << " is not set" << endl;
@@ -350,9 +473,15 @@ void FEM::readInput(){
   }else{
     cout << bdType << " is undefined. Exit..." << endl;
   }
+}
 
 
-  ////setImage////
+
+void FEM::readImage()
+{
+  string str,base_label,label;
+
+
   phi.resize(numOfElmGlobal);
   phiEX.resize(numOfElmGlobal);
   sdf.resize(numOfNodeGlobal);
@@ -435,7 +564,4 @@ void FEM::readInput(){
     }
   }
   fclose(fp);
-  
-
-
 }

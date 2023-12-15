@@ -26,7 +26,7 @@ message(" ")
      # include directories #
 ##################################
 include_directories(
-  /opt/homebrew/include
+  /opt/homebrew/Cellar/metis/5.1.0/include
   /opt/homebrew/include/eigen3
   /opt/TextParser/include
   /opt/petsc/include
@@ -36,7 +36,7 @@ include_directories(
       # lib directories #
 ##################################
 link_directories(
-  /opt/homebrew/lib
+  /opt/homebrew/Cellar/metis/5.1.0/lib
   /opt/TextParser/lib
   /opt/petsc/lib
   /opt/homebrew/opt/libomp/lib
