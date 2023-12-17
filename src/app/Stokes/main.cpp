@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
   }
 
   omp_set_num_threads(STOKES.numOfOMP);
-
+  
   STOKES.Stokes();
   MPI_Barrier(MPI_COMM_WORLD);
 

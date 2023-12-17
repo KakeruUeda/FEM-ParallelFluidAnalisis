@@ -22,6 +22,7 @@ int main(int argc, char* argv[]){
   MPI_Barrier(MPI_COMM_WORLD);
 
   NAVIER.nu = NAVIER.mu/NAVIER.rho;
+  NAVIER.Re = (NAVIER.U*NAVIER.D)/NAVIER.nu;
   
   if(NAVIER.myId == 1){
     string vtiFile;

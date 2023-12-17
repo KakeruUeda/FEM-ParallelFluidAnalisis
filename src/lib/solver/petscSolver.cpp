@@ -85,8 +85,8 @@ int PetscSolver::initialise(int size_local, int size_global, int* diag_nnz, int*
     CHKERRQ(errpetsc);
 
     //  Set whether to use non-zero initial guess or not
-    //  KSPSetInitialGuessNonzero(ksp, PETSC_TRUE);
-    //  KSPSetInitialGuessNonzero(ksp, PETSC_FALSE);
+    //KSPSetInitialGuessNonzero(ksp, PETSC_TRUE);
+    //KSPSetInitialGuessNonzero(ksp, PETSC_FALSE);
 
 
     // Set KSP options from the input file

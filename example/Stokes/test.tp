@@ -1,26 +1,55 @@
 MPI
 {
-  numOfOMP = 1
+  numOfOMP =   1
 }
 
 Output
 {
-  outputDir = "square"
+  outputDir = "test"
 }
+
+
+//Domain
+//{
+//  nx=(32,200,32)  //element size
+//  Lx=(1.0,6.25,1.0)  //domain size
+//  image = "input/square/image512x512x512.dat" 
+//  imageEX = "input/square/image512x512x512.dat"
+//  sdf = "input/square/sdf128x128x128.dat"
+//}
+
+//Domain
+//{
+//  nx=(64,64,64)  //element size
+//  Lx=(1e0,1e0,1e0)  //domain size
+//  image = "input/square/image128x128x128.dat"
+//  imageEX = "input/square/image128x128x128.dat"
+//  sdf = "input/square/sdf128x128x128.dat"
+//}
+
+//Domain
+//{
+//  nx=(240,80,80)  //element size
+//  Lx=(50,15,12)  //domain size
+//  image = "input/vessel/image240x80x80.dat"
+//  imageEX = "input/vessel/image240x80x80_around.dat"
+//  sdf = "input/vessel/sdf240x80x80.dat"
+//}
 
 Domain
 {
-  nx=(32,32,32)  //element size
-  Lx=(1e0,1e0,1e0)  //domain size
-  image = "input/square/image128x128x128.dat" 
-  imageEX = "input/square/image128x128x128_around.dat"
-  sdf = "input/square/sdf128x128x128.dat"
+  nx=(80,240,80)  //element size
+  Lx=(1e2,3e2,1e2)  //domain size
+  image = "input/straightTube/image80x240x80.dat"
+  imageEX = "input/straightTube/image80x240x80_around.dat"
+  sdf = "input/straightTube/sdf80x240x80.dat"
 }
 
 Boundary
 {
  top{
     type = "free"
+    value = (1,0,0)
  }
  bottom{
     type = "v"
@@ -46,7 +75,9 @@ back{
 
 PysicalParameter
 {
-  rho = 100
-  mu = 0.035
+  rho = 1  // density
+  mu = 0.1    // viscocity
+  U = 1       // characteristic velocity
+  D = 1       // characteristic lengh
 }
 

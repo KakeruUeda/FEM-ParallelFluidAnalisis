@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_COMPILER "/opt/petsc/bin/mpic++")
-set(base_compile_options ${base_compile_options} "-O3")
+set(base_compile_options ${base_compile_options} "-Ofast")
 #set(CMAKE_CXX_FLAGS_RELEASE "-pg")
 string(REPLACE " " " " compile_options ${base_compile_options})
 

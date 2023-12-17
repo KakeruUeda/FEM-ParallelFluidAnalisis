@@ -7,6 +7,9 @@ void FEM::initialize()
   setBoundary();
   setFluidDomain();
   prepareMatrix();
+  interfacePartition();
+
+  //exit(1);
 }
 
 
@@ -233,8 +236,6 @@ void FEM::setFluidDomain()
     //exit(1);
   }
   */
-  
-  
 
   int count = 0;
   vector<double> vecDbTmp(3,0);

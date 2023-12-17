@@ -126,11 +126,21 @@ class FEM :public DomainFEM{
 
     int deallocate();
 
+    void interfacePartition();
+    void line_serch(vector<int> &sub_cross_num, vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
+    void s_t_u(const int &linePartition, const int &i, const int &j, double &s, double &t, double &u);
+    bool is_cross(vector<double> &sdf_current, const int i);
+    void tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
+    void tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
+    void tetraPartition3(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
+
     /// STEADY STOKES  ///
     void Stokes();
    
     void MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     void XFEM_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void SAWADA_XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
     
     /// STEADY NAVIER STOKES  ///
     void SteadyNavierStokes();

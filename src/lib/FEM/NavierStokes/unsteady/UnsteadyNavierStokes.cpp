@@ -40,8 +40,8 @@ void FEM::UnsteadyNavierStokes(){
   assignBCs();
 
 
-  for(int t_itr=0; t_itr<timeMax; t_itr++){
-
+  for(int t_itr=0; t_itr<timeMax; t_itr++)
+  {
     solverPetscFluid->zeroMtx();
     reacVec.setZero();
     

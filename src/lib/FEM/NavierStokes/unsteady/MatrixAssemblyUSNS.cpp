@@ -115,9 +115,7 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
           for(int j=0;j<3;j++) vdvdx[i] += advel[j]*dvdx[i][j];
         }
 
-
         double tau = calc_tau2(dNdx,advel);
-        double tau_PSPG  = calc_tau2(dNdx,advel);
 
         //double h = sqrt(dx*dx+dy*dy+dz*dz);
         //double vMag = sqrt(vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2]);
@@ -223,20 +221,20 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
   
             //// PSPG ////
             /// mass /// 
-           Klocal(IP, JU) += tau_PSPG * dNdx[ii][0] * N[jj] / dt * detJ * weight;
-           Klocal(IP, JV) += tau_PSPG * dNdx[ii][1] * N[jj] / dt * detJ * weight;
-           Klocal(IP, JW) += tau_PSPG * dNdx[ii][2] * N[jj] / dt * detJ * weight;
+           Klocal(IP, JU) += tau * dNdx[ii][0] * N[jj] / dt * detJ * weight;
+           Klocal(IP, JV) += tau * dNdx[ii][1] * N[jj] / dt * detJ * weight;
+           Klocal(IP, JW) += tau * dNdx[ii][2] * N[jj] / dt * detJ * weight;
            
            /// advection ///
            for(mm=0;mm<3;mm++)
            {
-             Klocal(IP, JU) += 5e-1 * tau_PSPG * dNdx[ii][0] * advel[mm] * dNdx[jj][mm] * detJ * weight;
-             Klocal(IP, JV) += 5e-1 * tau_PSPG * dNdx[ii][1] * advel[mm] * dNdx[jj][mm] * detJ * weight;
-             Klocal(IP, JW) += 5e-1 * tau_PSPG * dNdx[ii][2] * advel[mm] * dNdx[jj][mm] * detJ * weight;
+             Klocal(IP, JU) += 5e-1 * tau * dNdx[ii][0] * advel[mm] * dNdx[jj][mm] * detJ * weight;
+             Klocal(IP, JV) += 5e-1 * tau * dNdx[ii][1] * advel[mm] * dNdx[jj][mm] * detJ * weight;
+             Klocal(IP, JW) += 5e-1 * tau * dNdx[ii][2] * advel[mm] * dNdx[jj][mm] * detJ * weight;
            }
 
             /// pressure ///
-            Klocal(IP, JP) += tau_PSPG * K[ii][jj] * detJ * weight;
+            Klocal(IP, JP) += tau * K[ii][jj] * detJ * weight;
           } // II loop //
 
 
@@ -300,16 +298,16 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
               
           //// PSPG ////
           /// mass /// 
-          Flocal(IP) += tau_PSPG * dNdx[ii][0] * vel[0] / dt * detJ * weight;
-          Flocal(IP) += tau_PSPG * dNdx[ii][1] * vel[1] / dt * detJ * weight;
-          Flocal(IP) += tau_PSPG * dNdx[ii][2] * vel[2] / dt * detJ * weight;
+          Flocal(IP) += tau * dNdx[ii][0] * vel[0] / dt * detJ * weight;
+          Flocal(IP) += tau * dNdx[ii][1] * vel[1] / dt * detJ * weight;
+          Flocal(IP) += tau * dNdx[ii][2] * vel[2] / dt * detJ * weight;
           
           /// advection ///
           for(mm=0;mm<3;mm++)
           {
-            Flocal(IP) -= 5e-1 * tau_PSPG * dNdx[ii][0] * advel[mm] * dvdx[0][mm] * detJ * weight;
-            Flocal(IP) -= 5e-1 * tau_PSPG * dNdx[ii][1] * advel[mm] * dvdx[1][mm] * detJ * weight;
-            Flocal(IP) -= 5e-1 * tau_PSPG * dNdx[ii][2] * advel[mm] * dvdx[2][mm] * detJ * weight;
+            Flocal(IP) -= 5e-1 * tau * dNdx[ii][0] * advel[mm] * dvdx[0][mm] * detJ * weight;
+            Flocal(IP) -= 5e-1 * tau * dNdx[ii][1] * advel[mm] * dvdx[1][mm] * detJ * weight;
+            Flocal(IP) -= 5e-1 * tau * dNdx[ii][2] * advel[mm] * dvdx[2][mm] * detJ * weight;
           }
         }
       }

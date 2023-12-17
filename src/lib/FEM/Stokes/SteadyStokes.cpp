@@ -36,7 +36,7 @@ void FEM::Stokes(){
   PetscPrintf(MPI_COMM_WORLD, "\n ****** ELEMENT LOOP START ******* \n", timer);
   
   timer = MPI_Wtime();
-
+  //#pragma omp parallel for
   for(int ic=0;ic<numOfElmGlobalFluid;ic++){
     if(elmFluid[ic]->getSubdomainId() == myId){
       
@@ -46,7 +46,7 @@ void FEM::Stokes(){
       if(phiEXFluid[ic]>0.999){
         MatAssySTT(ic,Klocal,Flocal);
       }else{
-        XFEM_MatAssySTT(ic,Klocal,Flocal);
+        XFEM_MatAssySTT2(ic,Klocal,Flocal);
       }
       solverPetscFluid->assembleMatrixAndVectorSerial(elmFluid[ic]->nodeForAssyBCsFluid, elmFluid[ic]->nodeForAssyFluid, Klocal, Flocal);
     }

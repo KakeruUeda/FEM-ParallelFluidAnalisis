@@ -34,7 +34,7 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
         MathFEM::calc_dxdr(dxdr,dNdr,x_current,numOfNodeInElm);
             
         detJ = dxdr[0][0]*dxdr[1][1]*dxdr[2][2]+dxdr[0][1]*dxdr[1][2]*dxdr[2][0]+dxdr[0][2]*dxdr[1][0]*dxdr[2][1]
-                          -dxdr[0][2]*dxdr[1][1]*dxdr[2][0]-dxdr[0][1]*dxdr[1][0]*dxdr[2][2]-dxdr[0][0]*dxdr[1][2]*dxdr[2][1];
+              -dxdr[0][2]*dxdr[1][1]*dxdr[2][0]-dxdr[0][1]*dxdr[1][0]*dxdr[2][2]-dxdr[0][0]*dxdr[1][2]*dxdr[2][1];
         weight = g1.weight[i1]*g1.weight[i2]*g1.weight[i3];
               
         MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
@@ -94,10 +94,20 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
         }
 
         //// stabilization parameter ////
-        double h = sqrt(dx*dx+dy*dy+dz*dz);
-        double vMag = sqrt(vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2]);
-        double tau=pow(2e0*vMag/h,2e0)+9e0*pow(4e0*nu/(h*h),2e0);
-        tau = 1e0/sqrt(tau);
+        //double h = sqrt(dx*dx+dy*dy+dz*dz);
+        //double vMag = sqrt(vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2]);
+        //double tau=pow(2e0*vMag/h,2e0)+9e0*pow(4e0*nu/(h*h),2e0);
+        //tau = 1e0/sqrt(tau);
+
+        double tau = 0e0;
+        double velMag = sqrt(vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2]);
+        double he = dx;
+        double term2 = (2e0*velMag/he)*(2e0*velMag/he);
+        
+        double term3 = (4e0/(Re*he*he)) * (4e0/(Re*he*he));
+        //cout << term1 << " " <<  term2 << " " << term3 << endl;
+        
+        tau = pow(term2+term3,-5e-1);
 
 
         for(ii=0;ii<numOfNodeInElm;ii++)
@@ -219,7 +229,6 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
           Flocal[IV] += pre * dNdx[ii][1] * detJ * weight;
           Flocal[IW] += pre * dNdx[ii][2] * detJ * weight;
   
-          //// continuity ////
           Flocal[IP] -= N[ii] * div * detJ * weight;
 
           /// SUPG ///

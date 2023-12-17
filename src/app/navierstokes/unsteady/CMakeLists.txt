@@ -21,6 +21,7 @@ target_link_libraries( ${main_target} PRIVATE
   fem
   solver
   unsteadynavierstokes
+  preprocess
   postprocess
   omp
 )
