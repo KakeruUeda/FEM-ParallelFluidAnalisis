@@ -1,0 +1,10 @@
+bin
+build
+*.vti
+*.vtu
+*.bin
+*.stl
+*.dat
+*.output
+*.DS_Store
+*.vs_code
