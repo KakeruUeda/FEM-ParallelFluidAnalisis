@@ -26,11 +26,17 @@ enum class SOLVER{
   UNSTEADY_NAVIERSTOKES = 2
 };
 
+enum class BOUNDARY{
+  XFEM = 0,
+  DARCY = 1
+};
+
 
 class FEM :public DomainFEM{
   public:
 
     SOLVER solver;
+    BOUNDARY bd;
 
     SolutionData  SolnData;
     ElementBaseFEM **elm;
@@ -64,13 +70,22 @@ class FEM :public DomainFEM{
     double dt;
     int timeMax;
     
-    vector<double> phi, phiEX;
-    vector<double> sdf;
+    vector<double> phi, phiEX, phiVOF;
+    vector<double> sdf, sdf_node;
 
     vector<double> u;
     vector<double> v;
     vector<double> w;
     vector<double> p;
+
+    /// XFEM ///
+    int max_depth;
+    int sub_div;
+    int sub_div_total;
+    
+    /// Darcy ///
+    double resistance;
+    double alpha;
 
   ///// FLUID ONLY /////
   public:
@@ -88,8 +103,9 @@ class FEM :public DomainFEM{
     
     vector<double> phiFluid;
     vector<double> phiEXFluid;
+    vector<double> phiVOFFluid;
+    vector<double> sdfFluid_node;
     vector<double> sdfFluid;
-
     vector<int> sortElm, sortNode;
 
     vector<double> uFluid;
@@ -102,6 +118,8 @@ class FEM :public DomainFEM{
     vector<vector<double>> wf;
     vector<vector<double>> pf;
 
+
+
   public:
     FEM();
     ~FEM();
@@ -110,6 +128,10 @@ class FEM :public DomainFEM{
     void readMPI();
     void readOutput();
     void readPysicalParam();
+    void readBoundaryMethod();
+    void readXFEMParam();
+    void readDarcyParam();
+    void readBTSubDivParam();
     void readNRParam();
     void readTimeParam();
     void readDomain();
@@ -126,6 +148,15 @@ class FEM :public DomainFEM{
 
     int deallocate();
 
+    /// XFEM PARTITION ///
+    void binaryTreeSubDivision();
+    void gererateSubElms(vector<double> &sdf_parent, vector<vector<double>> &x_sub, vector<double> &x_center_parent, const int &ic, int &tmp, int &depth);
+    void getSubSubCoordinates(vector<vector<double>> &x_sub, vector<vector<double>> &x_sub_sub, vector<double> &sdf_sub_sub, const int &ii, const int &jj, const int &kk);
+    void makeSubElmsData(vector<double> &sdf_sub_sub, vector<vector<double>> &x_sub_sub, vector<double> &x_center_parent, const int &ic, int &tmp, int &depth);
+    void subGaussPoint(vector<vector<double>> &x_sub_sub, double &sub_gx_tmp, double &sub_gy_tmp, double &sub_gz_tmp, vector<double> &x_center_parent, const int &ii, const int &jj, const int &kk);
+    void subGaussWeight(double &weight, const int &ii, const int &jj, const int &kk, int &depth);
+
+
     void interfacePartition();
     void line_serch(vector<int> &sub_cross_num, vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
     void s_t_u(const int &linePartition, const int &i, const int &j, double &s, double &t, double &u);
@@ -139,8 +170,10 @@ class FEM :public DomainFEM{
    
     void MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     void XFEM_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
-    void XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_MatAssySTT2(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_MatAssySTT3(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
     void SAWADA_XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void Darcy_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     
     /// STEADY NAVIER STOKES  ///
     void SteadyNavierStokes();
@@ -162,17 +195,21 @@ class FEM :public DomainFEM{
     
     void MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
     void XFEM_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
+    void Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
+    void VelocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][3],vector<double> &N, vector<vector<double>> &dNdx, const int ic, const int t_itr);
     
     void assignBCs();
     void applyBCs();
     double calc_tau(const double (&dxdr)[3][3],const double (&vel)[3]);
-    double calc_tau2(vector<vector<double>> &dNdx, const double (&vel)[3]);
+    double calc_tau2(const double (&vel)[3]);
   
     void postCaluculation();
     void postCaluculation_itr(const int loop);
     void postCaluculation_timeItr(const int t_itr);
     
-    void export_vti(const string &file, vector<int> &node, vector<int> &element);
+    void export_vti_metis(const string &file, vector<int> &node, vector<int> &element);
+    void export_vti_node(const string &file, vector<double> &node);
+    void export_vti_elm(const string &file, vector<double> &element);
     void export_vti_domain(const string &file);
     void export_vti_result(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &w, vector<double> &p);
     void export_vti_result_2D(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &p);

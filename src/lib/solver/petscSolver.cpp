@@ -194,7 +194,7 @@ int PetscSolver::factoriseAndSolve()
 
 
 
-int PetscSolver::assembleMatrixAndVectorSerial(vector<int>& forAssyElem, vector<int>& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal)
+int PetscSolver::setValue(vector<int>& forAssyElem, vector<int>& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal)
 {
   int  size1 = forAssyElem.size();
   int  size2 = forAssyElemRHS.size();

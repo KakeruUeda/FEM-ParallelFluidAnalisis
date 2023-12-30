@@ -1,0 +1,110 @@
+MPI
+{
+  numOfOMP = 1
+}
+
+Output
+{
+  outputDir = "test"
+}
+
+
+Domain
+{
+  nx=(240,80,80)  //element size
+  Lx=(50,15,12)  //domain size
+  image = "input/vessel/image240x80x80.dat"
+  imageEX = "input/vessel/image240x80x80_around.dat"
+  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+  sdf = "input/vessel/sdf240x80x80.dat"
+  sdf_node = "input/vessel/sdf240x80x80_node.dat"
+}
+
+
+//Domain
+//{
+//  nx=(64,64,64)  //element size
+//  Lx=(20,10,10)  //domain size
+//  image = "input/sphere/image64x64x64_VOF.dat"
+//  imageEX = "input/sphere/image64x64x64_VOF.dat"
+//  imageVOF = "input/sphere/image64x64x64_VOF.dat"
+//  sdf = "input/sphere/sdf64x64x64.dat"
+//  sdf_node = "input/sphere/sdf64x64x64_node.dat"
+//}
+
+
+//Domain
+//{
+//  nx=(42,42,126) //element size
+//  Lx=(10,10,30)  //domain size
+//  image = "input/cylinder/image42x42x126_VOF.dat"
+//  imageEX = "input/cylinder/image42x42x126_VOF.dat"
+//  imageVOF = "input/cylinder/image42x42x126_VOF.dat"
+//  sdf = "input/cylinder/sdf42x42x126.dat"
+//  sdf_node = "input/cylinder/sdf42x42x126_node.dat"
+//}
+
+Boundary
+{
+ top{
+    type = "free"
+    value = (0,0,0)
+ }
+ bottom{
+    type = "free"
+    value = (0,0,0)
+ }
+ left{
+    type = "v"
+    value = (1,0,0)
+ }
+ right{
+    type = "free"
+    value = (0,0,0)
+ }
+ front{
+    type = "free"
+    value = (0,0,1)
+ }
+back{
+    type = "free"
+    value = (0,0,0)
+ }
+}
+
+PysicalParameter
+{
+  rho = 500  // density
+  mu = 1      // viscocity
+  U = 1       // characteristic velocity
+  D = 1       // characteristic lengh
+}
+
+TimeParameter{
+  dt = 0.2
+  timeMax = 1000
+}
+
+BoundaryMethod
+{
+  boundary = "Darcy"
+}
+
+
+XFEMParameter
+{
+  sub_div = 6  
+}
+
+
+DarcyParameter
+{
+  alpha = 1e-2
+  resistance = 1e0
+}
+
+BTSubDivParameter
+{
+   max_depth = 1
+   sub_div = 6  
+}

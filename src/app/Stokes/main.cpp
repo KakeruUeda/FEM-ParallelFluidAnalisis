@@ -1,9 +1,9 @@
 #include "FEM.h"
-#include <omp.h>
-int main(int argc, char* argv[]){
 
+int main(int argc, char* argv[])
+{
   MPI_Init(NULL, NULL);
-  string  petscfile   = argv[2];
+  string petscfile = argv[2];
   PetscInitialize(NULL, NULL, petscfile.c_str(), NULL);
  
   FEM STOKES;
@@ -21,10 +21,21 @@ int main(int argc, char* argv[]){
   STOKES.initialize();
   MPI_Barrier(MPI_COMM_WORLD);
   
-  if(STOKES.myId == 1){
+
+  if(STOKES.myId == 0){
     string vtiFile;
-    vtiFile = STOKES.outputDir + "/domain.vti";
-    STOKES.export_vti_domain(vtiFile);
+    if(STOKES.bd == BOUNDARY::XFEM)
+    {
+      vtiFile = STOKES.outputDir + "/domain.vti";
+      STOKES.export_vti_domain(vtiFile);
+    }
+    else if(STOKES.bd == BOUNDARY::DARCY)
+    {
+      vtiFile = STOKES.outputDir + "/sdf_node.vti";
+      STOKES.export_vti_node(vtiFile,STOKES.sdf_node);
+      vtiFile = STOKES.outputDir + "/phiVOF.vti";
+      STOKES.export_vti_elm(vtiFile,STOKES.phiVOF);
+    }
   }
 
   omp_set_num_threads(STOKES.numOfOMP);

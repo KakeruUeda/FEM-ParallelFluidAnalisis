@@ -31,7 +31,7 @@ class PetscSolver
 
     virtual int initialise(int size_local, int size_global, int* diag_nnz, int* offdiag_nnz, int nnz_max_row);
     virtual int zeroMtx();
-    virtual int assembleMatrixAndVectorSerial(vector<int>& forAssyElem, vector<int>& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal);
+    virtual int setValue(vector<int>& forAssyElem, vector<int>& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal);
     virtual int factorise();
     virtual int solve();
     virtual int factoriseAndSolve();

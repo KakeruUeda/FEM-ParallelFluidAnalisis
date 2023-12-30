@@ -30,7 +30,7 @@ void FEM::applyBCs()
 
   vector<int>  vecIntTemp;
   for(ic=0; ic<numOfElmGlobalFluid; ic++)
-  {  
+  {
     if(elmFluid[ic]->getSubdomainId() == myId)
     {
       for(ii=0; ii<Japan; ii++){
@@ -101,7 +101,7 @@ double FEM::calc_tau(const double (&dxdr)[3][3], const double (&vel)[3])
 
 
 
-double FEM::calc_tau2(vector<vector<double>> &dNdx, const double (&vel)[3])
+double FEM::calc_tau2(const double (&vel)[3])
 {
   double tau = 0e0;
   double velMag = sqrt(vel[0]*vel[0] + vel[1]*vel[1] + vel[2]*vel[2]);
@@ -112,7 +112,6 @@ double FEM::calc_tau2(vector<vector<double>> &dNdx, const double (&vel)[3])
   double term2 = (2e0*velMag/he)*(2e0*velMag/he);
   
   double term3 = (4e0/(Re*he*he)) * (4e0/(Re*he*he));
-  //cout << term1 << " " <<  term2 << " " << term3 << endl;
   
   return tau = pow(term1+term2+term3,-5e-1);
 }

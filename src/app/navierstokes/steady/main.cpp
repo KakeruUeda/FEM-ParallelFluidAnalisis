@@ -21,13 +21,23 @@ int main(int argc, char* argv[]){
   NAVIER.initialize();
   MPI_Barrier(MPI_COMM_WORLD);
 
-  NAVIER.nu = NAVIER.mu/NAVIER.rho;
-  NAVIER.Re = (NAVIER.U*NAVIER.D)/NAVIER.nu;
-  
-  if(NAVIER.myId == 1){
+  NAVIER.nu = NAVIER.mu / NAVIER.rho;
+  NAVIER.Re = (NAVIER.U * NAVIER.D) / NAVIER.nu;
+
+  if(NAVIER.myId == 0){
     string vtiFile;
-    vtiFile = NAVIER.outputDir + "/domain.vti";
-    NAVIER.export_vti_domain(vtiFile);
+    if(NAVIER.bd == BOUNDARY::XFEM)
+    {
+      vtiFile = NAVIER.outputDir + "/domain.vti";
+      NAVIER.export_vti_domain(vtiFile);
+    }
+    else if(NAVIER.bd == BOUNDARY::DARCY)
+    {
+      vtiFile = NAVIER.outputDir + "/sdf_node.vti";
+      NAVIER.export_vti_node(vtiFile,NAVIER.sdf_node);
+      vtiFile = NAVIER.outputDir + "/phiVOF.vti";
+      NAVIER.export_vti_elm(vtiFile,NAVIER.phiVOF);
+    }
   }
 
   omp_set_num_threads(NAVIER.numOfOMP);

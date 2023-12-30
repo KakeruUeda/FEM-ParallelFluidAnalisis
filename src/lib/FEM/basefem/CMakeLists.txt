@@ -6,13 +6,10 @@ target_sources(fem
   PRIVATE
   FEM.cpp
   BaseFEM.cpp
-  InitializeFEM.cpp
   DomainFEM.cpp
   MathFEM.cpp
   SolutionData.cpp
   ElementBaseFEM.cpp
-  ReadlnputFile.cpp
-  PrepareMatrix.cpp
 )
 
 target_include_directories(fem PUBLIC
