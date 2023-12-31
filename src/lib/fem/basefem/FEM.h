@@ -199,6 +199,7 @@ class FEM :public DomainFEM{
     void VelocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][3],vector<double> &N, vector<vector<double>> &dNdx, const int ic, const int t_itr);
     
     void assignBCs();
+    void assignPulsatileBCs(const double t_itr);
     void applyBCs();
     double calc_tau(const double (&dxdr)[3][3],const double (&vel)[3]);
     double calc_tau2(const double (&vel)[3]);

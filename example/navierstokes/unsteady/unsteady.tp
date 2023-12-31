@@ -64,7 +64,7 @@ Boundary
  }
  front{
     type = "free"
-    value = (0,0,1)
+    value = (0,0,0)
  }
 back{
     type = "free"

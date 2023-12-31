@@ -6,11 +6,38 @@ void FEM::assignBCs()
   int ii, n1, n2, n3;
 
   DirichletBCsFluid.resize(numOfDofsNode*numOfNodeGlobalFluid);
-  for(ii=0; ii<numOfBdNodeFluid; ii++){
+  
+  for(ii=0; ii<numOfBdNodeFluid; ii++)
+  {
     n1 = int(DirichletBCsFluid_tmp[ii][0]);
     n2 = int(DirichletBCsFluid_tmp[ii][1]);
     n3 = n1*numOfDofsNode+n2;
     DirichletBCsFluid[n3] = DirichletBCsFluid_tmp[ii][2];
+  }
+
+  return;
+}
+
+
+void FEM::assignPulsatileBCs(const double t_itr)
+{
+  int ii, n1, n2, n3;
+  double time_now = t_itr*dt;
+  double pulse = sin(time_now)/4e0+3e0/4e0;
+
+  DirichletBCsFluid.resize(numOfDofsNode*numOfNodeGlobalFluid);
+  
+  for(ii=0; ii<numOfBdNodeFluid; ii++)
+  {
+    n1 = int(DirichletBCsFluid_tmp[ii][0]);
+    n2 = int(DirichletBCsFluid_tmp[ii][1]);
+    n3 = n1*numOfDofsNode+n2;
+
+    if(DirichletBCsFluid_tmp[ii][2] > 0){
+      DirichletBCsFluid[n3] = DirichletBCsFluid_tmp[ii][2]*pulse;
+    }else{
+      DirichletBCsFluid[n3] = DirichletBCsFluid_tmp[ii][2];
+    }
   }
 
   return;
@@ -46,7 +73,6 @@ void FEM::applyBCs()
         if(elmFluid[ic]->nodeForAssyBCsFluid[ii] == -1){
           Klocal_tmp[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
           Flocal_tmp[ii] = DirichletBCsFluid[elmFluid[ic]->globalDOFnumsFluid[ii]];    
-
         }
       }
       VecSetValues(solverPetscFluid->rhsVec, size, &vecIntTemp[0], Flocal_tmp, INSERT_VALUES);

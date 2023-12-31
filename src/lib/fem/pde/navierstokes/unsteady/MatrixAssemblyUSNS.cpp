@@ -139,8 +139,9 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
            }
 
   
-            //// PSPG ////
-            /// mass /// 
+          //// PSPG ////
+          
+          /// mass /// 
            Klocal(IP, JU) += tau * dNdx[ii][0] * N[jj] / dt * detJ * weight;
            Klocal(IP, JV) += tau * dNdx[ii][1] * N[jj] / dt * detJ * weight;
            Klocal(IP, JW) += tau * dNdx[ii][2] * N[jj] / dt * detJ * weight;
@@ -237,9 +238,9 @@ void FEM::VelocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][
   {
     for(int p=0;p<numOfNodeInElm;p++)
     {
-      advel[0] += N[p] * 1.5 * uf[0][elmFluid[ic]->nodeNumsPrevFluid[p]];
-      advel[1] += N[p] * 1.5 * vf[0][elmFluid[ic]->nodeNumsPrevFluid[p]];
-      advel[2] += N[p] * 1.5 * wf[0][elmFluid[ic]->nodeNumsPrevFluid[p]];
+      advel[0] += N[p] * uf[0][elmFluid[ic]->nodeNumsPrevFluid[p]];
+      advel[1] += N[p] * vf[0][elmFluid[ic]->nodeNumsPrevFluid[p]];
+      advel[2] += N[p] * wf[0][elmFluid[ic]->nodeNumsPrevFluid[p]];
     }
     for(int p=0;p<numOfNodeInElm;p++)
     {
@@ -263,9 +264,9 @@ void FEM::VelocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][
   {
     for(int p=0;p<numOfNodeInElm;p++)
     {
-      advel[0] += N[p] * (1.5 * uf[t_itr-1][elmFluid[ic]->nodeNumsPrevFluid[p]]);
-      advel[1] += N[p] * (1.5 * vf[t_itr-1][elmFluid[ic]->nodeNumsPrevFluid[p]]);
-      advel[2] += N[p] * (1.5 * wf[t_itr-1][elmFluid[ic]->nodeNumsPrevFluid[p]]);
+      advel[0] += N[p] * 1.5 * uf[t_itr-1][elmFluid[ic]->nodeNumsPrevFluid[p]];
+      advel[1] += N[p] * 1.5 * vf[t_itr-1][elmFluid[ic]->nodeNumsPrevFluid[p]];
+      advel[2] += N[p] * 1.5 * wf[t_itr-1][elmFluid[ic]->nodeNumsPrevFluid[p]];
     }
     for(int p=0;p<numOfNodeInElm;p++)
     {

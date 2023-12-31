@@ -39,8 +39,20 @@ void FEM::UnsteadyNavierStokes()
   
   assignBCs();
 
+  //for(ii=0; ii<numOfNodeGlobalFluid; ii++)
+  //{
+  //  if(bd_iu_fluid[ii][0] == 0) uf[0][ii] = bd_u_fluid[ii][0];
+  //  if(bd_iu_fluid[ii][1] == 0) vf[0][ii] = bd_u_fluid[ii][1];
+  //  if(bd_iu_fluid[ii][2] == 0) wf[0][ii] = bd_u_fluid[ii][2];
+  //  if(bd_ip_fluid[ii] == 0) pf[0][ii] = bd_p_fluid[ii];
+  //}
+
   for(int t_itr=0; t_itr<timeMax; t_itr++)
   {
+    if(t_itr>100){
+      assignPulsatileBCs(t_itr);
+    }
+    
     solverPetscFluid->zeroMtx();
     reacVec.setZero();
     
