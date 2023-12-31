@@ -4,7 +4,6 @@ build
 *.vtu
 *.bin
 *.stl
-*.dat
 *.output
 *.DS_Store
 *.vscode
