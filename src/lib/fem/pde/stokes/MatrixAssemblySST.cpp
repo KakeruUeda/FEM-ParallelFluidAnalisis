@@ -3,16 +3,18 @@
 void FEM::MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
 {
   int ii, jj;
-  int IU,IV,IW,IP;
-  int JU,JV,JW,JP;
+  int IU, IV, IW, IP;
+  int JU, JV, JW, JP;
   
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
+  int GP = 2;
   
-  vector<double> N(numOfNodeInElm,0);
-  vector<vector<double>> dNdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0e0));
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  
+  VDOUBLE1D N(numOfNodeInElm,0);
+  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
   
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){
@@ -21,8 +23,7 @@ void FEM::MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
   }
   double dxdr[3][3];
 
-  Gauss gauss(2);
-  int GP = 2;
+  Gauss gauss(GP);
 
   //// stabilization parameter ////
   double h = dx/2;
@@ -33,6 +34,7 @@ void FEM::MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
   for(int i1=0; i1<GP; i1++){
     for(int i2=0; i2<GP; i2++){
       for(int i3=0; i3<GP; i3++){
+        
         ShapeFunction3D::C3D8_N(N,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
         ShapeFunction3D::C3D8_dNdr(dNdr,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
         
@@ -88,13 +90,13 @@ void FEM::MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
 }
 
 
-void FEM::DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic)
+void FEM::DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic)
 {
   int ii, jj;
   int TI,TIp1,TIp2,TIp3;
   int TJ,TJp1,TJp2,TJp3;
 
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0));
 
   double dxdr[3][3];
 
@@ -103,7 +105,7 @@ void FEM::DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vec
              -dxdr[0][2]*dxdr[1][1]*dxdr[2][0]-dxdr[0][1]*dxdr[1][0]*dxdr[2][2]-dxdr[0][0]*dxdr[1][2]*dxdr[2][1];
   MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0));
 
 
   for(ii=0;ii<numOfNodeInElm;ii++)
@@ -134,13 +136,13 @@ void FEM::DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vec
 
 
 
-void FEM::PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<double> &N,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic)
+void FEM::PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE1D &N,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic)
 { 
   int ii, jj;
   int TI,TIp1,TIp2,TIp3;
   int TJ,TJp1,TJp2,TJp3;
 
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0));
 
   double dxdr[3][3];
   MathFEM::calc_dxdr(dxdr,dNdr,x_current,numOfNodeInElm);
@@ -174,13 +176,13 @@ void FEM::PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<doub
 
 
 
-void FEM::PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic)
+void FEM::PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic)
 {
   int ii, jj;
   int TI,TIp1,TIp2,TIp3;
   int TJ,TJp1,TJp2,TJp3;
 
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0));
 
   double dxdr[3][3];
   MathFEM::calc_dxdr(dxdr,dNdr,x_current,numOfNodeInElm);
@@ -189,7 +191,7 @@ void FEM::PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<d
 
   MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0));
   
   double h = dx/2;
   double tau = h*h/(4e0*mu)/3e0;

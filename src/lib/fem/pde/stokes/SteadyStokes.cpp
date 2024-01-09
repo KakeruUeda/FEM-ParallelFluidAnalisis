@@ -8,13 +8,6 @@ void FEM::Stokes(){
 
   double  norm_rhs, timer;
 
-  uFluid.resize(numOfNodeGlobalFluid,0); u.resize(numOfNodeGlobal,0);
-  vFluid.resize(numOfNodeGlobalFluid,0); v.resize(numOfNodeGlobal,0);
-  wFluid.resize(numOfNodeGlobalFluid,0); w.resize(numOfNodeGlobal,0);
-  pFluid.resize(numOfNodeGlobalFluid,0); p.resize(numOfNodeGlobal,0);
-
-
-  VectorXd  reacVec(numOfNodeGlobalFluid*numOfDofsNode);
   jpn = numOfNodeInElm*numOfDofsNode;
   VectorXd  Flocal(jpn);
   MatrixXd  Klocal(jpn, jpn);
@@ -25,9 +18,9 @@ void FEM::Stokes(){
   VecScatter     ctx;
   VecScatterCreateToAll(solverPetscFluid->solnVec, &ctx, &vec_SEQ);
   MPI_Barrier(MPI_COMM_WORLD);
-
-  solverPetscFluid->zeroMtx();
-  reacVec.setZero();
+  
+  solverPetscFluid->initialAssembly();
+  solverPetscFluid->setZeroValue();
 
   assignBCs();
   applyBCs();

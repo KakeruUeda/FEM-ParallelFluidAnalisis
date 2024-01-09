@@ -1,11 +1,7 @@
-MPI
-{
-  numOfOMP =   1
-}
-
-Output
+Base
 {
   outputDir = "test"
+  numOfOMP = 1
 }
 
 

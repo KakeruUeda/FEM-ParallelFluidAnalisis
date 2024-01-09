@@ -5,14 +5,16 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
   int ii, jj;
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
-  
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  
-  vector<double> N(numOfNodeInElm,0);
-  vector<vector<double>> dNdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0e0));
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  int GP = 2;
+  
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  
+  VDOUBLE1D N(numOfNodeInElm,0);
+  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
   
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){
@@ -23,19 +25,19 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
   double dxdr[3][3];
   double detJ, weight;
   
-  Gauss g1(1),g2(2),g3(3);
+  Gauss gauss(GP);
   
-  for(int i1=0; i1<2; i1++){
-    for(int i2=0; i2<2; i2++){
-      for(int i3=0; i3<2; i3++){
-        ShapeFunction3D::C3D8_N(N,g1.point[i1],g1.point[i2],g1.point[i3]);
-        ShapeFunction3D::C3D8_dNdr(dNdr,g1.point[i1],g1.point[i2],g1.point[i3]);
+  for(int i1=0; i1<GP; i1++){
+    for(int i2=0; i2<GP; i2++){
+      for(int i3=0; i3<GP; i3++){
+        ShapeFunction3D::C3D8_N(N,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
+        ShapeFunction3D::C3D8_dNdr(dNdr,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
         
         MathFEM::calc_dxdr(dxdr,dNdr,x_current,numOfNodeInElm);
             
         detJ = dxdr[0][0]*dxdr[1][1]*dxdr[2][2]+dxdr[0][1]*dxdr[1][2]*dxdr[2][0]+dxdr[0][2]*dxdr[1][0]*dxdr[2][1]
               -dxdr[0][2]*dxdr[1][1]*dxdr[2][0]-dxdr[0][1]*dxdr[1][0]*dxdr[2][2]-dxdr[0][0]*dxdr[1][2]*dxdr[2][1];
-        weight = g1.weight[i1]*g1.weight[i2]*g1.weight[i3];
+        weight = gauss.weight[i1] * gauss.weight[i2] * gauss.weight[i3];
               
         MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
         MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
@@ -85,7 +87,7 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
         }
         double div = dudx + dvdy + dwdz;
 
-        vector<double> tmp(numOfNodeInElm,0e0);
+        VDOUBLE1D tmp(numOfNodeInElm,0e0);
 
         for(int p=0;p<numOfNodeInElm;p++){
           for(int kk=0;kk<3;kk++){
@@ -103,9 +105,7 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
         double velMag = sqrt(vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2]);
         double he = dx;
         double term2 = (2e0*velMag/he)*(2e0*velMag/he);
-        
         double term3 = (4e0/(Re*he*he)) * (4e0/(Re*he*he));
-        //cout << term1 << " " <<  term2 << " " << term3 << endl;
         
         tau = pow(term2+term3,-5e-1);
 

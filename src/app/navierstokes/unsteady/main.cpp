@@ -39,14 +39,18 @@ int main(int argc, char* argv[]){
       NAVIER.export_vti_elm(vtiFile,NAVIER.phiVOF);
     }
   }
+  VDOUBLE1D().swap(NAVIER.sdf);
+  VDOUBLE1D().swap(NAVIER.phi);
+  VDOUBLE1D().swap(NAVIER.phiEX);
+  VDOUBLE1D().swap(NAVIER.phiVOF);
 
   omp_set_num_threads(NAVIER.numOfOMP);
 
   NAVIER.UnsteadyNavierStokes();
   MPI_Barrier(MPI_COMM_WORLD);
 
-  NAVIER.postCaluculation();
-  MPI_Barrier(MPI_COMM_WORLD);
+  //NAVIER.postCaluculation();
+  //MPI_Barrier(MPI_COMM_WORLD);
     
   NAVIER.deallocate();
   MPI_Barrier(MPI_COMM_WORLD);

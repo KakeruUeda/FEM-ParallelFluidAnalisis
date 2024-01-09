@@ -1,9 +1,10 @@
 bin
 build
+output
 *.vti
 *.vtu
 *.bin
 *.stl
-*.output
+*.dat
 *.DS_Store
 *.vscode

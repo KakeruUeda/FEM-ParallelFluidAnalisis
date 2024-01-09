@@ -1,15 +1,15 @@
 #include "Eigen.h"
 #include "petscksp.h"
 #include "petscmat.h"
+#include "define.h"
 
-using namespace std;
 
 enum { SOLVER_EMPTY, PATTERN_OK, INIT_OK, ASSEMBLY_OK, FACTORISE_OK };
 
 class PetscSolver
 {
   public:
-    Vec  rhsVec, solnVec, solnVecPrev, reacVec;
+    Vec  rhsVec, solnVec, solnVecPrev;
     Mat  mtx; // linear system matrix
     KSP  ksp; // linear solver context
     PC   pc; // preconditioner context
@@ -30,8 +30,9 @@ class PetscSolver
     virtual ~PetscSolver();
 
     virtual int initialise(int size_local, int size_global, int* diag_nnz, int* offdiag_nnz, int nnz_max_row);
-    virtual int zeroMtx();
-    virtual int setValue(vector<int>& forAssyElem, vector<int>& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal);
+    virtual int initialAssembly();
+    virtual int setZeroValue();
+    virtual int setValue(VINT1D& forAssyElem, VINT1D& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal);
     virtual int factorise();
     virtual int solve();
     virtual int factoriseAndSolve();

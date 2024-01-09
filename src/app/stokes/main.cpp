@@ -37,6 +37,10 @@ int main(int argc, char* argv[])
       STOKES.export_vti_elm(vtiFile,STOKES.phiVOF);
     }
   }
+  VDOUBLE1D().swap(STOKES.sdf);
+  VDOUBLE1D().swap(STOKES.phi);
+  VDOUBLE1D().swap(STOKES.phiEX);
+  VDOUBLE1D().swap(STOKES.phiVOF);
 
   omp_set_num_threads(STOKES.numOfOMP);
   

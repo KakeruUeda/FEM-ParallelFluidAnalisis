@@ -6,19 +6,21 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   int ii, jj;
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
+  
+  int GP = 2;
 
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  vector<double> sdf_current(numOfNodeInElm,0e0);
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE1D sdf_current(numOfNodeInElm,0e0);
   
-  vector<double> NP(numOfNodeInElm,0e0);
-  vector<double> NV(numOfNodeInElm,0e0);
-  vector<vector<double>> dNPdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdx(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNPdx(numOfNodeInElm,vector<double>(3,0e0));
+  VDOUBLE1D NP(numOfNodeInElm,0e0);
+  VDOUBLE1D NV(numOfNodeInElm,0e0);
+  VDOUBLE2D dNPdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNPdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
   
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
-  vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
+  VDOUBLE2D L(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
   double maxSDF_node = -1e12;
@@ -38,11 +40,10 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
     }
   }
 
-  vector<double> b(sub_div);
-  localRefinement(sub_div,b);
+  VDOUBLE1D b(sub_div);
+  LocalRefinement(sub_div,b);
 
-  Gauss gauss(2);
-  int GP = 2;
+  Gauss gauss(GP);
 
   double dxdr[3][3];
 
@@ -56,7 +57,6 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   int countMinus = 0;
 
   //#pragma omp parallel for
-
   for(int n1=0;n1<sub_div;n1++){
     for(int n2=0;n2<sub_div;n2++){
       for(int n3=0;n3<sub_div;n3++){
@@ -133,8 +133,8 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                   L[ii][jj] = 0e0;
                   
                   for(int k=0;k<3;k++){
-                    K[ii][jj] += dNVdx[ii][k]*dNVdx[jj][k];
-                    L[ii][jj] += dNPdx[ii][k]*dNPdx[jj][k];
+                    K[ii][jj] += dNVdx[ii][k] * dNVdx[jj][k];
+                    L[ii][jj] += dNPdx[ii][k] * dNPdx[jj][k];
                   }
 
                   //// disfusion ////
@@ -167,26 +167,25 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 
 
 
-
 void FEM::XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 {
   int ii, jj;
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
 
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  vector<double> sdf_current(numOfNodeInElm,0e0);
-  vector<double> sdf_current_center(numOfNodeInElm,0e0);
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE1D sdf_current(numOfNodeInElm,0e0);
+  VDOUBLE1D sdf_current_center(numOfNodeInElm,0e0);
   
-  vector<double> NP(numOfNodeInElm,0e0);
-  vector<double> NV(numOfNodeInElm,0e0);
-  vector<vector<double>> dNPdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdx(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNPdx(numOfNodeInElm,vector<double>(3,0e0));
+  VDOUBLE1D NP(numOfNodeInElm,0e0);
+  VDOUBLE1D NV(numOfNodeInElm,0e0);
+  VDOUBLE2D dNPdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNPdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
   
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
-  vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
+  VDOUBLE2D L(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
   double maxSDF_node = -1e12;
@@ -206,8 +205,8 @@ void FEM::XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
     }
   }
 
-  vector<double> b(sub_div);
-  localRefinement(sub_div,b);
+  VDOUBLE1D b(sub_div);
+  LocalRefinement(sub_div,b);
 
   Gauss gauss(2);
   int GP = 2;
@@ -319,18 +318,18 @@ void FEM::XFEM_MatAssySTT3(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   int IU, IV, IW, IP;
   int JU, JV, JW, JP;
 
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  vector<double> sdf_current(numOfNodeInElm,0e0);
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE1D sdf_current(numOfNodeInElm,0e0);
   
-  vector<double> NP(numOfNodeInElm,0e0);
-  vector<double> NV(numOfNodeInElm,0e0);
-  vector<vector<double>> dNPdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdx(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNPdx(numOfNodeInElm,vector<double>(3,0e0));
+  VDOUBLE1D NP(numOfNodeInElm,0e0);
+  VDOUBLE1D NV(numOfNodeInElm,0e0);
+  VDOUBLE2D dNPdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNPdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
   
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
-  vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
+  VDOUBLE2D L(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
   double minSDF = sqrt(dx*dx+dy*dy+dz*dz)/2e0;
@@ -473,18 +472,18 @@ void FEM::SAWADA_XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Floca
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
 
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  vector<double> sdf_current(numOfNodeInElm,0e0);
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE1D sdf_current(numOfNodeInElm,0e0);
   
-  vector<double> NP(numOfNodeInElm,0e0);
-  vector<double> NV(numOfNodeInElm,0e0);
-  vector<vector<double>> dNPdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNVdx(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNPdx(numOfNodeInElm,vector<double>(3,0e0));
+  VDOUBLE1D NP(numOfNodeInElm,0e0);
+  VDOUBLE1D NV(numOfNodeInElm,0e0);
+  VDOUBLE2D dNPdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNVdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNPdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
   
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
-  vector<vector<double>> L(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
+  VDOUBLE2D L(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
 
   double minSDF_node = 1e12;
   double minSDF = dx/2;
@@ -619,13 +618,13 @@ void FEM::SAWADA_XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Floca
 
 
 
-void FEM::DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm,const double weight,const int ic)
+void FEM::DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE2D &dNPdr, VDOUBLE2D &dNVdr, VDOUBLE2D &x_current, const int numOfNodeInElm,const double weight,const int ic)
 {
   int ii, jj;
   int TI,TIp1,TIp2,TIp3;
   int TJ,TJp1,TJp2,TJp3;
 
-  vector<vector<double>> dNVdx(numOfNodeInElm,vector<double>(3,0));
+  VDOUBLE2D dNVdx(numOfNodeInElm,VDOUBLE1D(3,0));
 
   double dxdr[3][3];
 
@@ -635,7 +634,7 @@ void FEM::DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vecto
   MathFEM::calc_dNdx(dNVdx,dNVdr,dxdr,numOfNodeInElm);
 
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0));
 
 
   for(ii=0;ii<numOfNodeInElm;ii++)
@@ -667,13 +666,13 @@ void FEM::DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vecto
 
 
 
-void FEM::PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<double> &NP, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm, const double weight, const int ic)
+void FEM::PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE1D &NP, VDOUBLE2D &dNPdr, VDOUBLE2D &dNVdr, VDOUBLE2D &x_current, const int numOfNodeInElm, const double weight, const int ic)
 { 
   int ii, jj;
   int TI,TIp1,TIp2,TIp3;
   int TJ,TJp1,TJp2,TJp3;
 
-  vector<vector<double>> dNVdx(numOfNodeInElm,vector<double>(3,0));
+  VDOUBLE2D dNVdx(numOfNodeInElm,VDOUBLE1D(3,0));
 
   double dxdr[3][3];
   MathFEM::calc_dxdr(dxdr,dNPdr,x_current,numOfNodeInElm);
@@ -710,13 +709,13 @@ void FEM::PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector
 }
 
 
-void FEM::PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNPdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic)
+void FEM::PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNPdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic)
 {  
   int ii, jj;
   int TI,TIp1,TIp2,TIp3;
   int TJ,TJp1,TJp2,TJp3;
 
-  vector<vector<double>> dNPdx(numOfNodeInElm,vector<double>(3,0));
+  VDOUBLE2D dNPdx(numOfNodeInElm,VDOUBLE1D(3,0));
 
   double dxdr[3][3];
   MathFEM::calc_dxdr(dxdr,dNPdr,x_current,numOfNodeInElm);
@@ -725,7 +724,7 @@ void FEM::PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,vector<vect
   
   MathFEM::calc_dNdx(dNPdx,dNPdr,dxdr,numOfNodeInElm);
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0));
   
   double h = sqrt(dx*dx+dy*dy+dz*dz);
   double tau = h*h/(4e0*mu)/3e0;
@@ -748,7 +747,7 @@ void FEM::PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,vector<vect
   }
 }
 
-void FEM::localRefinement(const int n,std::vector<double> &b)
+void FEM::LocalRefinement(const int n, VDOUBLE1D &b)
 {
   int i=1,tmp=0;
   for(int k=0;k<n;k++){

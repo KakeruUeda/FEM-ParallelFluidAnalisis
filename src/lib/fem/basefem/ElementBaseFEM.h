@@ -2,18 +2,18 @@
 
 class SubProperty{
  public:
-  vector<double> sub_elm_sdf;
-  vector<double> sub_elm_x;
-  vector<double> sub_gx;
-  vector<double> sub_gy;
-  vector<double> sub_gz;
-  vector<double> sub_weight;
+  VDOUBLE1D sub_elm_sdf;
+  VDOUBLE1D sub_elm_x;
+  VDOUBLE1D sub_gx;
+  VDOUBLE1D sub_gy;
+  VDOUBLE1D sub_gz;
+  VDOUBLE1D sub_weight;
 };
 
 class ElementBaseFEM{
   public:
     int subdomainId,numOfDofsNode,numOfNodeInElm,numOfSubdomain;
-    //vector<int>  nodeNums,nodeNumsPrev,nodeForAssyBCs,nodeForAssy,globalDOFnums;
+    //VINT1D  nodeNums,nodeNumsPrev,nodeForAssyBCs,nodeForAssy,globalDOFnums;
 
     ElementBaseFEM();
     virtual ~ElementBaseFEM();
@@ -36,9 +36,9 @@ class ElementBaseFEM{
 
 
     /// ONLY FLUID ///
-    vector<int> nodeNumsFluid,nodeNumsPrevFluid;
-    vector<int> nodeForAssyBCsFluid,nodeForAssyFluid;
-    vector<int> globalDOFnumsFluid;
+    VINT1D nodeNumsFluid,nodeNumsPrevFluid;
+    VINT1D nodeForAssyBCsFluid,nodeForAssyFluid;
+    VINT1D globalDOFnumsFluid;
     vector<vector<vector<double>>> sub_x;
     
     SolutionData  *SolnDataFluid;

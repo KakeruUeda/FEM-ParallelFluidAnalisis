@@ -17,6 +17,8 @@
 #include "ShapeFunction.h"
 #include "ElementBaseFEM.h"
 #include "MathFEM.h"
+
+
 using namespace std;
 
 
@@ -52,12 +54,12 @@ class FEM :public DomainFEM{
     PetscInt  row_start, row_end;
     PetscInt numOfDofsLocal, numOfDofsGlobal;
 
-    vector<int>  assyForSoln, OutputNodes;
-    vector<double> DirichletBCs; 
-    vector<vector<double>> DirichletBCs_tmp; 
+    VINT1D  assyForSoln, OutputNodes;
+    VDOUBLE1D DirichletBCs; 
+    VDOUBLE2D DirichletBCs_tmp; 
 
-    vector<vector<int>>  nodeDofArrayBCsPrev, nodeDofArrayPrev, nodeDofArrayBCs, nodeDofArray;
-    vector<vector<bool>>  nodeTypePrev, nodeType;
+    VINT2D  nodeDofArrayBCsPrev, nodeDofArrayPrev, nodeDofArrayBCs, nodeDofArray;
+    VBOOL2D  nodeTypePrev, nodeType;
 
     int numOfOMP;
 
@@ -69,14 +71,17 @@ class FEM :public DomainFEM{
 
     double dt;
     int timeMax;
+    int pulsatile_flow;
+    int pulse_begin_itr;
+    double T;
     
-    vector<double> phi, phiEX, phiVOF;
-    vector<double> sdf, sdf_node;
+    VDOUBLE1D phi, phiEX, phiVOF;
+    VDOUBLE1D sdf, sdf_node;
 
-    vector<double> u;
-    vector<double> v;
-    vector<double> w;
-    vector<double> p;
+    VDOUBLE1D u;
+    VDOUBLE1D v;
+    VDOUBLE1D w;
+    VDOUBLE1D p;
 
     /// XFEM ///
     int max_depth;
@@ -90,43 +95,40 @@ class FEM :public DomainFEM{
   ///// FLUID ONLY /////
   public:
     PetscInt numOfDofsLocalFluid, numOfDofsGlobalFluid;
-    vector<int>  assyForSolnFluid;
-    vector<double> DirichletBCsFluid; 
-    vector<vector<double>> DirichletBCsFluid_tmp; 
+    VINT1D  assyForSolnFluid;
+    VDOUBLE1D DirichletBCsFluid; 
+    VDOUBLE2D DirichletBCsFluid_tmp; 
 
-    vector<vector<int>>  nodeDofArrayBCsPrevFluid, nodeDofArrayPrevFluid, nodeDofArrayBCsFluid, nodeDofArrayFluid;
-    vector<vector<bool>>  nodeTypePrevFluid, nodeTypeFluid;
+    VINT2D  nodeDofArrayBCsPrevFluid, nodeDofArrayPrevFluid, nodeDofArrayBCsFluid, nodeDofArrayFluid;
+    VBOOL2D  nodeTypePrevFluid, nodeTypeFluid;
 
     SolutionData  SolnDataFluid;
     ElementBaseFEM **elmFluid;
     PetscSolver  *solverPetscFluid;
     
-    vector<double> phiFluid;
-    vector<double> phiEXFluid;
-    vector<double> phiVOFFluid;
-    vector<double> sdfFluid_node;
-    vector<double> sdfFluid;
-    vector<int> sortElm, sortNode;
+    VDOUBLE1D phiFluid;
+    VDOUBLE1D phiEXFluid;
+    VDOUBLE1D phiVOFFluid;
+    VDOUBLE1D sdfFluid_node;
+    VDOUBLE1D sdfFluid;
+    VINT1D sortElm, sortNode;
 
-    vector<double> uFluid;
-    vector<double> vFluid;
-    vector<double> wFluid;
-    vector<double> pFluid;
+    VDOUBLE1D uFluid;
+    VDOUBLE1D vFluid;
+    VDOUBLE1D wFluid;
+    VDOUBLE1D pFluid;
 
-    vector<vector<double>> uf;
-    vector<vector<double>> vf;
-    vector<vector<double>> wf;
-    vector<vector<double>> pf;
-
-
+    VDOUBLE2D uf;
+    VDOUBLE2D vf;
+    VDOUBLE2D wf;
+    VDOUBLE2D pf;
 
   public:
     FEM();
     ~FEM();
     void initialize();
     void readInput();
-    void readMPI();
-    void readOutput();
+    void readBase();
     void readPysicalParam();
     void readBoundaryMethod();
     void readXFEMParam();
@@ -146,24 +148,26 @@ class FEM :public DomainFEM{
     int divideMesh();
     int prepareForParallel();
 
+    void resizeVariables();
+
     int deallocate();
 
     /// XFEM PARTITION ///
     void binaryTreeSubDivision();
-    void gererateSubElms(vector<double> &sdf_parent, vector<vector<double>> &x_sub, vector<double> &x_center_parent, const int &ic, int &tmp, int &depth);
-    void getSubSubCoordinates(vector<vector<double>> &x_sub, vector<vector<double>> &x_sub_sub, vector<double> &sdf_sub_sub, const int &ii, const int &jj, const int &kk);
-    void makeSubElmsData(vector<double> &sdf_sub_sub, vector<vector<double>> &x_sub_sub, vector<double> &x_center_parent, const int &ic, int &tmp, int &depth);
-    void subGaussPoint(vector<vector<double>> &x_sub_sub, double &sub_gx_tmp, double &sub_gy_tmp, double &sub_gz_tmp, vector<double> &x_center_parent, const int &ii, const int &jj, const int &kk);
+    void gererateSubElms(VDOUBLE1D &sdf_parent, VDOUBLE2D &x_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
+    void getSubSubCoordinates(VDOUBLE2D &x_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &sdf_sub_sub, const int &ii, const int &jj, const int &kk);
+    void makeSubElmsData(VDOUBLE1D &sdf_sub_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
+    void subGaussPoint(VDOUBLE2D &x_sub_sub, double &sub_gx_tmp, double &sub_gy_tmp, double &sub_gz_tmp, VDOUBLE1D &x_center_parent, const int &ii, const int &jj, const int &kk);
     void subGaussWeight(double &weight, const int &ii, const int &jj, const int &kk, int &depth);
 
 
     void interfacePartition();
-    void line_serch(vector<int> &sub_cross_num, vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
+    void line_serch(VINT1D &sub_cross_num, VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
     void s_t_u(const int &linePartition, const int &i, const int &j, double &s, double &t, double &u);
-    bool is_cross(vector<double> &sdf_current, const int i);
-    void tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
-    void tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
-    void tetraPartition3(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic);
+    bool is_cross(VDOUBLE1D &sdf_current, const int i);
+    void tetraPartition1(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
+    void tetraPartition2(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
+    void tetraPartition3(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
 
     /// STEADY STOKES  ///
     void Stokes();
@@ -181,14 +185,14 @@ class FEM :public DomainFEM{
     void MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     void XFEM_MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     
-    void DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
-    void PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<double> &N,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
-    void PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE1D &N,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void PSPGInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
     
-    void localRefinement(const int n,std::vector<double> &b);
-    void DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm,const double weight,const int ic);
-    void PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, vector<double> &NP, vector<vector<double>> &dNPdr, vector<vector<double>> &dNVdr, vector<vector<double>> &x_current, const int numOfNodeInElm, const double weight, const int ic);
-    void PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,vector<vector<double>> &dNPdr,vector<vector<double>> &x_current,const int numOfNodeInElm,const double weight,const int ic);
+    void LocalRefinement(const int n, VDOUBLE1D &b);
+    void DiffusionInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE2D &dNPdr, VDOUBLE2D &dNVdr, VDOUBLE2D &x_current, const int numOfNodeInElm,const double weight,const int ic);
+    void PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE1D &NP, VDOUBLE2D &dNPdr, VDOUBLE2D &dNVdr, VDOUBLE2D &x_current, const int numOfNodeInElm, const double weight, const int ic);
+    void PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNPdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
    
     /// UNSTEADY NAVIER STOKES  ///
     void UnsteadyNavierStokes();
@@ -196,23 +200,24 @@ class FEM :public DomainFEM{
     void MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
     void XFEM_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
     void Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
-    void VelocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][3],vector<double> &N, vector<vector<double>> &dNdx, const int ic, const int t_itr);
+    void velocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][3],VDOUBLE1D &N, VDOUBLE2D &dNdx, const int ic, const int t_itr);
     
     void assignBCs();
     void assignPulsatileBCs(const double t_itr);
     void applyBCs();
     double calc_tau(const double (&dxdr)[3][3],const double (&vel)[3]);
     double calc_tau2(const double (&vel)[3]);
+    double calc_tau3(VDOUBLE2D &dNdx, double (&vel)[3]);
   
     void postCaluculation();
     void postCaluculation_itr(const int loop);
     void postCaluculation_timeItr(const int t_itr);
     
-    void export_vti_metis(const string &file, vector<int> &node, vector<int> &element);
-    void export_vti_node(const string &file, vector<double> &node);
-    void export_vti_elm(const string &file, vector<double> &element);
+    void export_vti_metis(const string &file, VINT1D &node, VINT1D &element);
+    void export_vti_node(const string &file, VDOUBLE1D &node);
+    void export_vti_elm(const string &file, VDOUBLE1D &element);
     void export_vti_domain(const string &file);
-    void export_vti_result(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &w, vector<double> &p);
-    void export_vti_result_2D(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &p);
+    void export_vti_result(const std::string &file, VDOUBLE1D &u, VDOUBLE1D &v, VDOUBLE1D &w, VDOUBLE1D &p);
+    void export_vti_result_2D(const std::string &file, VDOUBLE1D &u, VDOUBLE1D &v, VDOUBLE1D &p);
 };
 

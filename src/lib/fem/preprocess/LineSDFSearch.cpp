@@ -1,6 +1,6 @@
 #include "FEM.h"
 
-void FEM::line_serch(vector<int> &sub_cross_num, vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic)
+void FEM::line_serch(VINT1D &sub_cross_num, VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic)
 {
   int numOfLineInElm = 12;
   double s,t,u;
@@ -12,12 +12,12 @@ void FEM::line_serch(vector<int> &sub_cross_num, vector<vector<double>> &sub_x_t
     if(!cross) continue;
 
     tmp++;
-    vector<double> N(numOfNodeInElm);
+    VDOUBLE1D N(numOfNodeInElm);
     
     int linePartition = 500;
     double sdf_min = 1e10;
     double s_min_point;
-    vector<double> cross_point(3);
+    VDOUBLE1D cross_point(3);
     
     for(int j=0; j<linePartition; j++){
       s_t_u(linePartition,i,j,s,t,u);
@@ -46,7 +46,7 @@ void FEM::line_serch(vector<int> &sub_cross_num, vector<vector<double>> &sub_x_t
 }
 
 
-bool FEM::is_cross(vector<double> &sdf_current, const int i)
+bool FEM::is_cross(VDOUBLE1D &sdf_current, const int i)
 {
   if(i==0){
     if(sdf_current[0]*sdf_current[1] > 0) return false;

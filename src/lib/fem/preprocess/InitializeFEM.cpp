@@ -7,7 +7,7 @@ void FEM::initialize()
   setBoundary();
   setFluidDomain();
   prepareMatrix();
-
+  resizeVariables();
   //binaryTreeSubDivision();
   //interfacePartition();
 }
@@ -15,7 +15,7 @@ void FEM::initialize()
 
 void FEM::setDomain()
 {
-  x.resize(numOfNodeGlobal,vector<double>(3, 0));
+  x.resize(numOfNodeGlobal,VDOUBLE1D(3, 0));
   element.resize(numOfElmGlobal);
 
   for(int ic=0;ic<numOfElmGlobal;ic++){
@@ -96,7 +96,7 @@ void FEM::setBoundary(){
   
   /*
   int count = 0;
-  vector<double> vecDbTmp(3,0);
+  VDOUBLE1D vecDbTmp(3,0);
 
   for(int i=0;i<numOfNodeGlobal;i++){
     for(int k=0; k<3; k++){
@@ -151,7 +151,7 @@ void FEM::setFluidDomain()
   sort(sortNode.begin(), sortNode.end());
   sortNode.erase(unique(sortNode.begin(), sortNode.end()), sortNode.end());
   
-  vector<int> sortNodeNew(numOfNodeGlobal,0); 
+  VINT1D sortNodeNew(numOfNodeGlobal,0); 
   
 
   ///// sortNodeNew: start with 0 /////
@@ -162,7 +162,7 @@ void FEM::setFluidDomain()
   }
 
   int n1, n2;
-  elementFluid.resize(numOfElmGlobalFluid,vector<int>(numOfNodeInElm,0));
+  elementFluid.resize(numOfElmGlobalFluid,VINT1D(numOfNodeInElm,0));
   for(int ii=0; ii<numOfElmGlobalFluid; ii++){
     for(int jj=0; jj<numOfNodeInElm; jj++){
       n1 = elementFluidPrev[ii][jj];
@@ -170,24 +170,8 @@ void FEM::setFluidDomain()
     }
   }
 
-  /*
-  if(myId == 0){
-    for(int i=0; i<numOfElmFluidGlobal; i++){
-      for(int j=0; j<numOfNodeInElm; j++){
-        //cout << "i = " << i << " j= " << j << " elementFluidPrev node = " << elementFluidPrev[i][j] << endl;
-      }
-    }
-    for(int i=0; i<numOfElmFluidGlobal; i++){
-      for(int j=0; j<numOfNodeInElm; j++){
-        //cout << "i = " << i << " j= " << j << " elementFluid node = " << elementFluid[i][j] << endl;
-      }
-    }
-    //exit(1);
-  }
-  */
-
-  bd_iu_fluid.resize(numOfNodeGlobalFluid,vector<int>(3,0));
-  bd_u_fluid.resize(numOfNodeGlobalFluid,vector<double>(3,0e0));
+  bd_iu_fluid.resize(numOfNodeGlobalFluid,VINT1D(3,0));
+  bd_u_fluid.resize(numOfNodeGlobalFluid,VDOUBLE1D(3,0e0));
   bd_ip_fluid.resize(numOfNodeGlobalFluid,0);
   bd_p_fluid.resize(numOfNodeGlobalFluid,0e0);
 
@@ -214,35 +198,16 @@ void FEM::setFluidDomain()
     phiVOFFluid[ii] = phiVOF[sortElm[ii]];
   }
 
-  xFluid.resize(numOfNodeGlobalFluid,vector<double>(3, 0));
+  xFluid.resize(numOfNodeGlobalFluid,VDOUBLE1D(3, 0));
   for(int ii=0; ii<numOfNodeGlobalFluid; ii++){
     for(int kk=0; kk<3; kk++){
       xFluid[ii][kk] = x[sortNode[ii]][kk];
     }
   }
 
-  /*
-  if(myId == 0){
-    for(int i=0; i<numOfNodeGlobalFluid; i++){
-      cout << "i = " << i << " " ;
-      for(int j=0; j<3; j++){
-        cout << bd_iu_fluid[i][j] << " " ;
-      }
-      cout << endl;
-    }
-    for(int i=0; i<numOfNodeGlobalFluid; i++){
-      cout << "i = " << i << " " ;
-      for(int j=0; j<3; j++){
-        cout << bd_u_fluid[i][j] << " " ;
-      }
-      cout << endl;
-    }
-    //exit(1);
-  }
-  */
 
   int count = 0;
-  vector<double> vecDbTmp(3,0);
+  VDOUBLE1D vecDbTmp(3,0);
 
   for(int ii=0;ii<numOfNodeGlobalFluid;ii++){
     for(int kk=0; kk<3; kk++){
@@ -283,6 +248,13 @@ void FEM::setFluidDomain()
 
   SolnDataFluid.initialise(numOfNodeGlobalFluid*numOfDofsNode);
 
+  /// deallocate ///
+  VINT2D().swap(bd_iu);
+  VDOUBLE2D().swap(bd_u);
+  VINT1D().swap(bd_ip);
+  VDOUBLE1D().swap(bd_p);
+  VDOUBLE2D().swap(x);
+  
 }
 
 
@@ -296,10 +268,10 @@ void FEM::binaryTreeSubDivision()
     //cout << "numOfElmGlobalFluid = " << numOfElmGlobalFluid << " ic = " << ic << endl;
     if(elmFluid[ic]->getSubdomainId() == myId)
     {
-      vector<vector<double>> x_parent;
-      vector<double> sdf_parent;
+      VDOUBLE2D x_parent;
+      VDOUBLE1D sdf_parent;
       
-      x_parent.resize(numOfNodeInElm, vector<double>(3, 0e0));
+      x_parent.resize(numOfNodeInElm, VDOUBLE1D(3, 0e0));
       sdf_parent.resize(numOfNodeInElm);
       
       for(int i=0; i<numOfNodeInElm; i++){
@@ -311,7 +283,7 @@ void FEM::binaryTreeSubDivision()
       }
       int depth = 0;
       int tmp = 0;
-      vector<double> x_center_parent(3,0e0);
+      VDOUBLE1D x_center_parent(3,0e0);
       x_center_parent[0] = (x_parent[0][0] + x_parent[1][0]) / 2e0;
       x_center_parent[1] = (x_parent[0][1] + x_parent[3][1]) / 2e0;
       x_center_parent[2] = (x_parent[0][2] + x_parent[4][2]) / 2e0;
@@ -321,7 +293,7 @@ void FEM::binaryTreeSubDivision()
   }
 }
 
-void FEM::gererateSubElms(vector<double> &sdf_parent, vector<vector<double>> &x_sub, vector<double> &x_center_parent, const int &ic, int &tmp, int &depth)
+void FEM::gererateSubElms(VDOUBLE1D &sdf_parent, VDOUBLE2D &x_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth)
 {
   depth = depth + 1;
 
@@ -329,14 +301,14 @@ void FEM::gererateSubElms(vector<double> &sdf_parent, vector<vector<double>> &x_
     for(int jj=0; jj<sub_div; jj++){
       for(int ii=0; ii<sub_div; ii++){
         
-        vector<vector<double>> x_sub_sub;
-        vector<double> sdf_sub_sub;
+        VDOUBLE2D x_sub_sub;
+        VDOUBLE1D sdf_sub_sub;
         
-        x_sub_sub.resize(numOfNodeInElm, vector<double>(3, 0e0));
+        x_sub_sub.resize(numOfNodeInElm, VDOUBLE1D(3, 0e0));
         sdf_sub_sub.resize(numOfNodeInElm, 0e0);
         getSubSubCoordinates(x_sub, x_sub_sub, sdf_sub_sub, ii, jj, kk);
         
-        vector<double> N(numOfNodeInElm);
+        VDOUBLE1D N(numOfNodeInElm);
         
         int check = 0;
         
@@ -389,9 +361,9 @@ void FEM::gererateSubElms(vector<double> &sdf_parent, vector<vector<double>> &x_
           }        
         }
 
-        //vector<double>().swap(sdf_sub_sub);
-        //vector<vector<double>>().swap(x_sub_sub);
-        //vector<double>().swap(N);
+        //VDOUBLE1D().swap(sdf_sub_sub);
+        //VDOUBLE2D().swap(x_sub_sub);
+        //VDOUBLE1D().swap(N);
       }
     }
   }
@@ -399,7 +371,7 @@ void FEM::gererateSubElms(vector<double> &sdf_parent, vector<vector<double>> &x_
 }
 
 
-void FEM::getSubSubCoordinates(vector<vector<double>> &x_sub, vector<vector<double>> &x_sub_sub, vector<double> &sdf_sub_sub, const int &ii, const int &jj, const int &kk)
+void FEM::getSubSubCoordinates(VDOUBLE2D &x_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &sdf_sub_sub, const int &ii, const int &jj, const int &kk)
 {
   
   double x_orig = x_sub[0][0];
@@ -445,7 +417,7 @@ void FEM::getSubSubCoordinates(vector<vector<double>> &x_sub, vector<vector<doub
 }
 
 
-void FEM::makeSubElmsData(vector<double> &sdf_sub_sub, vector<vector<double>> &x_sub_sub, vector<double> &x_center_parent, const int &ic, int &tmp, int &depth)
+void FEM::makeSubElmsData(VDOUBLE1D &sdf_sub_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth)
 {
   elmFluid[ic]->sub_elm_node.emplace_back();
   elmFluid[ic]->sub_elm.emplace_back();
@@ -487,7 +459,7 @@ void FEM::makeSubElmsData(vector<double> &sdf_sub_sub, vector<vector<double>> &x
   tmp++;
 }
 
-void FEM::subGaussPoint(vector<vector<double>> &x_sub_sub, double &sub_gx_tmp, double &sub_gy_tmp, double &sub_gz_tmp, vector<double> &x_center_parent, const int &ii, const int &jj, const int &kk)
+void FEM::subGaussPoint(VDOUBLE2D &x_sub_sub, double &sub_gx_tmp, double &sub_gy_tmp, double &sub_gz_tmp, VDOUBLE1D &x_center_parent, const int &ii, const int &jj, const int &kk)
 {
   Gauss gauss(2);
 
@@ -540,4 +512,33 @@ void FEM::subGaussWeight(double &weight, const int &ii, const int &jj, const int
   Gauss gauss(2);
   
   weight = (gauss.weight[ii] * gauss.weight[jj] * gauss.weight[kk]) / (double)(division * division * division);
+}
+
+void FEM::resizeVariables()
+{
+  if(solver == SOLVER::STEADY_STOKES)
+  {
+    uFluid.resize(numOfNodeGlobalFluid,0); u.resize(numOfNodeGlobal,0);
+    vFluid.resize(numOfNodeGlobalFluid,0); v.resize(numOfNodeGlobal,0);
+    wFluid.resize(numOfNodeGlobalFluid,0); w.resize(numOfNodeGlobal,0);
+    pFluid.resize(numOfNodeGlobalFluid,0); p.resize(numOfNodeGlobal,0);
+  }
+  else if(solver == SOLVER::STEADY_NAVIERSTOKES)
+  {
+    uFluid.resize(numOfNodeGlobalFluid,0e0); u.resize(numOfNodeGlobal,0e0);
+    vFluid.resize(numOfNodeGlobalFluid,0e0); v.resize(numOfNodeGlobal,0e0);
+    wFluid.resize(numOfNodeGlobalFluid,0e0); w.resize(numOfNodeGlobal,0e0);
+    pFluid.resize(numOfNodeGlobalFluid,0e0); p.resize(numOfNodeGlobal,0e0);  
+  }
+  else if(solver == SOLVER::UNSTEADY_NAVIERSTOKES)
+  {
+    uf.resize(2, VDOUBLE1D(numOfNodeGlobalFluid, 0e0)); u.resize(numOfNodeGlobal, 0e0);
+    vf.resize(2, VDOUBLE1D(numOfNodeGlobalFluid, 0e0)); v.resize(numOfNodeGlobal, 0e0);
+    wf.resize(2, VDOUBLE1D(numOfNodeGlobalFluid, 0e0)); w.resize(numOfNodeGlobal, 0e0);
+    pf.resize(2, VDOUBLE1D(numOfNodeGlobalFluid, 0e0)); p.resize(numOfNodeGlobal, 0e0);
+  }
+  else{
+    cout << "resizeVariables solver is not set" << endl;
+    exit(0);
+  }  
 }

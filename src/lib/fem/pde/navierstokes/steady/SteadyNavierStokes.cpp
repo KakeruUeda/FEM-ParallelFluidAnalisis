@@ -11,17 +11,6 @@ void FEM::SteadyNavierStokes(){
   double norm,norm0;
   double tmp = 1e12;
 
-  uFluid.resize(numOfNodeGlobalFluid,0e0);
-  vFluid.resize(numOfNodeGlobalFluid,0e0);
-  wFluid.resize(numOfNodeGlobalFluid,0e0);
-  pFluid.resize(numOfNodeGlobalFluid,0e0);
-
-  u.resize(numOfNodeGlobal,0e0);
-  v.resize(numOfNodeGlobal,0e0);
-  w.resize(numOfNodeGlobal,0e0);
-  p.resize(numOfNodeGlobal,0e0);
-
-  VectorXd  reacVec(numOfNodeGlobalFluid*numOfDofsNode);
   jpn = numOfNodeInElm*numOfDofsNode;
   VectorXd  Flocal(jpn);
   MatrixXd  Klocal(jpn, jpn);
@@ -34,6 +23,7 @@ void FEM::SteadyNavierStokes(){
   MPI_Barrier(MPI_COMM_WORLD);
   
   assignBCs();
+  solverPetscFluid->initialAssembly();
 
   for(ii=0; ii<numOfNodeGlobalFluid; ii++){
     if(bd_iu_fluid[ii][0] == 0) uFluid[ii] = bd_u_fluid[ii][0];
@@ -45,26 +35,45 @@ void FEM::SteadyNavierStokes(){
     DirichletBCsFluid[ii] = 0e0;
   }
 
-  for(int loop=0;loop<NRitr;loop++){
-    
-    solverPetscFluid->zeroMtx();
-    reacVec.setZero();
+  for(int loop=0;loop<NRitr;loop++)
+  {  
+    solverPetscFluid->setZeroValue();
     
     applyBCs();
 
     MPI_Barrier(MPI_COMM_WORLD);
     timer = MPI_Wtime();
     
-    for(int ic=0;ic<numOfElmGlobalFluid;ic++){
-      if(elmFluid[ic]->getSubdomainId() == myId){
-
+    for(int ic=0;ic<numOfElmGlobalFluid;ic++)
+    {
+      if(elmFluid[ic]->getSubdomainId() == myId)
+      {
         Klocal.setZero();
         Flocal.setZero();
+        
+        switch(bd)
+        {
+          case BOUNDARY::XFEM:
+            if(phiEXFluid[ic]>0.999){
+              MatAssySNS(ic,Klocal,Flocal);
+            }else{
+              PetscPrintf(MPI_COMM_WORLD, "XFEM not yet implemented");
+              exit(1);
+            }
+            break;
 
-        if(phiEXFluid[ic]>0.999){
-          MatAssySNS(ic,Klocal,Flocal);
-        }else{
-          //XFEM_SteadyNavierStokesMatrixXFEM(ic,Klocal,Flocal);
+          case BOUNDARY::DARCY:
+            if(phiVOFFluid[ic]>0.999){
+              MatAssySNS(ic,Klocal,Flocal);
+            }else{
+              PetscPrintf(MPI_COMM_WORLD, "Darcy not yet implemented");
+              exit(1);
+            }
+            break;
+
+          default:
+            PetscPrintf(MPI_COMM_WORLD, "undefined boundary method");
+            exit(1);
         }
         solverPetscFluid->setValue(elmFluid[ic]->nodeForAssyBCsFluid, elmFluid[ic]->nodeForAssyFluid, Klocal, Flocal);
       }
@@ -76,10 +85,9 @@ void FEM::SteadyNavierStokes(){
     //computerTimeAssembly += timerVal;
     PetscPrintf(MPI_COMM_WORLD, "\n ****** Time for matrix assembly = %f seconds ****** \n", timer);
 
-    VecAssemblyBegin(solverPetscFluid->rhsVec);
-    VecAssemblyEnd(solverPetscFluid->rhsVec);
+    //VecAssemblyBegin(solverPetscFluid->rhsVec);
+    //VecAssemblyEnd(solverPetscFluid->rhsVec);
 
-    //VecNorm(solverPetsc->rhsVec, NORM_2, &norm_rhs);
     solverPetscFluid->currentStatus = ASSEMBLY_OK;
   
     MPI_Barrier(MPI_COMM_WORLD);

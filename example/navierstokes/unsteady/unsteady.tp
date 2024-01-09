@@ -1,25 +1,42 @@
-MPI
+Base
 {
+  outputDir = "test"
   numOfOMP = 1
 }
 
-Output
-{
-  outputDir = "test"
-}
 
+//Domain
+//{
+//  nx=(240,80,80)  //element size
+//  Lx=(50,15,12)  //domain size
+//  image = "input/vessel/image240x80x80_VOF.dat"
+//  imageEX = "input/vessel/image240x80x80_VOF.dat"
+//  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+//  sdf = "input/vessel/sdf240x80x80.dat"
+//  sdf_node = "input/vessel/sdf240x80x80_node.dat"
+//}
 
 Domain
 {
-  nx=(240,80,80)  //element size
-  Lx=(50,15,12)  //domain size
-  image = "input/vessel/image240x80x80.dat"
-  imageEX = "input/vessel/image240x80x80_around.dat"
-  imageVOF = "input/vessel/image240x80x80_VOF.dat"
-  sdf = "input/vessel/sdf240x80x80.dat"
-  sdf_node = "input/vessel/sdf240x80x80_node.dat"
+  nx=(330,110,110)  //element size
+  Lx=(3.0,1.0,1.0)  //domain size
+  image = "input/stenosis/image330x110x110_VOF.dat"
+  imageEX = "input/stenosis/image330x110x110_VOF.dat"
+  imageVOF = "input/stenosis/image330x110x110_VOF.dat"
+  sdf = "input/stenosis/sdf330x110x110.dat"
+  sdf_node = "input/stenosis/sdf330x110x110_node.dat"
 }
 
+//Domain
+//{
+//  nx=(32,32,32)  //element size
+//  Lx=(1e0,1e0,1e0)  //domain size
+//  image = "input/square/image128x128x128.dat"
+//  imageEX = "input/square/image128x128x128.dat"
+//  imageVOF = "input/square/image128x128x128.dat"
+//  sdf = "input/square/sdf128x128x128.dat"
+//  sdf_node = "input/vessel/sdf240x80x80_node.dat"
+//}
 
 //Domain
 //{
@@ -43,6 +60,7 @@ Domain
 //  sdf = "input/cylinder/sdf42x42x126.dat"
 //  sdf_node = "input/cylinder/sdf42x42x126_node.dat"
 //}
+
 
 Boundary
 {
@@ -72,20 +90,27 @@ back{
  }
 }
 
+
 PysicalParameter
 {
-  rho = 500  // density
+  rho = 1000   // density
   mu = 1      // viscocity
   U = 1       // characteristic velocity
   D = 1       // characteristic lengh
 }
 
-TimeParameter{
-  dt = 0.2
-  timeMax = 1000
+
+TimeParameter
+{
+  dt = 0.005
+  timeMax = 10000
+  pulsatile_flow = "ON"
+  pulse_begin_itr = -1
+  T = 1.0
 }
 
-BoundaryMethod
+
+BoundaryMethod 
 {
   boundary = "Darcy"
 }
@@ -99,9 +124,10 @@ XFEMParameter
 
 DarcyParameter
 {
-  alpha = 1e-2
-  resistance = 1e0
+  alpha = 1e-1
+  resistance = 1e2
 }
+
 
 BTSubDivParameter
 {

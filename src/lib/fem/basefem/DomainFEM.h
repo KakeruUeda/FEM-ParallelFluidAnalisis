@@ -4,7 +4,6 @@
 #include "petscmat.h"
 
 
-
 using namespace std;
 
 class DomainFEM{
@@ -15,16 +14,16 @@ class DomainFEM{
     PetscInt numOfNodeLocal,numOfElmLocal;
     PetscInt numOfNodeInElm,numOfBd,numOfBdWall;
     PetscInt numOfBdNode;
-    vector<vector<double>> x;
-    vector<vector<int>> element;
-    vector<vector<int>> elementPrev;
+    VDOUBLE2D x;
+    VINT2D element;
+    VINT2D elementPrev;
 
-    vector<double> bd_p;
-    vector<int> bd_ip;
-    vector<vector<double>> bd_u;
-    vector<vector<int>> bd_iu;
+    VDOUBLE1D bd_p;
+    VINT1D bd_ip;
+    VDOUBLE2D bd_u;
+    VINT2D bd_iu;
 
-    vector<int>  nodeId, nodeMapPrev, nodeMap;
+    VINT1D  nodeId, nodeMapPrev, nodeMap;
     
     
      /// FLUID ONLY ///
@@ -33,16 +32,16 @@ class DomainFEM{
     PetscInt numOfNodeLocalFluid,numOfElmLocalFluid;
     PetscInt numOfBdNodeFluid;
     
-    vector<vector<double>> xFluid;
-    vector<vector<int>> elementFluid;
-    vector<vector<int>> elementFluidPrev;
+    VDOUBLE2D xFluid;
+    VINT2D elementFluid;
+    VINT2D elementFluidPrev;
 
-    vector<double> bd_p_fluid;
-    vector<int> bd_ip_fluid;
-    vector<vector<double>> bd_u_fluid;
-    vector<vector<int>> bd_iu_fluid;
+    VDOUBLE1D bd_p_fluid;
+    VINT1D bd_ip_fluid;
+    VDOUBLE2D bd_u_fluid;
+    VINT2D bd_iu_fluid;
 
-    vector<int>  nodeIdFluid, nodeMapPrevFluid, nodeMapFluid;
+    VINT1D  nodeIdFluid, nodeMapPrevFluid, nodeMapFluid;
 
   private:
 };

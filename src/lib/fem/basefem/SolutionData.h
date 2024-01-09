@@ -17,7 +17,9 @@
 #include <iterator>
 #include <functional>
 
+#include "define.h"
 #include "Eigen.h"
+
 using namespace std;
 
 
@@ -30,10 +32,10 @@ class  SolutionData
     VectorXd  soln, solnPrev, solnPrev2, solnPrev3, solnPrev4, solnCur, solnInit, solnApplied;
     VectorXd  td;
 
-    vector<int>  nodeMapPrev, nodeMap;
+    VINT1D  nodeMapPrev, nodeMap;
     
     /// ONLY FLUID ///
-    vector<int>  nodeMapPrevFluid, nodeMapFluid;
+    VINT1D  nodeMapPrevFluid, nodeMapFluid;
 
     SolutionData();
     ~SolutionData(){}

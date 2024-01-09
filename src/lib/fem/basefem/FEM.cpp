@@ -34,11 +34,11 @@ FEM::~FEM()
 
 int FEM::deallocate()
 {
-  /*
+  
   if(solverPetsc != nullptr){
     solverPetsc->free();
   }
-  */
+  
 
   return 0;
 }

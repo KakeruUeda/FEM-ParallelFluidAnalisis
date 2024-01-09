@@ -6,13 +6,15 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
   
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  
-  vector<double> N(numOfNodeInElm,0);
-  vector<vector<double>> dNdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0e0));
+  int GP = 3;
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  
+  VDOUBLE1D N(numOfNodeInElm,0);
+  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
   
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){
@@ -20,17 +22,17 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
     }
   }
   
-  double f = resistance * alpha*(1e0-phiVOF[ic])/(alpha+phiVOF[ic]);
+  double f = resistance * alpha * (1e0 - phiVOFFluid[ic]) / (alpha + phiVOFFluid[ic]);
   
   double dxdr[3][3];
   double detJ, weight;
   
-  Gauss gauss(3);
-  int GP = 3;
+  Gauss gauss(GP);
 
   for(int i1=0; i1<GP; i1++){
     for(int i2=0; i2<GP; i2++){
       for(int i3=0; i3<GP; i3++){
+
         ShapeFunction3D::C3D8_N(N,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
         ShapeFunction3D::C3D8_dNdr(dNdr,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
         
@@ -47,7 +49,7 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
         double advel[3]={0e0,0e0,0e0};
         double dvdx[3][3];
 
-        VelocityValue(vel,advel,dvdx,N,dNdx,ic,t_itr);
+        velocityValue(vel,advel,dvdx,N,dNdx,ic,t_itr);
 
         double tau = calc_tau2(advel);
 
@@ -57,6 +59,7 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
           IV = IU+1;
           IW = IU+2;
           IP = IU+3;
+          
           for(jj=0;jj<numOfNodeInElm;jj++)
           {  
             JU = 4*jj;
@@ -67,7 +70,7 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
             K[ii][jj] = 0e0;
             
             for(int k=0;k<3;k++){
-              K[ii][jj] += dNdx[ii][k]*dNdx[jj][k];
+              K[ii][jj] += dNdx[ii][k] * dNdx[jj][k];
             }
 
             //// mass ////
@@ -118,6 +121,7 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
             Klocal(IW, JW) += 5e-1 * f * N[ii] * N[jj] * detJ * weight;   
       
             //// SUPG ////
+            
             /// mass ///
            for(mm=0;mm<3;mm++)
            {
@@ -129,7 +133,8 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
            /// advection ///
            for(mm=0;mm<3;mm++)
            {
-             for(nn=0;nn<3;nn++){
+             for(nn=0;nn<3;nn++)
+             {
                Klocal(IU, JU) += 5e-1 * tau * advel[nn] * dNdx[ii][nn] * advel[mm] * dNdx[jj][mm] * detJ * weight;
                Klocal(IV, JV) += 5e-1 * tau * advel[nn] * dNdx[ii][nn] * advel[mm] * dNdx[jj][mm] * detJ * weight;
                Klocal(IW, JW) += 5e-1 * tau * advel[nn] * dNdx[ii][nn] * advel[mm] * dNdx[jj][mm] * detJ * weight;
@@ -144,8 +149,9 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
              Klocal(IW, JP) += tau * dNdx[ii][mm] * advel[mm] * dNdx[jj][2] * detJ * weight;
            }
 
-            //// PSPG ////
-            /// mass /// 
+           //// PSPG ////
+          
+           /// mass /// 
            Klocal(IP, JU) += tau * dNdx[ii][0] * N[jj] / dt * detJ * weight;
            Klocal(IP, JV) += tau * dNdx[ii][1] * N[jj] / dt * detJ * weight;
            Klocal(IP, JW) += tau * dNdx[ii][2] * N[jj] / dt * detJ * weight;
@@ -177,14 +183,14 @@ void FEM::Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, co
             if(mm == 1){s = 1e0; t = 2e0; u = 1e0;}
             if(mm == 2){s = 1e0; t = 1e0; u = 2e0;}
 
-            Flocal(IU) -= 5e-1 * s * dNdx[ii][mm]*dvdx[0][mm] / Re * detJ * weight;
-            Flocal(IV) -= 5e-1 * t * dNdx[ii][mm]*dvdx[1][mm] / Re * detJ * weight;
-            Flocal(IW) -= 5e-1 * u * dNdx[ii][mm]*dvdx[2][mm] / Re * detJ * weight;
+            Flocal(IU) -= 5e-1 * s * dNdx[ii][mm] * dvdx[0][mm] / Re * detJ * weight;
+            Flocal(IV) -= 5e-1 * t * dNdx[ii][mm] * dvdx[1][mm] / Re * detJ * weight;
+            Flocal(IW) -= 5e-1 * u * dNdx[ii][mm] * dvdx[2][mm] / Re * detJ * weight;
           }
           Flocal(IU) -= 5e-1 * dNdx[ii][1] * dvdx[1][0] / Re * detJ * weight;
           Flocal(IU) -= 5e-1 * dNdx[ii][2] * dvdx[2][0] / Re * detJ * weight;
           Flocal(IV) -= 5e-1 * dNdx[ii][0] * dvdx[0][1] / Re * detJ * weight;
-          Flocal(IV) -= 5e-1 * dNdx[ii][2] * dvdx[1][1] / Re * detJ * weight;
+          Flocal(IV) -= 5e-1 * dNdx[ii][2] * dvdx[2][1] / Re * detJ * weight;
           Flocal(IW) -= 5e-1 * dNdx[ii][0] * dvdx[0][2] / Re * detJ * weight;
           Flocal(IW) -= 5e-1 * dNdx[ii][1] * dvdx[1][2] / Re * detJ * weight;
           

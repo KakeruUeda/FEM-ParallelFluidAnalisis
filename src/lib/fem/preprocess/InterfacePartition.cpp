@@ -2,10 +2,10 @@
 
 void FEM::interfacePartition()
 {
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  vector<double> sdf_current(numOfNodeInElm,0e0);
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE1D sdf_current(numOfNodeInElm,0e0);
   
-  vector<int> sub_cross_num(numOfElmGlobalFluid,0);
+  VINT1D sub_cross_num(numOfElmGlobalFluid,0);
 
   for(int ic=0; ic<numOfElmGlobalFluid; ic++)
   {  
@@ -20,7 +20,7 @@ void FEM::interfacePartition()
           x_current[i][j] = xFluid[elmFluid[ic]->nodeNumsPrevFluid[i]][j];
         }
       }  
-      vector<vector<double>> sub_x_tmp;
+      VDOUBLE2D sub_x_tmp;
 
       line_serch(sub_cross_num, sub_x_tmp, sdf_current, x_current, ic);
       double size = sub_x_tmp.size();
@@ -84,10 +84,10 @@ void FEM::interfacePartition()
 }
 
 
-void FEM::tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic)
+void FEM::tetraPartition1(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic)
 {
-  vector<double> base_node(3);
-  vector<double> isolate_node(3);
+  VDOUBLE1D base_node(3);
+  VDOUBLE1D isolate_node(3);
   
   int minus = 0; 
   int plus = 0;
@@ -155,7 +155,7 @@ void FEM::tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
     }
 
     int tmp=0;
-    vector<vector<double>> surface_node(3,vector<double>(3,0e0));
+    VDOUBLE2D surface_node(3,VDOUBLE1D(3,0e0));
     
     for(int j=0; j<numOfNodeInElm; j++){
       
@@ -173,9 +173,9 @@ void FEM::tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
         tmp++;
       }
     }
-    vector<double> base_surface_node(3);
-    vector<double> adjacent_node1(3);
-    vector<double> adjacent_node2(3);
+    VDOUBLE1D base_surface_node(3);
+    VDOUBLE1D adjacent_node1(3);
+    VDOUBLE1D adjacent_node2(3);
 
     double max_surface_length = 1e-12;
     double surface_length;
@@ -223,7 +223,7 @@ void FEM::tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
     for(int k=0; k<3; k++){
 
      elmFluid[ic]->setNumOfSubdomain(11);
-     elmFluid[ic]->sub_x.resize(11, vector<vector<double>>(4,vector<double>(3,0e0)));
+     elmFluid[ic]->sub_x.resize(11, VDOUBLE2D(4,VDOUBLE1D(3,0e0)));
     
      elmFluid[ic]->sub_x[i*3][0][k] = sub_x_tmp[n1][k];
      elmFluid[ic]->sub_x[i*3][1][k] = base_surface_node[k];
@@ -257,11 +257,11 @@ void FEM::tetraPartition1(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
 }
 
 /*
-void FEM::tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf_current, vector<vector<double>> &x_current, const int ic)
+void FEM::tetraPartition2(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic)
 {
 
-  vector<double> adjacent_node1(3);
-  vector<double> adjacent_node2(3);
+  VDOUBLE1D adjacent_node1(3);
+  VDOUBLE1D adjacent_node2(3);
   int a, b;
   double max_length = 1e-12;
   double length;
@@ -308,8 +308,8 @@ void FEM::tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
     }
   }
 
-  vector<double> solid_node1(3);
-  vector<double> solid_node2(3);
+  VDOUBLE1D solid_node1(3);
+  VDOUBLE1D solid_node2(3);
 
 
 
@@ -320,8 +320,8 @@ void FEM::tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
 
 
   
-  vector<double> base_node(3);
-  vector<double> isolate_node(3);
+  VDOUBLE1D base_node(3);
+  VDOUBLE1D isolate_node(3);
   
   int minus = 0; 
   int plus = 0;
@@ -389,7 +389,7 @@ void FEM::tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
     }
 
     int tmp=0;
-    vector<vector<double>> surface_node(3,vector<double>(3,0e0));
+    VDOUBLE2D surface_node(3,VDOUBLE1D(3,0e0));
     
     for(int j=0; j<numOfNodeInElm; j++){
       
@@ -407,9 +407,9 @@ void FEM::tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
         tmp++;
       }
     }
-    vector<double> base_surface_node(3);
-    vector<double> adjacent_node1(3);
-    vector<double> adjacent_node2(3);
+    VDOUBLE1D base_surface_node(3);
+    VDOUBLE1D adjacent_node1(3);
+    VDOUBLE1D adjacent_node2(3);
 
     double max_surface_length = 1e-12;
     double surface_length;
@@ -457,7 +457,7 @@ void FEM::tetraPartition2(vector<vector<double>> &sub_x_tmp, vector<double> &sdf
     for(int k=0; k<3; k++){
 
      elmFluid[ic]->setNumOfSubdomain(11);
-     elmFluid[ic]->sub_x.resize(11, vector<vector<double>>(4,vector<double>(3,0e0)));
+     elmFluid[ic]->sub_x.resize(11, VDOUBLE2D(4,VDOUBLE1D(3,0e0)));
     
      elmFluid[ic]->sub_x[i*3][0][k] = sub_x_tmp[n1][k];
      elmFluid[ic]->sub_x[i*3][1][k] = base_surface_node[k];

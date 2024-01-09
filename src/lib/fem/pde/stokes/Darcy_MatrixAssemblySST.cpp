@@ -6,13 +6,15 @@ void FEM::Darcy_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
   int IU,IV,IW,IP;
   int JU,JV,JW,JP;
   
-  vector<vector<double>> x_current(numOfNodeInElm,vector<double>(3,0e0));
-  
-  vector<double> N(numOfNodeInElm,0);
-  vector<vector<double>> dNdr(numOfNodeInElm,vector<double>(3,0e0));
-  vector<vector<double>> dNdx(numOfNodeInElm,vector<double>(3,0e0));
+  int GP = 2;
 
-  vector<vector<double>> K(numOfNodeInElm,vector<double>(numOfNodeInElm,0e0));
+  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  
+  VDOUBLE1D N(numOfNodeInElm,0);
+  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
   
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){
@@ -27,12 +29,11 @@ void FEM::Darcy_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
   double tau = h*h/mu/12e0;
 
   //// Darcy parameter ////
-  double f = resistance * alpha*(1e0-phiVOF[ic])/(alpha+phiVOF[ic]);
+  double f = resistance * alpha * (1e0 - phiVOFFluid[ic]) / (alpha + phiVOFFluid[ic]);
 
   double detJ, weight;
 
-  Gauss gauss(2);
-  int GP = 2;
+  Gauss gauss(GP);
   
   for(int i1=0; i1<GP; i1++){
     for(int i2=0; i2<GP; i2++){

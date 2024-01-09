@@ -44,29 +44,37 @@ void FEM::postCaluculation_timeItr(const int t_itr){
   for(ii=0; ii<numOfNodeGlobalFluid; ii++)
   {  
     nn = nodeMapFluid[ii];
-    mm = nn*numOfDofsNode;
-    
-    uFluid[ii] = SolnDataFluid.soln[mm];
-    vFluid[ii] = SolnDataFluid.soln[mm+1];
-    wFluid[ii] = SolnDataFluid.soln[mm+2];
-    pFluid[ii] = SolnDataFluid.soln[mm+3];
+    mm = nn * numOfDofsNode;
 
-    uf[t_itr][ii] = SolnDataFluid.soln[mm];
-    vf[t_itr][ii] = SolnDataFluid.soln[mm+1];
-    wf[t_itr][ii] = SolnDataFluid.soln[mm+2];
-    pf[t_itr][ii] = SolnDataFluid.soln[mm+3];
+    uf[1][ii] = 0e0; 
+    vf[1][ii] = 0e0;
+    wf[1][ii] = 0e0;
+    pf[1][ii] = 0e0;
 
-    u[sortNode[ii]] = uf[t_itr][ii];
-    v[sortNode[ii]] = vf[t_itr][ii];
-    w[sortNode[ii]] = wf[t_itr][ii];   
-    p[sortNode[ii]] = pf[t_itr][ii];
-  }
+    uf[1][ii] = uf[0][ii];
+    vf[1][ii] = vf[0][ii];
+    wf[1][ii] = wf[0][ii];
+    pf[1][ii] = pf[0][ii];
 
-  if(t_itr >= 2){
-    uf[t_itr-2].clear();
-    vf[t_itr-2].clear();
-    wf[t_itr-2].clear();
-    pf[t_itr-2].clear();
+    uf[0][ii] = 0e0; 
+    vf[0][ii] = 0e0;
+    wf[0][ii] = 0e0;
+    pf[0][ii] = 0e0;
+
+    uf[0][ii] = SolnDataFluid.soln[mm];
+    vf[0][ii] = SolnDataFluid.soln[mm+1];
+    wf[0][ii] = SolnDataFluid.soln[mm+2];
+    pf[0][ii] = SolnDataFluid.soln[mm+3];
+
+    u[sortNode[ii]] = 0e0;
+    v[sortNode[ii]] = 0e0;
+    w[sortNode[ii]] = 0e0;
+    p[sortNode[ii]] = 0e0;
+
+    u[sortNode[ii]] = uf[0][ii];
+    v[sortNode[ii]] = vf[0][ii];
+    w[sortNode[ii]] = wf[0][ii];
+    p[sortNode[ii]] = pf[0][ii];
   }
 
 
@@ -87,14 +95,8 @@ void FEM::postCaluculation(){
 
   int ii, kk, nn, mm;
 
-  for(ii=0; ii<numOfNodeGlobalFluid; ii++){
-    //nn = nodeMapFluid[ii];
-    //mm = nn*numOfDofsNode;
-    //uFluid[ii] = SolnDataFluid.soln[mm];
-    //vFluid[ii] = SolnDataFluid.soln[mm+1];
-    //wFluid[ii] = SolnDataFluid.soln[mm+2];
-    //pFluid[ii] = SolnDataFluid.soln[mm+3];
-
+  for(ii=0; ii<numOfNodeGlobalFluid; ii++)
+  {
     nn = nodeMapFluid[ii];
     mm = nn*numOfDofsNode;
     uFluid[ii] = SolnDataFluid.soln[mm];

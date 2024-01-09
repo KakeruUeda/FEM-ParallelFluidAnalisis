@@ -5,8 +5,7 @@ void FEM::readInput()
 {
   if(solver == SOLVER::STEADY_STOKES)
   {
-    readMPI();
-    readOutput();
+    readBase();
     readPysicalParam();
     readBoundaryMethod();
     readXFEMParam();
@@ -18,8 +17,7 @@ void FEM::readInput()
   }
   else if(solver == SOLVER::STEADY_NAVIERSTOKES)
   {
-    readMPI();
-    readOutput();
+    readBase();
     readPysicalParam();
     readBoundaryMethod();
     readXFEMParam();
@@ -32,8 +30,7 @@ void FEM::readInput()
   }
   else if(solver == SOLVER::UNSTEADY_NAVIERSTOKES)
   {
-    readMPI();
-    readOutput();
+    readBase();
     readPysicalParam();
     readBoundaryMethod();
     readXFEMParam();
@@ -51,11 +48,23 @@ void FEM::readInput()
 }
 
 
-void FEM::readMPI()
+void FEM::readBase()
 {
   string str,base_label,label;
+
+  base_label = "/Base";
+  label = base_label + "/outputDir";
+  if ( !tp.getInspectedValue(label, outputDir)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+  string outputDir_tmp = ("./output");
+  mkdir(outputDir_tmp.c_str(), 0777);
+  outputDir = ("./output/" + outputDir);
+  mkdir(outputDir.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
   
-  base_label = "/MPI";
+
+  base_label = "/Base";
   label = base_label + "/numOfOMP";
   if ( !tp.getInspectedValue(label, numOfOMP)){
     cout << label << " is not set" << endl;
@@ -63,24 +72,6 @@ void FEM::readMPI()
   }
 }
 
-
-void FEM::readOutput()
-{
-  string str,base_label,label;
-
-  base_label = "/Output";
-  label = base_label + "/outputDir";
-  if ( !tp.getInspectedValue(label, outputDir)){
-    cout << label << " is not set" << endl;
-    exit(0);
-  }
-
-  string outputDir_tmp = ("./output");
-  mkdir(outputDir_tmp.c_str(), 0777);
-  outputDir = ("./output/" + outputDir);
-  mkdir(outputDir.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
-
-}
 
 void FEM::readDomain()
 {
@@ -277,6 +268,30 @@ void FEM::readTimeParam(){
     cout << label << " is not set" << endl;
     exit(0);
   }
+
+  string ON_OFF;
+
+  label = base_label + "/pulsatile_flow";
+  if ( !tp.getInspectedValue(label, ON_OFF)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+  if(ON_OFF == "ON"){ pulsatile_flow = ON; }
+  else if(ON_OFF == "OFF"){ pulsatile_flow = OFF; }
+  else { cout << "make sure ON or OFF"; exit(1);}
+  
+  
+  label = base_label + "/pulse_begin_itr";
+  if ( !tp.getInspectedValue(label, pulse_begin_itr)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+
+  label = base_label + "/T";
+  if ( !tp.getInspectedValue(label, T)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
 }
 
 void FEM::readBoundary()
@@ -284,8 +299,8 @@ void FEM::readBoundary()
   string str,base_label,label;
 
 
-  bd_u.resize(numOfNodeGlobal,vector<double>(3,0));
-  bd_iu.resize(numOfNodeGlobal,vector<int>(3,0));
+  bd_u.resize(numOfNodeGlobal,VDOUBLE1D(3,0));
+  bd_iu.resize(numOfNodeGlobal,VINT1D(3,0));
 
   bd_p.resize(numOfNodeGlobal,0);
   bd_ip.resize(numOfNodeGlobal,0);
@@ -569,7 +584,6 @@ void FEM::readImage()
 {
   string str,base_label,label;
 
-
   phi.resize(numOfElmGlobal);
   phiEX.resize(numOfElmGlobal);
   phiVOF.resize(numOfElmGlobal);
@@ -579,6 +593,7 @@ void FEM::readImage()
   for(int i=0;i<numOfElmGlobal;i++){
     phi[i] = 1e0;
     phiEX[i] = 1e0;
+    phiVOF[i] = 1e0;
   }
 
   string imageFile;
@@ -643,8 +658,8 @@ void FEM::readImage()
     exit(1);
   }
   for(int k=0; k<nz; k++){
-    for(int j=0;j<ny;j++){
-      for(int i=0;i<nx;i++){
+    for(int j=0; j<ny; j++){
+      for(int i=0; i<nx; i++){
         int tmp1,tmp2,tmp3;
         fscanf(fp,"%d %d %d %lf\n",&tmp1,&tmp2,&tmp3,&value);
         phiVOF[tmp1+tmp2*nx+tmp3*nx*ny] = value;

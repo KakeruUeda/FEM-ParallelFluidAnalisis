@@ -5,7 +5,7 @@ using namespace std;
 class ShapeFunction3D{
  public:
 
-  static void C3D8_N(vector<double> &N,const double &g1,const double &g2,const double &g3)
+  static void C3D8_N(VDOUBLE1D &N,const double &g1,const double &g2,const double &g3)
   {
     N[0] = 1.25e-1 * (1e0-g1) * (1e0-g2) * (1e0-g3);
     N[1] = 1.25e-1 * (1e0+g1) * (1e0-g2) * (1e0-g3);
@@ -18,7 +18,7 @@ class ShapeFunction3D{
   }
 
 
-  static void C3D8_dNdr(vector<vector<double>> &dNdr,const double &g1,const double &g2,const double &g3)
+  static void C3D8_dNdr(VDOUBLE2D &dNdr,const double &g1,const double &g2,const double &g3)
   {
     dNdr[0][0] = -1.25e-1 * (1e0-g2) * (1e0-g3);
     dNdr[0][1] = -1.25e-1 * (1e0-g1) * (1e0-g3);

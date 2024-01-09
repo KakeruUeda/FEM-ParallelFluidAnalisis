@@ -1,11 +1,7 @@
-MPI
-{
-  numOfOMP = 1
-}
-
-Output
+Base
 {
   outputDir = "test"
+  numOfOMP = 1
 }
 
 Domain
@@ -14,7 +10,9 @@ Domain
   Lx=(1e0,1e0,1e0)  //domain size
   image = "input/square/image128x128x128.dat" 
   imageEX = "input/square/image128x128x128_around.dat"
+  imageVOF = "input/square/image128x128x128_around.dat"
   sdf = "input/square/sdf128x128x128.dat"
+  sdf_node = "input/square/sdf128x128x128.dat"
 }
 
 Boundary
@@ -45,6 +43,12 @@ back{
  }
 }
 
+BoundaryMethod 
+{
+  boundary = "XFEM"
+}
+
+
 PysicalParameter
 {
   rho = 1000 
@@ -60,6 +64,25 @@ NRParameter
   NRitr_initial = 10
   relaxationParam_initial = 2e-1
   relaxationParam = 7e-1
+}
+
+XFEMParameter
+{
+  sub_div = 6  
+}
+
+
+DarcyParameter
+{
+  alpha = 1e-1
+  resistance = 1e2
+}
+
+
+BTSubDivParameter
+{
+   max_depth = 1
+   sub_div = 6  
 }
 
 

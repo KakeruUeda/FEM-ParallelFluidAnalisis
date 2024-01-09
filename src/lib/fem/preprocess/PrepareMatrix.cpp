@@ -12,11 +12,11 @@ void FEM::prepareMatrix(){
   nodeMapFluid.resize(numOfNodeGlobalFluid, 0);
   nodeIdFluid.resize(numOfNodeGlobalFluid, 0);
 
-  vector<bool>  vecBoolTempFalse(numOfDofsNode, false);
+  VBOOL1D  vecBoolTempFalse(numOfDofsNode, false);
   nodeTypePrevFluid.resize(numOfNodeGlobalFluid, vecBoolTempFalse);
   nodeTypeFluid.resize(numOfNodeGlobalFluid, vecBoolTempFalse);
 
-  vector<int>  vecIntTempM1(numOfDofsNode, -1);
+  VINT1D  vecIntTempM1(numOfDofsNode, -1);
   nodeDofArrayBCsPrevFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
   nodeDofArrayPrevFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
   nodeDofArrayBCsFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
@@ -118,32 +118,6 @@ void FEM::prepareMatrix(){
       }
     }
   }   
-  /*
-  if(myId == 0){
-    ofstream Assy("nodeForAssyFluid0.dat"); 
-    for(int ic=0; ic<numOfElmGlobalFluid; ic++){
-      int size = elmFluid[ic]->nodeForAssyBCsFluid.size();
-      for(int ii=0; ii<size; ii++){
-        if(ii != 0 && ii%4 == 0) Assy << " ";
-        Assy << elmFluid[ic]->nodeForAssyFluid[ii] << " ";
-      } 
-      Assy << endl;
-    }
-    Assy.close();
-  }
-  if(myId == 1){
-    ofstream Assy1("nodeForAssyFluid1.dat"); 
-    for(int ic=0; ic<numOfElmGlobalFluid; ic++){
-      int size = elmFluid[ic]->nodeForAssyBCsFluid.size();
-      for(int ii=0; ii<size; ii++){
-        if(ii != 0 && ii%4 == 0) Assy1 << " ";
-        Assy1 << elmFluid[ic]->nodeForAssyFluid[ii] << " ";
-      } 
-      Assy1 << endl;
-    }
-    Assy1.close();
-  }
-  */
 
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
@@ -239,7 +213,7 @@ void FEM::prepareMatrix(){
   
   MatrixXd Klocal_tmp(numOfNodeInElm*numOfDofsNode,numOfNodeInElm*numOfDofsNode);
 
-  vector<int>  vecIntTemp;
+  VINT1D  vecIntTemp;
   for(ee=0; ee<numOfElmGlobalFluid; ee++)
   {  
     for(ii=0; ii<jpn; ii++)  Klocal[ii] = 0.0;
@@ -247,65 +221,9 @@ void FEM::prepareMatrix(){
     {
       size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
       vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
-      //for(ii=0; ii<size1; ii++){
-      //  if(elmFluid[ee]->nodeForAssyBCsFluid[ii] == -1){
-      //    Klocal[ii*numOfNodeInElm*numOfDofsNode+ii] = 1;
-      //  }
-      //}
-      //MatrixXdRM Klocal2_tmp = Klocal_tmp;
       errpetsc = MatSetValues(solverPetscFluid->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
     }
   }
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-
-  //errpetsc = MatAssemblyBegin(solverPetsc->mtx,MAT_FINAL_ASSEMBLY); 
-  //errpetsc = MatAssemblyEnd(solverPetsc->mtx,MAT_FINAL_ASSEMBLY); 
-
-  //errpetsc = MatView(solverPetsc->mtx,PETSC_VIEWER_STDOUT_WORLD); 
-  /*
-  if(this_mpi_proc == 1){
-    ofstream Kb("Klocal_before.dat"); 
-    for(int ic=0; ic<ind; ic++){
-      Kb << Klocal[ic]  << " ";
-      if((ic+1)%32 == 0){
-        Kb << endl;
-      } 
-    }
-    Kb.close();
-    //exit(1);
-  }
-  */
-  /*
-  if(this_mpi_proc == 0){
-    //MatView(mtx, PETSC_VIEWER_STDOUT_WORLD);
-    //MatView(A,viewer);
-    ofstream Assy("forAssyVec0_withoutBd.dat"); 
-    for(int ic=0; ic<numOfElmGlobal; ic++){
-      int size = elm[ic]->forAssyVec_withoutBd.size();
-      for(ii=0; ii<size; ii++){
-        if(ii != 0 && ii%4 == 0) Assy << " ";
-        Assy << elm[ic]->forAssyVec_withoutBd[ii] << " ";
-      } 
-      Assy << endl;
-    }
-    Assy.close();
-  }
-    
-  if(this_mpi_proc == 1){
-    ofstream Assy1("forAssyVec1_withoutBd.dat"); 
-    for(int ic=0; ic<numOfElmGlobal; ic++){
-      int size = elm[ic]->forAssyVec_withoutBd.size();
-      for(ii=0; ii<size; ii++){
-        if(ii != 0 && ii%4 == 0) Assy1 << " ";
-        Assy1 << elm[ic]->forAssyVec_withoutBd[ii] << " ";
-      } 
-      Assy1 << endl;
-    }
-    Assy1.close();
-  }
-  */
-
-  
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
   solverPetscFluid->currentStatus = PATTERN_OK;
@@ -313,7 +231,7 @@ void FEM::prepareMatrix(){
   PetscFree(diag_nnz); 
   PetscFree(offdiag_nnz);  
 
-  //TODO: use vector<T>().swap[x) to empty the vector and also deallocate the memory
+  
   for(ii=0; ii<nodeDofArrayBCsFluid.size(); ii++)
   {
     nodeDofArrayBCsPrevFluid[ii].clear();
@@ -326,13 +244,18 @@ void FEM::prepareMatrix(){
   nodeDofArrayPrevFluid.clear();
   nodeDofArrayFluid.clear();
 
+  VINT2D().swap(nodeDofArrayBCsPrevFluid);
+  VINT2D().swap(nodeDofArrayBCsFluid);
+  VINT2D().swap(nodeDofArrayPrevFluid);
+  VINT2D().swap(nodeDofArrayFluid);
+  
 }
 
 int FEM::divideMesh()
 {
 
-  vector<int>  elmId(numOfElmGlobal, 0);
-  vector<int>  elmIdFluid(numOfElmGlobalFluid, 0);
+  VINT1D  elmId(numOfElmGlobal, 0);
+  VINT1D  elmIdFluid(numOfElmGlobalFluid, 0);
 
   if(myId == 0)
   {
@@ -344,7 +267,7 @@ int FEM::divideMesh()
     errpetsc  = PetscMalloc1(numOfElmGlobalFluid+1,  &eptr);CHKERRQ(errpetsc);
     errpetsc  = PetscMalloc1(numOfElmGlobalFluid*numOfNodeInElm,  &eind);CHKERRQ(errpetsc);
 
-    vector<int>  vecTemp2;
+    VINT1D  vecTemp2;
 
     eptr[0] = 0;
     kk = 0;
@@ -473,13 +396,13 @@ int FEM::prepareForParallel()
  int ee, ii, jj, kk, n1, n2, jpn;
 
  nNode_owned = count(nodeIdFluid.begin(), nodeIdFluid.end(), myId);
- printf(" nNode_owned =  %5d \t numOfId = %5d \t myId = %5d \n",node_start, numOfId, myId);
+ printf(" nNode_owned =  %5d \t numOfId = %5d \t myId = %5d \n", nNode_owned, numOfId, myId);
 
  MPI_Barrier(MPI_COMM_WORLD);
  PetscPrintf(MPI_COMM_WORLD, "\n"); 
  MPI_Barrier(MPI_COMM_WORLD);
 
- vector<int>  nodelist_owned(nNode_owned);
+ VINT1D  nodelist_owned(nNode_owned);
 
  kk=0;
  for(ii=0; ii<numOfNodeGlobalFluid; ii++)
@@ -492,7 +415,7 @@ int FEM::prepareForParallel()
 
  MPI_Barrier(MPI_COMM_WORLD);
 
- vector<int>  nNode_owned_vector(numOfId), nNode_owned_sum(numOfId);
+ VINT1D  nNode_owned_vector(numOfId), nNode_owned_sum(numOfId);
 
  MPI_Allgather(&nNode_owned, 1, MPI_INT, &nNode_owned_vector[0], 1, MPI_INT, MPI_COMM_WORLD);
 
@@ -510,7 +433,7 @@ int FEM::prepareForParallel()
  
  MPI_Barrier(MPI_COMM_WORLD);
 
- vector<int>  displs(numOfId);
+ VINT1D  displs(numOfId);
 
  displs[0] = 0;
  for(ii=0; ii<numOfId-1; ii++) displs[ii+1] = displs[ii] + nNode_owned_vector[ii];
@@ -541,9 +464,9 @@ int FEM::prepareForParallel()
    
    elmFluid[ee]->nodeNumsFluid = elementFluid[ee];
    elementFluid[ee].clear();
- 
  }
  elementFluid.clear();
+ VINT2D swap(elementFluid);
 
  // update Dirichlet BC information with new node numbers
  for(ii=0; ii<numOfBdNodeFluid; ii++)
@@ -597,7 +520,7 @@ int FEM::prepareForParallel()
  //row_end    = -1e9;
  numOfDofsLocalFluid = 0;
  
- row_start = node_start*numOfDofsNode;
+ row_start = node_start * numOfDofsNode;
  row_end = node_end*numOfDofsNode+numOfDofsNode-1;
 
  for(ii=node_start; ii<=node_end; ii++)

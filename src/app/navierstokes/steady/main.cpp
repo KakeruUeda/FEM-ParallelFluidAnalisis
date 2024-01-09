@@ -1,7 +1,8 @@
 #include "FEM.h"
 #include <omp.h>
-int main(int argc, char* argv[]){
 
+int main(int argc, char* argv[])
+{
   MPI_Init(NULL, NULL);
   string  petscfile   = argv[2];
   PetscInitialize(NULL, NULL, petscfile.c_str(), NULL);
@@ -39,6 +40,10 @@ int main(int argc, char* argv[]){
       NAVIER.export_vti_elm(vtiFile,NAVIER.phiVOF);
     }
   }
+  VDOUBLE1D().swap(NAVIER.sdf);
+  VDOUBLE1D().swap(NAVIER.phi);
+  VDOUBLE1D().swap(NAVIER.phiEX);
+  VDOUBLE1D().swap(NAVIER.phiVOF);
 
   omp_set_num_threads(NAVIER.numOfOMP);
 

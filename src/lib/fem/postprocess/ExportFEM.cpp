@@ -1,6 +1,6 @@
 #include "FEM.h"
 
-void FEM::export_vti_metis(const string &file, vector<int> &node, vector<int> &element)
+void FEM::export_vti_metis(const string &file, VINT1D &node, VINT1D &element)
 {
   FILE *fp; 
   fp=fopen(file.c_str(),"w");
@@ -36,7 +36,7 @@ void FEM::export_vti_metis(const string &file, vector<int> &node, vector<int> &e
 }
 
 
-void FEM::export_vti_node(const string &file, vector<double> &node)
+void FEM::export_vti_node(const string &file, VDOUBLE1D &node)
 {
   FILE *fp; 
   fp=fopen(file.c_str(),"w");
@@ -64,7 +64,7 @@ void FEM::export_vti_node(const string &file, vector<double> &node)
 }
 
 
-void FEM::export_vti_elm(const string &file, vector<double> &element)
+void FEM::export_vti_elm(const string &file, VDOUBLE1D &element)
 {
   FILE *fp; 
   fp=fopen(file.c_str(),"w");
@@ -131,7 +131,7 @@ void FEM::export_vti_domain(const string &file)
   fclose(fp);
 }
 
-void FEM::export_vti_result(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &w, vector<double> &p)
+void FEM::export_vti_result(const std::string &file, VDOUBLE1D &u, VDOUBLE1D &v, VDOUBLE1D &w, VDOUBLE1D &p)
 {
   FILE *fp; 
   fp=fopen(file.c_str(),"w");
@@ -164,7 +164,7 @@ void FEM::export_vti_result(const std::string &file, vector<double> &u, vector<d
 }
 
 
-void FEM::export_vti_result_2D(const std::string &file, vector<double> &u, vector<double> &v, vector<double> &p)
+void FEM::export_vti_result_2D(const std::string &file, VDOUBLE1D &u, VDOUBLE1D &v, VDOUBLE1D &p)
 {
   FILE *fp; 
   fp=fopen(file.c_str(),"w");
