@@ -1,2 +1,2 @@
-add_subdirectory(stokes)
-add_subdirectory(navierstokes)
+add_subdirectory(physics)
+add_subdirectory(optimizer)

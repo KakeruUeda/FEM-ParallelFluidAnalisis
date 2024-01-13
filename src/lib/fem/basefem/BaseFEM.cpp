@@ -1,11 +1,52 @@
 #include "FEM.h"
 
+void FEM::setMatAndVecZero()
+{
+  int ii, ic, size;
+  int Japan, Oita;  
+
+  Japan = numOfNodeInElm * numOfDofsNode;
+  Oita = Japan * Japan;
+  
+  PetscScalar  Flocal_tmp[Japan];  
+  PetscScalar  Klocal_tmp[Oita];   
+  VINT1D  vecIntTemp;
+  
+  for(ic=0; ic<numOfElmGlobalFluid; ic++)
+  { 
+    for(ii=0; ii<Japan; ii++)  Flocal_tmp[ii] = 0.0;
+    for(ii=0; ii<Oita; ii++)  Klocal_tmp[ii] = 0.0;
+    if(elmFluid[ic]->getSubdomainId() == myId)
+    {
+      size = elmFluid[ic]->nodeForAssyBCsFluid.size();
+      vecIntTemp = elmFluid[ic]->nodeForAssyFluid;
+      MatSetValues(solverPetscFluid->mtx, size, &vecIntTemp[0], size, &vecIntTemp[0], Klocal_tmp, INSERT_VALUES);
+      VecSetValues(solverPetscFluid->rhsVec, size, &vecIntTemp[0], Flocal_tmp, INSERT_VALUES);
+    }
+  }
+}
+
+void FEM::setNRInitialValue()
+{
+  for(int ic=0; ic<numOfNodeGlobalFluid; ic++)
+  {
+    if(bd_iu_fluid[ic][0] == 0) uFluid[ic] = bd_u_fluid[ic][0];
+    if(bd_iu_fluid[ic][1] == 0) vFluid[ic] = bd_u_fluid[ic][1];
+    if(bd_iu_fluid[ic][2] == 0) wFluid[ic] = bd_u_fluid[ic][2];
+    if(bd_ip_fluid[ic]    == 0) pFluid[ic] = bd_p_fluid[ic];
+  }
+  for(int id=0; id<numOfDofsNode * numOfNodeGlobalFluid; id++)
+  {
+    DirichletBCsFluid[id] = 0e0;
+  }
+}
+
 
 void FEM::assignBCs()
 {
   int ii, n1, n2, n3;
 
-  DirichletBCsFluid.resize(numOfDofsNode*numOfNodeGlobalFluid);
+  DirichletBCsFluid.resize(numOfDofsNode * numOfNodeGlobalFluid);
   
   for(ii=0; ii<numOfBdNodeFluid; ii++)
   {
@@ -29,7 +70,7 @@ void FEM::assignPulsatileBCs(const double t_itr)
   {
     n1 = int(DirichletBCsFluid_tmp[ii][0]);
     n2 = int(DirichletBCsFluid_tmp[ii][1]);
-    n3 = n1 * numOfDofsNode+n2;
+    n3 = n1 * numOfDofsNode + n2;
 
     if(DirichletBCsFluid_tmp[ii][2] > 0){
       DirichletBCsFluid[n3] = DirichletBCsFluid_tmp[ii][2] * pulse;
@@ -39,6 +80,7 @@ void FEM::assignPulsatileBCs(const double t_itr)
   }
   return;
 }
+
 
 
 void FEM::applyBCs()
@@ -72,10 +114,17 @@ void FEM::applyBCs()
           Flocal_tmp[ii] = DirichletBCsFluid[elmFluid[ic]->globalDOFnumsFluid[ii]];    
         }
       }
-      VecSetValues(solverPetscFluid->rhsVec, size, &vecIntTemp[0], Flocal_tmp, ADD_VALUES);
-      MatSetValues(solverPetscFluid->mtx,    size, &vecIntTemp[0], size, &vecIntTemp[0], Klocal_tmp, ADD_VALUES);
+      MatSetValues(solverPetscFluid->mtx,    size, &vecIntTemp[0], size, &vecIntTemp[0], Klocal_tmp, INSERT_VALUES);
+      VecSetValues(solverPetscFluid->rhsVec, size, &vecIntTemp[0], Flocal_tmp, INSERT_VALUES);
     }
   }
+  MPI_Barrier(MPI_COMM_WORLD);
+  
+  MatAssemblyBegin(solverPetscFluid->mtx, MAT_FLUSH_ASSEMBLY);
+  MatAssemblyEnd(solverPetscFluid->mtx, MAT_FLUSH_ASSEMBLY);
+
+  VecAssemblyBegin(solverPetscFluid->rhsVec);
+  VecAssemblyEnd(solverPetscFluid->rhsVec);
 
   return;
 }
@@ -86,8 +135,16 @@ double FEM::calc_tau(const double (&dxdr)[3][3], const double (&vel)[3])
   double drdx[3][3];
   BasicFunctions::calcInverseMatrix_3x3(drdx,dxdr);
 
-  double term1 = (2e0 / dt) * (2e0 / dt);
+  double term1;
   
+  if(solver == SOLVER::STEADY_NAVIERSTOKES){
+    term1 = 0e0;
+  }else if(solver == SOLVER::UNSTEADY_NAVIERSTOKES){
+    term1 = (2e0 / dt) * (2e0 / dt);
+  }else{
+    PetscPrintf(MPI_COMM_WORLD, "\n calc_tau solver not defined \n");
+  }
+
   double G[3][3];
   for(int i=0;i<3;i++){
     for(int j=0;j<3;j++){
@@ -122,7 +179,15 @@ double FEM::calc_tau2(const double (&vel)[3])
   double tau = 0e0;
   double velMag = sqrt(vel[0] * vel[0] + vel[1] * vel[1] + vel[2] * vel[2]);
 
-  double term1 = (2e0 / dt) * (2e0 / dt);
+  double term1;
+
+  if(solver == SOLVER::STEADY_NAVIERSTOKES){
+    term1 = 0e0;
+  }else if(solver == SOLVER::UNSTEADY_NAVIERSTOKES){
+    term1 = (2e0 / dt) * (2e0 / dt);
+  }else{
+    PetscPrintf(MPI_COMM_WORLD, "\n calc_tau solver not defined \n");
+  }
 
   double max_length = dx;
   

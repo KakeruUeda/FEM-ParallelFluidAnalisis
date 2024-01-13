@@ -16,6 +16,9 @@ class PetscSolver
     
     PetscInt nRow, nCol, nnz;
 
+    int nnz_max_row;
+    PetscInt  *diag_nnz, *offdiag_nnz;
+
     int currentStatus;
 
     bool  checkIO;
@@ -29,12 +32,11 @@ class PetscSolver
     PetscSolver();
     virtual ~PetscSolver();
 
-    virtual int initialise(int size_local, int size_global, int* diag_nnz, int* offdiag_nnz, int nnz_max_row);
-    virtual int initialAssembly();
-    virtual int setZeroValue();
-    virtual int setValue(VINT1D& forAssyElem, VINT1D& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal);
-    virtual int factorise();
-    virtual int solve();
-    virtual int factoriseAndSolve();
-    virtual int free();
+    int initialize(int size_local, int size_global);
+    int initialAssembly();
+    int setZeroValue();
+    int setValue(VINT1D& forAssyElem, VINT1D& forAssyElemRHS, MatrixXd& Klocal, VectorXd& Flocal);
+    int factorise();
+    int solve();
+    int factoriseAndSolve();
 };

@@ -95,8 +95,6 @@ PysicalParameter
 {
   rho = 1000   // density
   mu = 1      // viscocity
-  U = 1       // characteristic velocity
-  D = 1       // characteristic lengh
 }
 
 

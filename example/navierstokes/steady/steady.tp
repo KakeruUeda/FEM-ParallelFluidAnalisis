@@ -4,57 +4,66 @@ Base
   numOfOMP = 1
 }
 
+//Domain
+//{
+//  nx=(32,32,32)  //element size
+//  Lx=(1e0,1e0,1e0)  //domain size
+//  image = "input/square/image128x128x128.dat" 
+//  imageEX = "input/square/image128x128x128_around.dat"
+//  imageVOF = "input/square/image128x128x128_around.dat"
+//  sdf = "input/square/sdf128x128x128.dat"
+//  sdf_node = "input/square/sdf128x128x128.dat"
+//}
+
 Domain
 {
-  nx=(32,32,32)  //element size
-  Lx=(1e0,1e0,1e0)  //domain size
-  image = "input/square/image128x128x128.dat" 
-  imageEX = "input/square/image128x128x128_around.dat"
-  imageVOF = "input/square/image128x128x128_around.dat"
-  sdf = "input/square/sdf128x128x128.dat"
-  sdf_node = "input/square/sdf128x128x128.dat"
+  nx=(240,80,80)  //element size
+  Lx=(50,15,12)  //domain size
+  image = "input/vessel/image240x80x80.dat"
+  imageEX = "input/vessel/image240x80x80_around.dat"
+  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+  sdf = "input/vessel/sdf240x80x80.dat"
+  sdf_node = "input/vessel/sdf240x80x80_node.dat"
 }
 
 Boundary
 {
  top{
-    type = "v"
+    type = "free"
     value = (1,0,0)
  }
  bottom{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  left{
     type = "v"
-    value = (0,0,0)
+    value = (1,0,0)
  }
  right{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  front{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 back{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 }
 
 BoundaryMethod 
 {
-  boundary = "XFEM"
+  boundary = "Darcy"
 }
 
 
 PysicalParameter
 {
-  rho = 1000 
+  rho = 10
   mu = 1
-  U = 1
-  D = 1
 }
 
 NRParameter
@@ -62,8 +71,8 @@ NRParameter
   NRtolerance = 1e-8
   NRitr = 100
   NRitr_initial = 10
-  relaxationParam_initial = 2e-1
-  relaxationParam = 7e-1
+  relaxationParam_initial = 1e-1
+  relaxationParam = 1e-1
 }
 
 XFEMParameter

@@ -41,7 +41,7 @@ class  SolutionData
     ~SolutionData(){}
 
 
-    void  initialise(int size1);
+    void initialize(int size1);
 
     void  setZero();
 };

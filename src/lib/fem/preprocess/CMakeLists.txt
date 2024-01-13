@@ -7,6 +7,8 @@ target_sources(preprocess
   InitializeFEM.cpp
   ReadlnputFile.cpp
   PrepareMatrix.cpp
+  AllocationFEM.cpp
+  OctreeSubDivision.cpp
   InterfacePartition.cpp
   LineSDFSearch.cpp
 )

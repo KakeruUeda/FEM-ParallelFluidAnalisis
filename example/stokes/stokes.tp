@@ -4,69 +4,52 @@ Base
   numOfOMP = 1
 }
 
-
-//Domain
-//{
-//  nx=(32,200,32)  //element size
-//  Lx=(1.0,6.25,1.0)  //domain size
-//  image = "input/square/image512x512x512.dat" 
-//  imageEX = "input/square/image512x512x512.dat"
-//  sdf = "input/square/sdf128x128x128.dat"
-//}
-
-//Domain
-//{
-//  nx=(64,64,64)  //element size
-//  Lx=(1e0,1e0,1e0)  //domain size
-//  image = "input/square/image128x128x128.dat"
-//  imageEX = "input/square/image128x128x128.dat"
-//  sdf = "input/square/sdf128x128x128.dat"
-//}
-
 Domain
 {
-  nx=(240,80,80)  //element size
-  Lx=(50,15,12)  //domain size
-  image = "input/vessel/image240x80x80.dat"
-  imageEX = "input/vessel/image240x80x80_around.dat"
-  imageVOF = "input/vessel/image240x80x80_VOF.dat"
-  sdf = "input/vessel/sdf240x80x80.dat"
-  sdf_node = "input/vessel/sdf240x80x80_node.dat"
+  nx=(32,32,32)  //element size
+  Lx=(1e0,1e0,1e0)  //domain size
+  image = "input/square/image128x128x128.dat" 
+  imageEX = "input/square/image128x128x128_around.dat"
+  imageVOF = "input/square/image128x128x128_around.dat"
+  sdf = "input/square/sdf128x128x128.dat"
+  sdf_node = "input/square/sdf128x128x128.dat"
 }
 
 //Domain
 //{
-//  nx=(32,32,32)  //element size
-//  Lx=(1e2,1e2,1e2)  //domain size
-//  image = "input/straightTube/image32x32x32.dat"
-//  imageEX = "input/straightTube/image32x32x32_around.dat"
-//  sdf = "input/straightTube/sdf32x32x32.dat"
+//  nx=(240,80,80)  //element size
+//  Lx=(50,15,12)  //domain size
+//  image = "input/vessel/image240x80x80.dat"
+//  imageEX = "input/vessel/image240x80x80_around.dat"
+//  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+//  sdf = "input/vessel/sdf240x80x80.dat"
+//  sdf_node = "input/vessel/sdf240x80x80_node.dat"
 //}
 
 Boundary
 {
  top{
-    type = "free"
-    value = (1,0,0)
- }
- bottom{
-    type = "free"
-    value = (0,1,0)
- }
- left{
     type = "v"
     value = (1,0,0)
  }
+ bottom{
+    type = "v"
+    value = (0,0,0)
+ }
+ left{
+    type = "v"
+    value = (0,0,0)
+ }
  right{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  front{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 back{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 }
@@ -74,8 +57,8 @@ back{
 
 PysicalParameter
 {
-  rho = 1  // density
-  mu = 1    // viscocity
+  rho = 100  // density
+  mu = 0.035    // viscocity
   U = 1       // characteristic velocity
   D = 1       // characteristic lengh
 }

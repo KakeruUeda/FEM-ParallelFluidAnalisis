@@ -101,6 +101,7 @@ void FEM::readDomain()
   dx=Lx/nx;
   dy=Ly/ny;
   dz=Lz/nz; 
+
   numOfNodeGlobal=(nx+1)*(ny+1)*(nz+1);
   numOfElmGlobal=nx*ny*nz;
   numOfNodeInElm=8;
@@ -121,18 +122,6 @@ void FEM::readPysicalParam()
 
   label = base_label + "/mu";
   if ( !tp.getInspectedValue(label, mu)){
-    cout << label << " is not set" << endl;
-    exit(0);
-  }
-
-  label = base_label + "/U";
-  if ( !tp.getInspectedValue(label, U)){
-    cout << label << " is not set" << endl;
-    exit(0);
-  }
-
-  label = base_label + "/D";
-  if ( !tp.getInspectedValue(label, D)){
     cout << label << " is not set" << endl;
     exit(0);
   }

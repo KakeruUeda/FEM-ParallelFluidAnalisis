@@ -47,8 +47,8 @@ class FEM :public DomainFEM{
     TextParser tp;
     PetscErrorCode  errpetsc;
     string outputDir,fileName;
-    
-    int numOfDofsNode=4;
+
+    int numOfDofsNode = 4;
     PetscInt  numOfId, myId, nNode_owned;
     PetscInt  node_start, node_end, elem_start, elem_end;
     PetscInt  row_start, row_end;
@@ -63,7 +63,7 @@ class FEM :public DomainFEM{
 
     int numOfOMP;
 
-    double rho,mu,nu,U,D,Re;
+    double rho, mu, nu, Re;
     
     double NRtolerance;
     int NRitr_initial, NRitr; 
@@ -126,34 +126,29 @@ class FEM :public DomainFEM{
   public:
     FEM();
     ~FEM();
-    void initialize();
-    void readInput();
-    void readBase();
-    void readPysicalParam();
-    void readBoundaryMethod();
-    void readXFEMParam();
-    void readDarcyParam();
-    void readBTSubDivParam();
-    void readNRParam();
-    void readTimeParam();
-    void readDomain();
-    void readBoundary();
-    void readImage();
-    void setDomain();
-    void prepare();
-    void setBoundary();
-    void setFluidDomain();
+    
+    void initialize();         void readInput();
+    void readBase();           void readPysicalParam();
+    void readBoundaryMethod(); void readXFEMParam();
+    void readDarcyParam();     void readBTSubDivParam();
+    void readNRParam();        void readTimeParam();
+    void readDomain();         void readBoundary();
+    void readImage();          void setDomain();
+    void setBoundary();        void setFluidDomain();
 
     void prepareMatrix();
+    void exportDomain();
+    
     int divideMesh();
     int prepareForParallel();
-
+    
+    void allocateObj();
     void resizeVariables();
 
-    int deallocate();
+    int solverDeallocate();
 
     /// XFEM PARTITION ///
-    void binaryTreeSubDivision();
+    void octreeSubDivision();
     void gererateSubElms(VDOUBLE1D &sdf_parent, VDOUBLE2D &x_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
     void getSubSubCoordinates(VDOUBLE2D &x_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &sdf_sub_sub, const int &ii, const int &jj, const int &kk);
     void makeSubElmsData(VDOUBLE1D &sdf_sub_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
@@ -182,8 +177,9 @@ class FEM :public DomainFEM{
     /// STEADY NAVIER STOKES  ///
     void SteadyNavierStokes();
    
-    void MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
-    void XFEM_MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
+    void MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void Darcy_MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
     
     void DiffusionInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
     void PressureInGaussIntegral(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE1D &N,VDOUBLE2D &dNdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
@@ -201,6 +197,9 @@ class FEM :public DomainFEM{
     void XFEM_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
     void Darcy_MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
     void velocityValue(double (&vel)[3], double (&advel)[3], double (&dvdx)[3][3],VDOUBLE1D &N, VDOUBLE2D &dNdx, const int ic, const int t_itr);
+    
+    void setMatAndVecZero();
+    void setNRInitialValue();
     
     void assignBCs();
     void assignPulsatileBCs(const double t_itr);
