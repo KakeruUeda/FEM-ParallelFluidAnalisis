@@ -6,7 +6,7 @@ SolutionData::SolutionData()
   return;
 }
 
-void SolutionData::initialise(int size1)
+void SolutionData::initialize(int size1)
 {
   vecsize = size1;
 

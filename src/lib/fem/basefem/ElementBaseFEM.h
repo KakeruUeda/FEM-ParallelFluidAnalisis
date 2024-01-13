@@ -46,7 +46,6 @@ class ElementBaseFEM{
     vector<vector<SubProperty>> sub_elm_node;
     vector<SubProperty> sub_elm;
 
-
   private:
 };
 

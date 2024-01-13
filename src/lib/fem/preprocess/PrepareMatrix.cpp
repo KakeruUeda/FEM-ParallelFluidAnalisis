@@ -1,12 +1,12 @@
 #include "FEM.h"
 
-void FEM::prepareMatrix(){
-
+void FEM::prepareMatrix()
+{
   int  size1;
   int  jpn;
   int  r, ii, jj, ee, kk, nsize;
-  int  *tt, nnz_max_row;
-  int  count_diag, count_offdiag, tempInt;
+  int  *tt, tempInt;
+  int  count_diag, count_offdiag;
 
   nodeMapPrevFluid.resize(numOfNodeGlobalFluid, 0);
   nodeMapFluid.resize(numOfNodeGlobalFluid, 0);
@@ -36,7 +36,6 @@ void FEM::prepareMatrix(){
       }
     }
   }
-
 
   if(myId == 0)
   {
@@ -97,7 +96,7 @@ void FEM::prepareMatrix(){
   SolnDataFluid.nodeMapPrevFluid = nodeMapPrevFluid;
   SolnDataFluid.nodeMapFluid = nodeMapFluid;
 
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
 
   for(ee=0; ee<numOfElmGlobalFluid; ee++){
     if(elmFluid[ee]->getSubdomainId() == myId){
@@ -119,7 +118,7 @@ void FEM::prepareMatrix(){
     }
   }   
 
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
 
   assyForSolnFluid.resize(numOfDofsGlobalFluid);
   jpn = 0;
@@ -168,21 +167,20 @@ void FEM::prepareMatrix(){
       }
     }
   }
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
+  
 
-  PetscInt  *diag_nnz, *offdiag_nnz;
-
-  errpetsc  = PetscMalloc1(numOfDofsLocalFluid,  &diag_nnz);
-  errpetsc  = PetscMalloc1(numOfDofsLocalFluid,  &offdiag_nnz);
+  PetscMalloc1(numOfDofsLocalFluid,  &solverPetscFluid->diag_nnz);
+  PetscMalloc1(numOfDofsLocalFluid,  &solverPetscFluid->offdiag_nnz);
 
 
   kk = 0;
-  nnz_max_row = 0;
+  solverPetscFluid->nnz_max_row = 0;
   for(ii=row_start; ii<=row_end; ii++)
   {
     size1 = forAssyMatFluid[ii].size();
 
-    nnz_max_row = max(nnz_max_row, size1);
+    solverPetscFluid->nnz_max_row = max(solverPetscFluid->nnz_max_row, size1);
 
     count_diag=0, count_offdiag=0;
     for(it=forAssyMatFluid[ii].begin(); it!=forAssyMatFluid[ii].end(); ++it)
@@ -194,42 +192,45 @@ void FEM::prepareMatrix(){
       else
         count_offdiag++;
     }
-    diag_nnz[kk]    = count_diag;
-    offdiag_nnz[kk] = count_offdiag;
+    solverPetscFluid->diag_nnz[kk]    = count_diag;
+    solverPetscFluid->offdiag_nnz[kk] = count_offdiag;
     kk++;
   }
 
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  
+  //PetscPrintf(MPI_COMM_WORLD, "\n Petsc solver initialize start\n");
+  //solverPetscFluid->initialize(numOfDofsLocalFluid, numOfDofsGlobalFluid, diag_nnz, offdiag_nnz, nnz_max_row);
+  //PetscPrintf(MPI_COMM_WORLD, " Petsc solver initialize done\n\n");
+
+  solverPetscFluid->initialize(numOfDofsLocalFluid, numOfDofsGlobalFluid);
+
   errpetsc = MPI_Barrier(MPI_COMM_WORLD);
   
-  PetscPrintf(MPI_COMM_WORLD, "\n Petsc solver initialize start\n");
-  solverPetscFluid->initialise(numOfDofsLocalFluid, numOfDofsGlobalFluid, diag_nnz, offdiag_nnz, nnz_max_row);
-  PetscPrintf(MPI_COMM_WORLD, " Petsc solver initialize done\n\n");
+  //jpn = numOfNodeInElm*numOfDofsNode;
+  //jpn = jpn*jpn;
+  //PetscScalar  Klocal[jpn];
+  //
+  //MatrixXd Klocal_tmp(numOfNodeInElm*numOfDofsNode,numOfNodeInElm*numOfDofsNode);
 
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
-
-  jpn = numOfNodeInElm*numOfDofsNode;
-  jpn = jpn*jpn;
-  PetscScalar  Klocal[jpn];
-  
-  MatrixXd Klocal_tmp(numOfNodeInElm*numOfDofsNode,numOfNodeInElm*numOfDofsNode);
-
-  VINT1D  vecIntTemp;
-  for(ee=0; ee<numOfElmGlobalFluid; ee++)
-  {  
-    for(ii=0; ii<jpn; ii++)  Klocal[ii] = 0.0;
-    if(elmFluid[ee]->getSubdomainId() == myId)
-    {
-      size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
-      vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
-      errpetsc = MatSetValues(solverPetscFluid->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
-    }
-  }
-  errpetsc = MPI_Barrier(MPI_COMM_WORLD);
+  //VINT1D  vecIntTemp;
+  //for(ee=0; ee<numOfElmGlobalFluid; ee++)
+  //{  
+  //  for(ii=0; ii<jpn; ii++)  Klocal[ii] = 0.0;
+  //  if(elmFluid[ee]->getSubdomainId() == myId)
+  //  {
+  //    size1 = elmFluid[ee]->nodeForAssyBCsFluid.size();
+  //    vecIntTemp = elmFluid[ee]->nodeForAssyFluid;
+  //    errpetsc = MatSetValues(solverPetscFluid->mtx, size1, &vecIntTemp[0], size1, &vecIntTemp[0], Klocal, INSERT_VALUES);
+  //  }
+  //}
+  //errpetsc = MPI_Barrier(MPI_COMM_WORLD);
 
   solverPetscFluid->currentStatus = PATTERN_OK;
 
-  PetscFree(diag_nnz); 
-  PetscFree(offdiag_nnz);  
+  //PetscFree(diag_nnz); 
+  //PetscFree(offdiag_nnz);  
 
   
   for(ii=0; ii<nodeDofArrayBCsFluid.size(); ii++)
@@ -264,8 +265,8 @@ int FEM::divideMesh()
 
     PetscInt  *eptr, *eind;
 
-    errpetsc  = PetscMalloc1(numOfElmGlobalFluid+1,  &eptr);CHKERRQ(errpetsc);
-    errpetsc  = PetscMalloc1(numOfElmGlobalFluid*numOfNodeInElm,  &eind);CHKERRQ(errpetsc);
+    errpetsc  = PetscMalloc1(numOfElmGlobalFluid+1,  &eptr); CHKERRQ(errpetsc);
+    errpetsc  = PetscMalloc1(numOfElmGlobalFluid*numOfNodeInElm,  &eind); CHKERRQ(errpetsc);
 
     VINT1D  vecTemp2;
 

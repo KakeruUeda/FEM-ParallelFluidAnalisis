@@ -32,13 +32,12 @@ FEM::~FEM()
   */
 }
 
-int FEM::deallocate()
+int FEM::solverDeallocate()
 {
-  
-  if(solverPetsc != nullptr){
-    solverPetsc->free();
+  if(solverPetscFluid != nullptr)
+  {
+    delete solverPetscFluid;
   }
-  
 
   return 0;
 }

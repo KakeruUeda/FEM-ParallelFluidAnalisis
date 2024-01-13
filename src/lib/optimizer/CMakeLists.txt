@@ -1,0 +1,5 @@
+add_subdirectory(3dvar)
+add_subdirectory(4dvar)
+add_subdirectory(baseoptimizer)
+add_subdirectory(preprocess)
+add_subdirectory(postprocess)
