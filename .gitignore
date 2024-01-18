@@ -3,7 +3,6 @@ build
 output
 *.vti
 *.vtu
-*.bin
 *.stl
 *.dat
 *.DS_Store
