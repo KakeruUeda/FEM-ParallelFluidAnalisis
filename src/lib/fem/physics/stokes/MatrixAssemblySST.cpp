@@ -37,11 +37,12 @@ void FEM::MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
         
         ShapeFunction3D::C3D8_N(N,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
         ShapeFunction3D::C3D8_dNdr(dNdr,gauss.point[i1],gauss.point[i2],gauss.point[i3]);
-        
+
         MathFEM::calc_dxdr(dxdr,dNdr,x_current,numOfNodeInElm);
             
         detJ = dxdr[0][0]*dxdr[1][1]*dxdr[2][2]+dxdr[0][1]*dxdr[1][2]*dxdr[2][0]+dxdr[0][2]*dxdr[1][0]*dxdr[2][1]
-                          -dxdr[0][2]*dxdr[1][1]*dxdr[2][0]-dxdr[0][1]*dxdr[1][0]*dxdr[2][2]-dxdr[0][0]*dxdr[1][2]*dxdr[2][1];
+              -dxdr[0][2]*dxdr[1][1]*dxdr[2][0]-dxdr[0][1]*dxdr[1][0]*dxdr[2][2]-dxdr[0][0]*dxdr[1][2]*dxdr[2][1];
+
         weight = gauss.weight[i1]*gauss.weight[i2]*gauss.weight[i3];
               
         MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);

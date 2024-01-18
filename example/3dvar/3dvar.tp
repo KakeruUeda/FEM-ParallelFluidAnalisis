@@ -1,0 +1,84 @@
+Base
+{
+  outputDir = "test"
+  numOfOMP = 1
+}
+
+Domain
+{
+  nx=(32,32,32)  //element size
+  Lx=(1e0,1e0,1e0)  //domain size
+  image = "input/square/image128x128x128.dat" 
+  imageEX = "input/square/image128x128x128_around.dat"
+  imageVOF = "input/square/image128x128x128_around.dat"
+  sdf = "input/square/sdf128x128x128.dat"
+}
+
+
+Boundary
+{
+ top{
+    type = "v"
+    value = (1,0,0)
+ }
+ bottom{
+    type = "v"
+    value = (0,0,0)
+ }
+ left{
+    type = "v"
+    value = (0,0,0)
+ }
+ right{
+    type = "v"
+    value = (0,0,0)
+ }
+ front{
+    type = "v"
+    value = (0,0,0)
+ }
+back{
+    type = "v"
+    value = (0,0,0)
+ }
+}
+
+BoundaryMethod 
+{
+  boundary = "Darcy"
+}
+
+
+PysicalParameter
+{
+  rho = 1000
+  mu = 1
+}
+
+NRParameter
+{
+  NRtolerance = 1e-8
+  NRitr = 100
+  NRitr_initial = 10
+  relaxationParam_initial = 1e-1
+  relaxationParam = 1e-1
+}
+
+XFEMParameter
+{
+  sub_div = 6  
+}
+
+
+DarcyParameter
+{
+  alpha = 1e-1
+  resistance = 1e2
+}
+
+
+BTSubDivParameter
+{
+   max_depth = 1
+   sub_div = 6  
+}

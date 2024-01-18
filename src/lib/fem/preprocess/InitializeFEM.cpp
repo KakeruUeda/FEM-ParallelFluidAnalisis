@@ -7,37 +7,12 @@ void FEM::initialize()
   setBoundary();
   setFluidDomain();
   resizeVariables();
-  
+
   allocateObj();
   prepareMatrix();
 
-  exportDomain();
-
   //octreeSubDivision();
   //interfacePartition();
-}
-
-void FEM::exportDomain()
-{
-  if(myId == 0){
-    string vtiFile;
-    if(bd == BOUNDARY::XFEM)
-    {
-      vtiFile = outputDir + "/domain.vti";
-      export_vti_domain(vtiFile);
-    }
-    else if(bd == BOUNDARY::DARCY)
-    {
-      vtiFile = outputDir + "/sdf_node.vti";
-      export_vti_node(vtiFile, sdf_node);
-      vtiFile = outputDir + "/phiVOF.vti";
-      export_vti_elm(vtiFile, phiVOF);
-    }
-  }
-  VDOUBLE1D().swap(sdf);
-  VDOUBLE1D().swap(phi);
-  VDOUBLE1D().swap(phiEX);
-  VDOUBLE1D().swap(phiVOF);
 }
 
 
@@ -54,10 +29,10 @@ void FEM::setDomain()
 
   int tmp2=0;
   for(int k=0; k<nz+1; k++){
-    for(int i=0; i<ny+1; i++){
-      for(int j=0; j<nx+1; j++){
-        x[tmp2][0]=j*dx;
-        x[tmp2][1]=i*dy;
+    for(int j=0; j<ny+1; j++){
+      for(int i=0; i<nx+1; i++){
+        x[tmp2][0]=i*dx;
+        x[tmp2][1]=j*dy;
         x[tmp2][2]=k*dz; 
         tmp2++;
       }
@@ -67,17 +42,17 @@ void FEM::setDomain()
   MPI_Barrier(MPI_COMM_WORLD);
 
   tmp2=0;
-  for(int k=0;k<nz;k++){
-    for(int i=0;i<ny;i++){
-      for(int j=0;j<nx;j++){
-        element[tmp2][0]=j   +i*(nx+1) +k*(nx+1)*(ny+1);
-        element[tmp2][1]=j+1 +i*(nx+1) +k*(nx+1)*(ny+1);
-        element[tmp2][2]=j+1 +(i+1)*(nx+1) +k*(nx+1)*(ny+1);
-        element[tmp2][3]=j   +(i+1)*(nx+1) +k*(nx+1)*(ny+1);
-        element[tmp2][4]=j   +i*(nx+1) +(k+1)*(nx+1)*(ny+1);
-        element[tmp2][5]=j+1 +i*(nx+1) +(k+1)*(nx+1)*(ny+1);
-        element[tmp2][6]=j+1 +(i+1)*(nx+1) +(k+1)*(nx+1)*(ny+1);
-        element[tmp2][7]=j   +(i+1)*(nx+1) +(k+1)*(nx+1)*(ny+1);
+  for(int k=0; k<nz; k++){
+    for(int j=0; j<ny; j++){
+      for(int i=0; i<nx; i++){
+        element[tmp2][0]= i   + j*(nx+1)     + k*(nx+1)*(ny+1);
+        element[tmp2][1]= i+1 + j*(nx+1)     + k*(nx+1)*(ny+1);
+        element[tmp2][2]= i+1 + (j+1)*(nx+1) + k*(nx+1)*(ny+1);
+        element[tmp2][3]= i   + (j+1)*(nx+1) + k*(nx+1)*(ny+1);
+        element[tmp2][4]= i   + j*(nx+1)     + (k+1)*(nx+1)*(ny+1);
+        element[tmp2][5]= i+1 + j*(nx+1)     + (k+1)*(nx+1)*(ny+1);
+        element[tmp2][6]= i+1 + (j+1)*(nx+1) + (k+1)*(nx+1)*(ny+1);
+        element[tmp2][7]= i   + (j+1)*(nx+1) + (k+1)*(nx+1)*(ny+1);
         tmp2++;
       }
     }
@@ -159,9 +134,8 @@ void FEM::setFluidDomain()
   sortNode.erase(unique(sortNode.begin(), sortNode.end()), sortNode.end());
   
   VINT1D sortNodeNew(numOfNodeGlobal,0); 
-  
 
-  ///// sortNodeNew: start with 0 /////
+  // sortNodeNew: start with 0
   numOfNodeGlobalFluid = 0;
   for(auto it = sortNode.begin(); it != sortNode.end(); it++){
     sortNodeNew[*it] = numOfNodeGlobalFluid;
@@ -185,21 +159,19 @@ void FEM::setFluidDomain()
   phiFluid.resize(numOfElmGlobalFluid,0e0);
   phiEXFluid.resize(numOfElmGlobalFluid,0e0);
   phiVOFFluid.resize(numOfElmGlobalFluid,0e0);
-  sdfFluid.resize(numOfElmGlobalFluid,0e0);
-  sdfFluid_node.resize(numOfNodeGlobalFluid,0e0);
+  sdfFluid.resize(numOfNodeGlobalFluid,0e0);
   
   for(int ii=0; ii<numOfNodeGlobalFluid; ii++){
     for(int kk=0; kk<3; kk++){
       bd_iu_fluid[ii][kk] = bd_iu[sortNode[ii]][kk];
       bd_u_fluid[ii][kk] = bd_u[sortNode[ii]][kk];
     }
-    sdfFluid_node[ii] = sdf_node[sortNode[ii]];
+    sdfFluid[ii] = sdf[sortNode[ii]];
     bd_ip_fluid[ii] = bd_ip[sortNode[ii]];
     bd_p_fluid[ii] = bd_p[sortNode[ii]];
   }
 
   for(int ii=0; ii<numOfElmGlobalFluid; ii++){
-    sdfFluid[ii] = sdf[sortElm[ii]];
     phiFluid[ii] = phi[sortElm[ii]];
     phiEXFluid[ii] = phiEX[sortElm[ii]];
     phiVOFFluid[ii] = phiVOF[sortElm[ii]];
@@ -239,11 +211,33 @@ void FEM::setFluidDomain()
 
   numOfBdNodeFluid = count;
 
-  VINT2D().swap(bd_iu);
-  VDOUBLE2D().swap(bd_u);
-  VINT1D().swap(bd_ip);
-  VDOUBLE1D().swap(bd_p);
-  VDOUBLE2D().swap(x);
+  //VINT2D().swap(bd_iu);
+  //VDOUBLE2D().swap(bd_u);
+  //VINT1D().swap(bd_ip);
+  //VDOUBLE1D().swap(bd_p);
+  //VDOUBLE2D().swap(x);
   
 }
+
+
+void FEM::visualizeDomain()
+{
+  if(myId > 0) return;
+  string vtiFile;
+
+  vtiFile = outputDir + "/meshPartition.vti";
+  export_file.export_vti_metis(vtiFile, nodeId, elmId, nx, ny, nz, dx, dy, dz);
+  
+  if(bd == BOUNDARY::XFEM)
+  {
+    vtiFile = outputDir + "/domain.vti";
+    export_file.export_vti_domain(vtiFile, sdf, phi, phiEX, nx, ny, nz, dx, dy, dz);
+  }
+  else if(bd == BOUNDARY::DARCY)
+  {    
+    vtiFile = outputDir + "/phiVOF.vti";
+    export_file.export_vti_elm(vtiFile, phiVOF, nx, ny, nz, dx, dy, dz);
+  }
+}
+
 

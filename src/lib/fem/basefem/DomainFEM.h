@@ -24,6 +24,7 @@ class DomainFEM{
     VINT2D bd_iu;
 
     VINT1D  nodeId, nodeMapPrev, nodeMap;
+    VINT1D  elmId;
     
     
      /// FLUID ONLY ///
@@ -42,6 +43,7 @@ class DomainFEM{
     VINT2D bd_iu_fluid;
 
     VINT1D  nodeIdFluid, nodeMapPrevFluid, nodeMapFluid;
+    VINT1D  elmIdFluid;
 
   private:
 };

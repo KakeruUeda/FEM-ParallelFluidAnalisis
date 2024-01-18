@@ -50,11 +50,11 @@ void FEM::readInput()
 
 void FEM::readBase()
 {
-  string str,base_label,label;
+  string str, base_label, label;
 
   base_label = "/Base";
   label = base_label + "/outputDir";
-  if ( !tp.getInspectedValue(label, outputDir)){
+  if(!tp.getInspectedValue(label, outputDir)){
     cout << label << " is not set" << endl;
     exit(0);
   }
@@ -66,7 +66,7 @@ void FEM::readBase()
 
   base_label = "/Base";
   label = base_label + "/numOfOMP";
-  if ( !tp.getInspectedValue(label, numOfOMP)){
+  if(!tp.getInspectedValue(label, numOfOMP)){
     cout << label << " is not set" << endl;
     exit(0);
   }
@@ -576,8 +576,7 @@ void FEM::readImage()
   phi.resize(numOfElmGlobal);
   phiEX.resize(numOfElmGlobal);
   phiVOF.resize(numOfElmGlobal);
-  sdf.resize(numOfElmGlobal);
-  sdf_node.resize(numOfNodeGlobal);
+  sdf.resize(numOfNodeGlobal);
 
   for(int i=0;i<numOfElmGlobal;i++){
     phi[i] = 1e0;
@@ -669,23 +668,9 @@ void FEM::readImage()
     cout << imageFile << " open error" << endl;
     exit(1);
   }
-  for(int k=0; k<nz; k++){
-    for(int j=0;j<ny;j++){
-      for(int i=0;i<nx;i++){
-        int tmp1,tmp2,tmp3;
-        fscanf(fp,"%d %d %d %lf\n",&tmp1,&tmp2,&tmp3,&value);
-        //value = -value;
-        if(fabs(value)<1e-10) {
-          value = 0e0;
-        }
-        sdf[tmp1+tmp2*nx+tmp3*nx*ny] = value;
-      }
-    }
-  }
-  fclose(fp);
 
 
-  label = "/Domain/sdf_node";
+  label = "/Domain/sdf";
   if ( !tp.getInspectedValue(label,imageFile)){
     cout << label << " is not set" << endl;
     exit(0);
@@ -705,7 +690,7 @@ void FEM::readImage()
         if(fabs(value)<1e-10) {
           value = 0e0;
         }
-        sdf_node[tmp1+tmp2*(nx+1)+tmp3*(nx+1)*(ny+1)] = value;
+        sdf[tmp1+tmp2*(nx+1)+tmp3*(nx+1)*(ny+1)] = value;
       }
     }
   }

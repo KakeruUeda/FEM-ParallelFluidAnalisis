@@ -6,13 +6,12 @@ Base
 
 Domain
 {
-  nx=(32,32,32)  //element size
+  nx=(64,64,64)  //element size
   Lx=(1e0,1e0,1e0)  //domain size
   image = "input/square/image128x128x128.dat" 
   imageEX = "input/square/image128x128x128_around.dat"
   imageVOF = "input/square/image128x128x128_around.dat"
   sdf = "input/square/sdf128x128x128.dat"
-  sdf_node = "input/square/sdf128x128x128.dat"
 }
 
 //Domain
@@ -23,18 +22,17 @@ Domain
 //  imageEX = "input/vessel/image240x80x80_around.dat"
 //  imageVOF = "input/vessel/image240x80x80_VOF.dat"
 //  sdf = "input/vessel/sdf240x80x80.dat"
-//  sdf_node = "input/vessel/sdf240x80x80_node.dat"
 //}
 
 Boundary
 {
  top{
-    type = "v"
+    type = "free"
     value = (1,0,0)
  }
  bottom{
     type = "v"
-    value = (0,0,0)
+    value = (0,1,0)
  }
  left{
     type = "v"
@@ -57,10 +55,8 @@ back{
 
 PysicalParameter
 {
-  rho = 100  // density
-  mu = 0.035    // viscocity
-  U = 1       // characteristic velocity
-  D = 1       // characteristic lengh
+  rho = 1   // density
+  mu = 0.035      // viscocity
 }
 
 
@@ -75,7 +71,6 @@ XFEMParameter
   sub_div = 2  
 }
 
-
 DarcyParameter
 {
   alpha = 1e-2
@@ -84,6 +79,12 @@ DarcyParameter
 
 BTSubDivParameter
 {
-   max_depth = 1
-   sub_div = 6  
+  max_depth = 1
+  sub_div = 6  
+}
+
+Postprocess
+{
+  origin = (0.3, 0.4, 0.4)
+  length = (0.2, 0.2, 0.2)
 }

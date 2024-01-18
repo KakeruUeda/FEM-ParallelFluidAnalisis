@@ -11,9 +11,10 @@ target_sources(stokes
 )
 
 target_include_directories(stokes PUBLIC
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/postprocess
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
   ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/solver
-  ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
 )
 
 target_compile_options(stokes PUBLIC ${compile_options_tmp})

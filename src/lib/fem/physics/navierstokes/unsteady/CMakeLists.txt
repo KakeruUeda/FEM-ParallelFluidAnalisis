@@ -11,9 +11,10 @@ target_sources(unsteadynavierstokes
 )
 
 target_include_directories(unsteadynavierstokes PUBLIC
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/postprocess
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
   ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/solver
-  ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
 )
 
 target_compile_options(unsteadynavierstokes PUBLIC ${compile_options_tmp})

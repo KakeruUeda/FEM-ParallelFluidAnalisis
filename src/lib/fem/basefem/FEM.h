@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -17,24 +19,27 @@
 #include "ShapeFunction.h"
 #include "ElementBaseFEM.h"
 #include "MathFEM.h"
-
+#include "ExportFile.h"
 
 using namespace std;
 
 
-enum class SOLVER{
+enum class SOLVER
+{
   STEADY_STOKES = 0,
   STEADY_NAVIERSTOKES = 1,
   UNSTEADY_NAVIERSTOKES = 2
 };
 
-enum class BOUNDARY{
+enum class BOUNDARY
+{
   XFEM = 0,
   DARCY = 1
 };
 
 
-class FEM :public DomainFEM{
+class FEM :public DomainFEM
+{ 
   public:
 
     SOLVER solver;
@@ -43,6 +48,7 @@ class FEM :public DomainFEM{
     SolutionData  SolnData;
     ElementBaseFEM **elm;
     PetscSolver  *solverPetsc;
+    ExportFile export_file;
     
     TextParser tp;
     PetscErrorCode  errpetsc;
@@ -76,7 +82,7 @@ class FEM :public DomainFEM{
     double T;
     
     VDOUBLE1D phi, phiEX, phiVOF;
-    VDOUBLE1D sdf, sdf_node;
+    VDOUBLE1D sdf;
 
     VDOUBLE1D u;
     VDOUBLE1D v;
@@ -94,6 +100,7 @@ class FEM :public DomainFEM{
 
   ///// FLUID ONLY /////
   public:
+
     PetscInt numOfDofsLocalFluid, numOfDofsGlobalFluid;
     VINT1D  assyForSolnFluid;
     VDOUBLE1D DirichletBCsFluid; 
@@ -109,7 +116,6 @@ class FEM :public DomainFEM{
     VDOUBLE1D phiFluid;
     VDOUBLE1D phiEXFluid;
     VDOUBLE1D phiVOFFluid;
-    VDOUBLE1D sdfFluid_node;
     VDOUBLE1D sdfFluid;
     VINT1D sortElm, sortNode;
 
@@ -127,6 +133,7 @@ class FEM :public DomainFEM{
     FEM();
     ~FEM();
     
+    /// PREPROSESS ///
     void initialize();         void readInput();
     void readBase();           void readPysicalParam();
     void readBoundaryMethod(); void readXFEMParam();
@@ -137,7 +144,6 @@ class FEM :public DomainFEM{
     void setBoundary();        void setFluidDomain();
 
     void prepareMatrix();
-    void exportDomain();
     
     int divideMesh();
     int prepareForParallel();
@@ -145,16 +151,18 @@ class FEM :public DomainFEM{
     void allocateObj();
     void resizeVariables();
 
+    void visualizeDomain();
+    void visualizeResults();
+    
     int solverDeallocate();
 
-    /// XFEM PARTITION ///
+    /// XFEM PREPARETION ///
     void octreeSubDivision();
     void gererateSubElms(VDOUBLE1D &sdf_parent, VDOUBLE2D &x_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
     void getSubSubCoordinates(VDOUBLE2D &x_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &sdf_sub_sub, const int &ii, const int &jj, const int &kk);
     void makeSubElmsData(VDOUBLE1D &sdf_sub_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
     void subGaussPoint(VDOUBLE2D &x_sub_sub, double &sub_gx_tmp, double &sub_gy_tmp, double &sub_gz_tmp, VDOUBLE1D &x_center_parent, const int &ii, const int &jj, const int &kk);
     void subGaussWeight(double &weight, const int &ii, const int &jj, const int &kk, int &depth);
-
 
     void interfacePartition();
     void line_serch(VINT1D &sub_cross_num, VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
@@ -169,8 +177,7 @@ class FEM :public DomainFEM{
    
     void MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     void XFEM_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
-    void XFEM_MatAssySTT2(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
-    void XFEM_MatAssySTT3(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
     void SAWADA_XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
     void Darcy_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     
@@ -190,7 +197,7 @@ class FEM :public DomainFEM{
     void PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE1D &NP, VDOUBLE2D &dNPdr, VDOUBLE2D &dNVdr, VDOUBLE2D &x_current, const int numOfNodeInElm, const double weight, const int ic);
     void PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNPdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
    
-    /// UNSTEADY NAVIER STOKES  ///
+    /// UNSTEADY NAVIER STOKES ///
     void UnsteadyNavierStokes();
     
     void MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);
@@ -207,16 +214,9 @@ class FEM :public DomainFEM{
     double calc_tau(const double (&dxdr)[3][3],const double (&vel)[3]);
     double calc_tau2(const double (&vel)[3]);
     double calc_tau3(VDOUBLE2D &dNdx, double (&vel)[3]);
-  
-    void postCaluculation();
-    void postCaluculation_itr(const int loop);
-    void postCaluculation_timeItr(const int t_itr);
-    
-    void export_vti_metis(const string &file, VINT1D &node, VINT1D &element);
-    void export_vti_node(const string &file, VDOUBLE1D &node);
-    void export_vti_elm(const string &file, VDOUBLE1D &element);
-    void export_vti_domain(const string &file);
-    void export_vti_result(const std::string &file, VDOUBLE1D &u, VDOUBLE1D &v, VDOUBLE1D &w, VDOUBLE1D &p);
-    void export_vti_result_2D(const std::string &file, VDOUBLE1D &u, VDOUBLE1D &v, VDOUBLE1D &p);
+
+    void physicalVariables_itr(const int loop);
+    void physicalVariables_timeItr(const int t_itr);
+    void physicalVariables();
 };
 
