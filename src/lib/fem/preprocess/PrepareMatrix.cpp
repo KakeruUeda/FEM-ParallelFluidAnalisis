@@ -254,9 +254,8 @@ void FEM::prepareMatrix()
 
 int FEM::divideMesh()
 {
-
-  VINT1D  elmId(numOfElmGlobal, 0);
-  VINT1D  elmIdFluid(numOfElmGlobalFluid, 0);
+  elmId.resize(numOfElmGlobal, 0);
+  elmIdFluid.resize(numOfElmGlobalFluid, 0);
 
   if(myId == 0)
   {
@@ -331,10 +330,7 @@ int FEM::divideMesh()
       n1 = nodeIdFluid[ii];
       nodeId[sortNode[ii]] = n1;
     }
-
-    string vtiFile;
-    vtiFile = outputDir + "/meshPartition.vti";
-    export_vti_metis(vtiFile, nodeId, elmId);
+    
   }
   /**** prev
   MPI_Barrier(MPI_COMM_WORLD);

@@ -70,12 +70,12 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
               K[ii][jj] += dNdx[ii][k]*dNdx[jj][k];
             }
 
-            //// mass ////
+            // MASS TERM
             Klocal(IU, JU) += N[ii] * N[jj] / dt * detJ * weight;
             Klocal(IV, JV) += N[ii] * N[jj] / dt * detJ * weight;
             Klocal(IW, JW) += N[ii] * N[jj] / dt * detJ * weight;
 
-            //// disfusion ////
+            // DIFFUSION TERM
             for(mm=0;mm<3;mm++)
             {
               if(mm == 0){s = 2e0; t = 1e0; u = 1e0;}
@@ -94,7 +94,7 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
             Klocal(IW, JV) += 5e-1 * dNdx[ii][1] * dNdx[jj][2] / Re * detJ * weight;
 
 
-            /// advection ///
+            // ADVECTION TERM
             for(mm=0;mm<3;mm++)
             {
               Klocal(IU, JU) += 5e-1 * N[ii] * advel[mm] * dNdx[jj][mm] * detJ * weight;
@@ -102,19 +102,19 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
               Klocal(IW, JW) += 5e-1 * N[ii] * advel[mm] * dNdx[jj][mm] * detJ * weight;
             }
             
-            //// pressure ////
+             // PRESSURE TERM
             Klocal(IU, JP) -= N[jj] * dNdx[ii][0] * detJ * weight;
             Klocal(IV, JP) -= N[jj] * dNdx[ii][1] * detJ * weight;
             Klocal(IW, JP) -= N[jj] * dNdx[ii][2] * detJ * weight;
   
-            //// continuity ////
+            // CONTINUITY TERM
             Klocal(IP, JU) += N[ii] * dNdx[jj][0] * detJ * weight;
             Klocal(IP, JV) += N[ii] * dNdx[jj][1] * detJ * weight;
             Klocal(IP, JW) += N[ii] * dNdx[jj][2] * detJ * weight;
             
-            //// SUPG ////
-            
-            /// mass ///
+           // ** SUPG TERM ** //
+           
+           // MASS TERM 
            for(mm=0;mm<3;mm++)
            {
              Klocal(IU, JU) += tau * dNdx[ii][mm] * advel[mm] * N[jj] / dt * detJ * weight;
@@ -122,7 +122,7 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
              Klocal(IW, JW) += tau * dNdx[ii][mm] * advel[mm] * N[jj] / dt * detJ * weight;
            }
             
-           /// advection ///
+           // ADVECTION TERM
            for(mm=0;mm<3;mm++)
            {
              for(nn=0;nn<3;nn++){
@@ -132,7 +132,7 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
              }
            }
            
-           /// pressure ///
+           // PRESSURE TERM
            for(mm=0;mm<3;mm++)
            {
              Klocal(IU, JP) += tau * dNdx[ii][mm] * advel[mm] * dNdx[jj][0] * detJ * weight;
@@ -141,14 +141,14 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
            }
 
   
-          //// PSPG ////
+          // ** PSPG TERM ** //
           
-          /// mass /// 
+          // MASS TERM 
            Klocal(IP, JU) += tau * dNdx[ii][0] * N[jj] / dt * detJ * weight;
            Klocal(IP, JV) += tau * dNdx[ii][1] * N[jj] / dt * detJ * weight;
            Klocal(IP, JW) += tau * dNdx[ii][2] * N[jj] / dt * detJ * weight;
            
-           /// advection ///
+           // ADVECTION TERM
            for(mm=0;mm<3;mm++)
            {
              Klocal(IP, JU) += 5e-1 * tau * dNdx[ii][0] * advel[mm] * dNdx[jj][mm] * detJ * weight;
@@ -156,17 +156,16 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
              Klocal(IP, JW) += 5e-1 * tau * dNdx[ii][2] * advel[mm] * dNdx[jj][mm] * detJ * weight;
            }
 
-            /// pressure ///
+            // PRESSURE TERM
             Klocal(IP, JP) += tau * K[ii][jj] * detJ * weight;
-          } // II loop //
+          }
 
-
-          /// mass ///
+          // MASS TERM
           Flocal(IU) += N[ii] * vel[0] / dt * detJ * weight;
           Flocal(IV) += N[ii] * vel[1] / dt * detJ * weight;
           Flocal(IW) += N[ii] * vel[2] / dt * detJ * weight;
 
-          //// disfusion ////
+          // DIFFUSION TERM
           for(mm=0;mm<3;mm++)
           {
             if(mm == 0){s = 2e0; t = 1e0; u = 1e0;}
@@ -184,7 +183,7 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
           Flocal(IW) -= 5e-1 * dNdx[ii][0] * dvdx[0][2] / Re * detJ * weight;
           Flocal(IW) -= 5e-1 * dNdx[ii][1] * dvdx[1][2] / Re * detJ * weight;
           
-          /// advection ///
+          // ADVECTION TERM
           for(mm=0;mm<3;mm++)
           {
             Flocal(IU) -= 5e-1 * N[ii] * advel[mm] * dvdx[0][mm] * detJ * weight;
@@ -192,9 +191,9 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
             Flocal(IW) -= 5e-1 * N[ii] * advel[mm] * dvdx[2][mm] * detJ * weight;
           }
 
-          //// SUPG ////
+          // ** SUPG TERM ** //
           
-          /// mass ///
+          // MASS TERM
          for(mm=0;mm<3;mm++)
          {
            Flocal(IU) += tau * dNdx[ii][mm] * advel[mm] * vel[0] / dt * detJ * weight;
@@ -202,7 +201,7 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
            Flocal(IW) += tau * dNdx[ii][mm] * advel[mm] * vel[2] / dt * detJ * weight;
          }
              
-         /// advection ///
+         // ADVECTION TERM
          for(mm=0;mm<3;mm++)
          {
            for(nn=0;nn<3;nn++)
@@ -213,14 +212,14 @@ void FEM::MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const in
            }
          }
               
-          //// PSPG ////
+          // ** PSPG TERM ** //
           
-          /// mass /// 
+          // MASS TERM 
           Flocal(IP) += tau * dNdx[ii][0] * vel[0] / dt * detJ * weight;
           Flocal(IP) += tau * dNdx[ii][1] * vel[1] / dt * detJ * weight;
           Flocal(IP) += tau * dNdx[ii][2] * vel[2] / dt * detJ * weight;
           
-          /// advection ///
+          // ADVECTION TERM
           for(mm=0;mm<3;mm++)
           {
             Flocal(IP) -= 5e-1 * tau * dNdx[ii][0] * advel[mm] * dvdx[0][mm] * detJ * weight;

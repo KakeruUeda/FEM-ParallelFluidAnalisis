@@ -15,9 +15,8 @@ Users can apply either eXtended Finite Element Method or Darcy's law to wall bou
 ・SteadyStokesSolver: Solver for Steady Stokes Equation <br>
 ・SteadyNavierStokesSolver: Solver for Steady Navier-Stokes Equation <br>
 ・UnsteadyNavierStokesSolver: Solver for Unsteady Navier-Stokes Equation <br>
-・3DVar: 3D Varialional Data Assimilation (Not yet implemented) <br>
-・4DVar: 4D Varialional Data Assimilation (Not yet implemented) <br>
+・3DVar: 3D Variational Data Assimilation (Not yet implemented) <br>
+・4DVar: 4D Variational Data Assimilation (Not yet implemented) <br>
 ## Reference
 ## Author
 Kakeru Ueda
- 

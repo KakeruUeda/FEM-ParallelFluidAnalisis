@@ -17,6 +17,7 @@ target_include_directories(preprocess PUBLIC
   ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/solver
   ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/postprocess
 )
 
 target_compile_options(preprocess PUBLIC ${compile_options_tmp})

@@ -15,7 +15,7 @@ void FEM::interfacePartition()
       }
       
       for(int i=0;i<numOfNodeInElm;i++){
-        sdf_current[i] = sdfFluid_node[elmFluid[ic]->nodeNumsPrevFluid[i]];
+        sdf_current[i] = sdfFluid[elmFluid[ic]->nodeNumsPrevFluid[i]];
         for(int j=0;j<3;j++){
           x_current[i][j] = xFluid[elmFluid[ic]->nodeNumsPrevFluid[i]][j];
         }

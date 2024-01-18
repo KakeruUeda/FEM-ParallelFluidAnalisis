@@ -1,8 +1,7 @@
 #include "FEM.h"
-using namespace std;
 
-void FEM::SteadyNavierStokes(){
-
+void FEM::SteadyNavierStokes()
+{
   PetscPrintf(MPI_COMM_WORLD, "\n\n\n STEADY NAVIER STOKES EQUATION \n");
 
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;
@@ -85,7 +84,6 @@ void FEM::SteadyNavierStokes(){
 
     PetscPrintf(MPI_COMM_WORLD, "\n ****** Time for matrix assembly = %f seconds ****** \n", timer);
 
-
     solverPetscFluid->currentStatus = ASSEMBLY_OK;
   
     MPI_Barrier(MPI_COMM_WORLD);
@@ -120,7 +118,7 @@ void FEM::SteadyNavierStokes(){
     norm = solverPetscFluid->vectorNorm(numOfDofsGlobalFluid,SolnDataFluid.soln);
     if(loop==0) norm0 = norm;
     
-    postCaluculation_itr(loop);
+    physicalVariables_itr(loop);
 
     if(myId == 0){
       printf("\n NR iter. = %d norm/norm0 = %e \n",loop,norm/norm0);
@@ -129,7 +127,6 @@ void FEM::SteadyNavierStokes(){
     if(norm/norm0<NRtolerance) break;
     tmp = norm/norm0;
     
-    //solverPetscFluid->free();
     MPI_Barrier(MPI_COMM_WORLD);
   }
 

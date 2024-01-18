@@ -1,4 +1,5 @@
 #include "FEM.h"
+#include "PostProcess.h"
 
 void FEM::UnsteadyNavierStokes()
 {
@@ -29,7 +30,7 @@ void FEM::UnsteadyNavierStokes()
 
   MPI_Barrier(MPI_COMM_WORLD);
   solverPetscFluid->initialAssembly();  
-
+  
   for(int t_itr=0; t_itr<timeMax; t_itr++)
   { 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -113,7 +114,7 @@ void FEM::UnsteadyNavierStokes()
     
     VecRestoreArray(vec_SEQ, &arrayTempSolnFluid);
 
-    postCaluculation_timeItr(t_itr);
+    physicalVariables_timeItr(t_itr);
 
     if(myId == 0){
       double time_now = t_itr * dt;

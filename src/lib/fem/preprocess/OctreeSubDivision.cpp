@@ -18,7 +18,7 @@ void FEM::octreeSubDivision()
       
       for(int i=0; i<numOfNodeInElm; i++)
       {
-        sdf_parent[i] = sdfFluid_node[elmFluid[ic]->nodeNumsPrevFluid[i]];
+        sdf_parent[i] = sdfFluid[elmFluid[ic]->nodeNumsPrevFluid[i]];
 
         for(int j=0;j<3;j++)
         {
@@ -105,7 +105,7 @@ void FEM::gererateSubElms(VDOUBLE1D &sdf_parent, VDOUBLE2D &x_sub, VDOUBLE1D &x_
             depth = depth - 1;
           }        
         }
-
+        
         //VDOUBLE1D().swap(sdf_sub_sub);
         //VDOUBLE2D().swap(x_sub_sub);
         //VDOUBLE1D().swap(N);

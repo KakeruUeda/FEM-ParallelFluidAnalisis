@@ -27,8 +27,9 @@ target_link_libraries( ${main_target} PRIVATE
 )
 
 target_include_directories(${main_target} PRIVATE
-  ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/fem/basefem
+  ${PROJECT_SOURCE_DIR}/src/lib/fem/postprocess
+  ${PROJECT_SOURCE_DIR}/src/lib/base
   ${PROJECT_SOURCE_DIR}/src/lib/solver
 )
 
