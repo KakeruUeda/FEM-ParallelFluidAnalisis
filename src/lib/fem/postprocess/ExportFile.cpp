@@ -93,6 +93,72 @@ void ExportFile::export_vti_elm(const string &file, VDOUBLE1D &element, const in
 }
 
 
+
+void ExportFile::export_vti_node_xyz(const string &file, VDOUBLE3D &node, const int nx, const int ny, const int nz, const double dx, const double dy, const double dz)
+{
+  FILE *fp;
+  fp=fopen(file.c_str(),"w");
+
+  if(fp==NULL){
+    cout <<file << " open error" << endl;
+    exit(1);
+  }
+
+  fprintf(fp,"<?xml version=\"1.0\"?>\n");
+  fprintf(fp,"<VTKFile type=\"ImageData\" version=\"1.0\" byte_order=\"LittleEndian\" header_type=\"UInt64\">\n");
+  fprintf(fp,"<ImageData WholeExtent= \"%d %d %d %d %d %d\" Origin= \"%e %e %e\" Spacing= \"%e %e %e\" >\n",0,nx,0,ny,0,nz,0e0,0e0,0e0,dx,dy,dz);  
+  fprintf(fp,"<Piece Extent= \"%d %d %d %d %d %d\">\n",0,nx,0,ny,0,nz);  
+  fprintf(fp,"<PointData>\n");
+  fprintf(fp,"<DataArray type=\"Float64\" Name=\"node\" NumberOfComponents=\"1\" format=\"ascii\">\n");
+  for(int k=0; k<nz+1; k++){
+    for(int j=0; j<ny+1; j++){
+      for(int i=0; i<nx+1; i++){
+        fprintf(fp,"%e \n", node[k][j][i]);
+      }
+    }
+  }
+  fprintf(fp,"</DataArray>\n");
+  fprintf(fp,"</PointData>\n");
+  fprintf(fp,"</Piece>\n");
+  fprintf(fp,"</ImageData>\n");
+  fprintf(fp,"</VTKFile>\n");
+  fclose(fp);
+}
+
+
+void ExportFile::export_vti_elm_xyz(const string &file, VDOUBLE3D &element, const int nx, const int ny, const int nz, const double dx, const double dy, const double dz)
+{
+  FILE *fp; 
+  fp=fopen(file.c_str(),"w");
+
+  if(fp==NULL){
+    cout <<file << " open error" << endl;
+    exit(1);
+  }
+
+  fprintf(fp,"<?xml version=\"1.0\"?>\n");
+  fprintf(fp,"<VTKFile type=\"ImageData\" version=\"1.0\" byte_order=\"LittleEndian\" header_type=\"UInt64\">\n");
+  fprintf(fp,"<ImageData WholeExtent= \"%d %d %d %d %d %d\" Origin= \"%e %e %e\" Spacing= \"%e %e %e\" >\n",0,nx,0,ny,0,nz,0e0,0e0,0e0,dx,dy,dz);  
+  fprintf(fp,"<Piece Extent= \"%d %d %d %d %d %d\">\n",0,nx,0,ny,0,nz);  
+  fprintf(fp,"<CellData>\n");
+  fprintf(fp,"<DataArray type=\"Float32\" Name=\"elm\" NumberOfComponents=\"1\" format=\"ascii\">\n");
+  for(int k=0; k<nz; k++){
+    for(int j=0; j<ny; j++){
+      for(int i=0; i<nx; i++){
+        fprintf(fp,"%e \n", element[k][j][i]);
+      }
+    }
+  }
+  fprintf(fp,"</DataArray>\n");
+  fprintf(fp,"</CellData>\n");
+
+  fprintf(fp,"</Piece>\n");
+  fprintf(fp,"</ImageData>\n");
+  fprintf(fp,"</VTKFile>\n");
+  fclose(fp);
+}
+
+
 void ExportFile::export_vti_domain(const string &file, VDOUBLE1D &sdf, VDOUBLE1D &phi, VDOUBLE1D &phiEX, const int nx, const int ny, const int nz, const double dx, const double dy, const double dz)
 {
   FILE *fp; 
@@ -229,6 +295,36 @@ void ExportFile::export_vti_velocity_cell(const string &file, VDOUBLE4D &vel, in
   }
   fprintf(fp,"</DataArray>\n");
   fprintf(fp,"</CellData>\n");
+  fprintf(fp,"</Piece>\n");
+  fprintf(fp,"</ImageData>\n");
+  fprintf(fp,"</VTKFile>\n");
+  fclose(fp);
+}
+
+void ExportFile::export_vti_velocity_node(const string &file, VDOUBLE4D &vel, int nx, const int ny, const int nz, const double dx, const double dy, const double dz)
+{
+  FILE *fp;
+  fp=fopen(file.c_str(),"w");
+
+  if(fp==NULL){
+    cout <<file << " open error" << endl;
+    exit(1);
+  }
+  fprintf(fp,"<?xml version=\"1.0\"?>\n");
+  fprintf(fp,"<VTKFile type=\"ImageData\" version=\"1.0\" byte_order=\"LittleEndian\" header_type=\"UInt64\">\n");
+  fprintf(fp,"<ImageData WholeExtent= \"%d %d %d %d %d %d\" Origin= \"%e %e %e\" Spacing= \"%e %e %e\" >\n", 0, nx, 0, ny, 0, nz, 0e0, 0e0, 0e0, dx, dy, dz);  
+  fprintf(fp,"<Piece Extent= \"%d %d %d %d %d %d\">\n", 0, nx, 0, ny, 0, nz);
+  fprintf(fp,"<PointData>\n");
+  fprintf(fp,"<DataArray type=\"Float32\" Name=\"velocity\" NumberOfComponents=\"3\" format=\"ascii\">\n");
+  for(int k=0; k<nz+1; k++){
+    for(int j=0; j<ny+1; j++){
+      for(int i=0; i<nx+1; i++){
+        fprintf(fp,"%e %e %e\n", vel[k][j][i][0], vel[k][j][i][1], vel[k][j][i][2]);
+      }
+    }
+  }
+  fprintf(fp,"</DataArray>\n");
+  fprintf(fp,"</PointData>\n");
   fprintf(fp,"</Piece>\n");
   fprintf(fp,"</ImageData>\n");
   fprintf(fp,"</VTKFile>\n");

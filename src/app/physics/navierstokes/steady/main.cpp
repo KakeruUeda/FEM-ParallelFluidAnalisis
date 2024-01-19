@@ -42,8 +42,17 @@ int main(int argc, char* argv[])
   navier.visualizeResults();
   
   MPI_Barrier(MPI_COMM_WORLD);  
+  post.readDAParam();
+  
+  MPI_Barrier(MPI_COMM_WORLD);  
+  post.prepareForDataAssimilation(navier, 3, 3, 3);
+  post.prepareForDataAssimilation(navier, 4, 4, 4);
+  post.prepareForDataAssimilation(navier, 5, 5, 5);
   post.prepareForDataAssimilation(navier, 10, 10, 10);
   
+  MPI_Barrier(MPI_COMM_WORLD);  
+  post.extractDomain(navier);
+
   MPI_Barrier(MPI_COMM_WORLD);  
   navier.solverDeallocate();
   

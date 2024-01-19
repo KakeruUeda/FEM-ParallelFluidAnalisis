@@ -37,11 +37,17 @@ int main(int argc, char* argv[])
   
   MPI_Barrier(MPI_COMM_WORLD);
   stokes.physicalVariables();
+
+  MPI_Barrier(MPI_COMM_WORLD);  
+  post.readDAParam();
   
-  MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);  
   post.prepareForDataAssimilation(stokes, 3, 3, 3);
   post.prepareForDataAssimilation(stokes, 4, 4, 4);
   post.prepareForDataAssimilation(stokes, 5, 5, 5);
+  
+  MPI_Barrier(MPI_COMM_WORLD);  
+  post.extractDomain(stokes);
 
   MPI_Barrier(MPI_COMM_WORLD); 
   stokes.solverDeallocate();

@@ -117,12 +117,12 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
               K[ii][jj] += dNdx[ii][k]*dNdx[jj][k];
             }
 
-            //// disfusion ////
+            // DIFUSION TERM 
             Klocal(IU, JU) += K[ii][jj] / Re * detJ * weight;
             Klocal(IV, JV) += K[ii][jj] / Re * detJ * weight;
             Klocal(IW, JW) += K[ii][jj] / Re * detJ * weight;
 
-            /// advection ///
+            // ADVECTION TERM 
             Klocal(IU, JU) += N[ii] * N[jj] * dvdx[0][0] * detJ * weight;
             Klocal(IU, JV) += N[ii] * N[jj] * dvdx[0][1] * detJ * weight;
             Klocal(IU, JW) += N[ii] * N[jj] * dvdx[0][2] * detJ * weight;
@@ -137,19 +137,18 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
             Klocal(IV, JV) += N[ii]*tmp[jj] * detJ * weight;
             Klocal(IW, JW) += N[ii]*tmp[jj] * detJ * weight;
             
-            //// pressure ////
+            // PRESSURE TERM
             Klocal(IU, JP) -= N[jj] * dNdx[ii][0] * detJ * weight;
             Klocal(IV, JP) -= N[jj] * dNdx[ii][1] * detJ * weight;
             Klocal(IW, JP) -= N[jj] * dNdx[ii][2] * detJ * weight;
   
-            //// continuity ////
+            // CONTINUITY TERM
             Klocal(IP, JU) += N[ii] * dNdx[jj][0] * detJ * weight;
             Klocal(IP, JV) += N[ii] * dNdx[jj][1] * detJ * weight;
             Klocal(IP, JW) += N[ii] * dNdx[jj][2] * detJ * weight;
 
             
-            //// SUPG ////
-            //pressure term
+            // SUPG PRESSURE TERM
             Klocal(IU, JU) += tau * dNdx[ii][0] * N[jj] * dpdx[0] * detJ * weight;
             Klocal(IU, JV) += tau * dNdx[ii][1] * N[jj] * dpdx[0] * detJ * weight;
             Klocal(IU, JW) += tau * dNdx[ii][2] * N[jj] * dpdx[0] * detJ * weight;
@@ -164,7 +163,7 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
             Klocal(IV, JP) += tau * tmp[ii] * dNdx[jj][1] * detJ * weight;
             Klocal(IW, JP) += tau * tmp[ii] * dNdx[jj][2] * detJ * weight;
             
-            ////advection term
+            // SUPG ADVECTION TERM
             for(int kk=0;kk<3;kk++){
               Klocal(IU, JU) += tau * N[jj] * dNdx[ii][0] * vel[kk] * dvdx[0][kk] * detJ * weight;
               Klocal(IU, JV) += tau * N[jj] * dNdx[ii][1] * vel[kk] * dvdx[0][kk] * detJ * weight;
@@ -190,7 +189,7 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
             Klocal(IV, JV) += tau * tmp[ii] * tmp[jj] * detJ * weight;
             Klocal(IW, JW) += tau * tmp[ii] * tmp[jj] * detJ * weight;
   
-            //// PSPG ////
+            // PSPG TERM
             Klocal(IP, JP) += tau * K[ii][jj] * detJ * weight;
             for(int k=0;k<3;k++){
               Klocal(IP, JU) +=  tau * (dNdx[ii][k]*N[jj]*dvdx[k][0]+dNdx[ii][0]*vel[k]*dNdx[jj][k]) * detJ * weight; 
@@ -200,36 +199,38 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
             
           } // II loop //
 
-          //// disfusion ////
+          // DIFUSION TERM
           for(int kk=0;kk<3;kk++){
             Flocal(IU) -= dNdx[ii][kk] * dvdx[0][kk] / Re * detJ * weight;
             Flocal(IV) -= dNdx[ii][kk] * dvdx[1][kk] / Re * detJ * weight;
             Flocal(IW) -= dNdx[ii][kk] * dvdx[2][kk] / Re * detJ * weight;
           }
 
-          /// advection ///
+          // ADVECTION TERM
           Flocal[IU] -= N[ii] * vdvdx[0] * detJ * weight;
           Flocal[IV] -= N[ii] * vdvdx[1] * detJ * weight;
           Flocal[IW] -= N[ii] * vdvdx[2] * detJ * weight;
             
-          //// pressure ////
+          // PRESSURE TERM 
           Flocal[IU] += pre * dNdx[ii][0] * detJ * weight;
           Flocal[IV] += pre * dNdx[ii][1] * detJ * weight;
           Flocal[IW] += pre * dNdx[ii][2] * detJ * weight;
   
           Flocal[IP] -= N[ii] * div * detJ * weight;
 
-          /// SUPG ///
-          Flocal[IU] -= tau * tmp[ii] * dpdx[0] * detJ * weight; //pressure term
+          // SUPG PRESSURE TERM
+          Flocal[IU] -= tau * tmp[ii] * dpdx[0] * detJ * weight; 
           Flocal[IV] -= tau * tmp[ii] * dpdx[1] * detJ * weight;
           Flocal[IW] -= tau * tmp[ii] * dpdx[2] * detJ * weight;
+
+          // SUPG ADVECTION TERM
           for(int kk=0;kk<3;kk++){
-            Flocal[IU] -= tau * tmp[ii] * vel[kk]*dvdx[0][kk] * detJ * weight; //advection
+            Flocal[IU] -= tau * tmp[ii] * vel[kk]*dvdx[0][kk] * detJ * weight;
             Flocal[IV] -= tau * tmp[ii] * vel[kk]*dvdx[1][kk] * detJ * weight;
             Flocal[IW] -= tau * tmp[ii] * vel[kk]*dvdx[2][kk] * detJ * weight;
           }
 
-          // PSPG ////
+          // PSPG TERM
           Flocal[IP] -= tau * dNdx[ii][0] * dpdx[0] * detJ * weight;
           Flocal[IP] -= tau * dNdx[ii][1] * dpdx[1] * detJ * weight;
           Flocal[IP] -= tau * dNdx[ii][2] * dpdx[2] * detJ * weight;

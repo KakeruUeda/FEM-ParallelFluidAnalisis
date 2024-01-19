@@ -1,9 +1,7 @@
 #include "PostProcess.h"
 
 void PostProcess::prepareForDataAssimilation(FEM &fem, const int xNumOfVoxels, const int yNumOfVoxels, const int zNumOfVoxels)
-{
-  readDAParam();
-  
+{ 
   nx_obs = xNumOfVoxels;
   ny_obs = yNumOfVoxels;
   nz_obs = zNumOfVoxels;
@@ -27,7 +25,7 @@ void PostProcess::prepareForDataAssimilation(FEM &fem, const int xNumOfVoxels, c
   VDOUBLE4D vel_ave_voxel(nz_obs, VDOUBLE3D(ny_obs, VDOUBLE2D(nx_obs, VDOUBLE1D(3, 0e0))));
 
   makeVoxelAveragedVelocity(fem, vel_ave_voxel);
-  writeVelocityToFile(fem, vel_ave_voxel);
+  writeAveragedVelocityToFile(fem, vel_ave_voxel);
 
   return;
 }
@@ -40,7 +38,7 @@ void PostProcess::readDAParam()
   int tmp3[3];
 
   base_label = "/Postprocess";
-
+      
   label = base_label + "/origin";
   if ( !tp_post.getInspectedVector(label, tmp, 3)){
     cout << label << " is not set" << endl;
@@ -58,6 +56,15 @@ void PostProcess::readDAParam()
   Lx_obs = tmp2[0];
   Ly_obs = tmp2[1];
   Lz_obs = tmp2[2];
+
+  label = base_label + "/nx_opt";
+  if ( !tp_post.getInspectedVector(label, tmp3, 3)){
+    cout << label << " is not set" << endl;
+    exit(0);
+  }
+  nx_opt = tmp3[0];
+  ny_opt = tmp3[1];
+  nz_opt = tmp3[2];
 
   //int num = 1;
   //label = base_label + "/numOfVoxels" + to_string(num);
@@ -100,11 +107,10 @@ void PostProcess::makeVoxelAveragedVelocity(FEM &fem, VDOUBLE4D &vel_ave_voxel)
               int iz = pz / fem.dz + mic;
 
               if(ix == fem.nx || iy == fem.ny || iz == fem.nz){
-                if(fem.myId == 0){
-                  cout << "please define the DA domain as boundaries of the CFD domain are not included" << endl;
-                  exit(1);
-                }
+                PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
+                MPI_Abort(MPI_COMM_WORLD, 1);
               }
+  
               double s = px - ((ix * fem.dx) + (fem.dx/2e0));
               double t = py - ((iy * fem.dy) + (fem.dy/2e0));
               double u = pz - ((iz * fem.dz) + (fem.dz/2e0));
@@ -118,11 +124,11 @@ void PostProcess::makeVoxelAveragedVelocity(FEM &fem, VDOUBLE4D &vel_ave_voxel)
                 MPI_Abort(MPI_COMM_WORLD, 1);
               }
               if(t<-1-mic || t+mic>1){
-                PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", s);
+                PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
                 MPI_Abort(MPI_COMM_WORLD, 1);
               }
               if(u<-1-mic || u+mic>1){
-                PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", s);
+                PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
                 MPI_Abort(MPI_COMM_WORLD, 1);
               }
 
@@ -240,14 +246,14 @@ void PostProcess::gaussIntegral(FEM &fem, VDOUBLE1D &N, VDOUBLE2D &dNdr, VDOUBLE
 }
 
 
-void PostProcess::writeVelocityToFile(FEM &fem, VDOUBLE4D &vel_ave_voxel) 
+void PostProcess::writeAveragedVelocityToFile(FEM &fem, VDOUBLE4D &vel_ave_voxel) 
 {
   if(fem.myId > 0) return;
 
-  string vtiFile = fem.outputDir + "/velocity_MRI_" + to_string(nx_obs) + "x" + to_string(ny_obs) + "x" + to_string(nz_obs) + ".vti";
+  string vtiFile = fem.outputDirDA + "/velocity_MRI_" + to_string(nx_obs) + "x" + to_string(ny_obs) + "x" + to_string(nz_obs) + ".vti";
   export_file_post.export_vti_velocity_cell(vtiFile, vel_ave_voxel, nx_obs, ny_obs, nz_obs, dx_obs, dy_obs, dz_obs);
   
-  ofstream out_ave("velocity_MRI_" + to_string(nx_obs) + "x" + to_string(ny_obs) + "x" + to_string(nz_obs) + ".dat");
+  ofstream out_ave(fem.outputDirDA + "/velocity_MRI_" + to_string(nx_obs) + "x" + to_string(ny_obs) + "x" + to_string(nz_obs) + ".dat");
   out_ave << nx_obs << " " << ny_obs << " " << nz_obs << endl;
   out_ave << Lx_obs << " " << Ly_obs << " " << Lz_obs << endl;
 
@@ -266,3 +272,236 @@ void PostProcess::writeVelocityToFile(FEM &fem, VDOUBLE4D &vel_ave_voxel)
   return;
 }
 
+void PostProcess::extractDomain(FEM &fem)
+{
+  dx_opt = Lx_obs/nx_opt;
+  dy_opt = Ly_obs/ny_opt;
+  dz_opt = Lz_obs/nz_opt;
+
+  vel_ref_opt.resize(nz_opt+1, VDOUBLE3D(ny_opt+1, VDOUBLE2D(nx_opt+1, VDOUBLE1D(3, 0e0))));
+  x_opt.resize(nz_opt+1, VDOUBLE3D(ny_opt+1, VDOUBLE2D(nx_opt+1, VDOUBLE1D(3, 0e0))));
+  sdf_opt.resize(nz_opt+1, VDOUBLE2D(ny_opt+1, VDOUBLE1D(nx_opt+1, 0e0)));
+  phiVOF_opt.resize(nz_opt, VDOUBLE2D(ny_opt, VDOUBLE1D(nx_opt, 0e0)));
+  
+  double mic = 1e-10;
+
+  for(int k=0; k<nz_opt+1; k++){
+    for(int j=0; j<ny_opt+1; j++){
+      for(int i=0; i<nx_opt+1; i++){
+
+        double px = x0 + i * dx_opt;
+        double py = y0 + j * dy_opt; 
+        double pz = z0 + k * dz_opt;
+
+        int ix = px / fem.dx + mic;
+        int iy = py / fem.dy + mic;
+        int iz = pz / fem.dz + mic;
+
+        if(ix == fem.nx || iy == fem.ny || iz == fem.nz){
+          PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+  
+        double s = px - ((ix * fem.dx) + (fem.dx/2e0));
+        double t = py - ((iy * fem.dy) + (fem.dy/2e0));
+        double u = pz - ((iz * fem.dz) + (fem.dz/2e0));
+        
+        s = s / (fem.dx / 2e0);
+        t = t / (fem.dy / 2e0);
+        u = u / (fem.dz / 2e0);
+  
+        if(s<-1-mic || s+mic>1){
+          PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+        if(t<-1-mic || t+mic>1){
+          PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+        if(u<-1-mic || u+mic>1){
+          PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+
+        int elm = ix + (iy * fem.nx) + (iz * fem.nx * fem.ny);
+
+        if(elm > fem.numOfElmGlobal){
+          PetscPrintf(MPI_COMM_WORLD, "\n elm error \n");
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+        
+        VDOUBLE1D N(fem.numOfNodeInElm, 0e0);
+        ShapeFunction3D::C3D8_N(N,s,t,u);
+        
+        sdf_opt[k][j][i] = 1e0;
+        for(int l=0; l<3; l++){  
+          vel_ref_opt[k][j][i][l] = 0e0;
+        }
+
+        for(int e=0; e<fem.numOfNodeInElm; e++)
+        { 
+          sdf_opt[k][j][i]        += N[e] * fem.sdf[fem.element[elm][e]];
+          vel_ref_opt[k][j][i][0] += N[e] * fem.u[fem.element[elm][e]];
+          vel_ref_opt[k][j][i][1] += N[e] * fem.v[fem.element[elm][e]];
+          vel_ref_opt[k][j][i][2] += N[e] * fem.w[fem.element[elm][e]];
+        }
+      }
+    }
+  }
+
+  int tmp = 0;
+  int nx_inside = fem.nx - 1;
+  int ny_inside = fem.ny - 1;
+  int nz_inside = fem.nz - 1;
+
+  int numOfInsideElmGlobal = (nx_inside)*(ny_inside)*(nz_inside);
+  VINT2D element2(numOfInsideElmGlobal, VINT1D(fem.numOfNodeInElm, 0e0));
+  
+  for(int k=0; k<nz_inside; k++){
+    for(int j=0; j<ny_inside; j++){
+      for(int i=0; i<nx_inside; i++){
+        element2[tmp][0]= i   + j*(nx_inside+1)     + k*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][1]= i+1 + j*(nx_inside+1)     + k*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][2]= i+1 + (j+1)*(nx_inside+1) + k*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][3]= i   + (j+1)*(nx_inside+1) + k*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][4]= i   + j*(nx_inside+1)     + (k+1)*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][5]= i+1 + j*(nx_inside+1)     + (k+1)*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][6]= i+1 + (j+1)*(nx_inside+1) + (k+1)*(nx_inside+1)*(ny_inside+1);
+        element2[tmp][7]= i   + (j+1)*(nx_inside+1) + (k+1)*(nx_inside+1)*(ny_inside+1);
+        tmp++;
+      }
+    }
+  }
+
+  for(int k=0; k<nz_opt; k++){
+    for(int j=0; j<ny_opt; j++){
+      for(int i=0; i<nx_opt; i++){
+
+        double px = x0 + i * dx_opt;
+        double py = y0 + j * dy_opt;
+        double pz = z0 + k * dz_opt;
+
+        px = px - 5e-1 * fem.dx;
+        py = py - 5e-1 * fem.dy; 
+        pz = pz - 5e-1 * fem.dz;
+
+        int ix = px / fem.dx + mic;
+        int iy = py / fem.dy + mic;
+        int iz = pz / fem.dz + mic;
+
+        if(ix == nx_inside || iy == ny_inside || iz == nz_inside){
+          PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+  
+        double s = px - ((ix * fem.dx) + (fem.dx/2e0));
+        double t = py - ((iy * fem.dy) + (fem.dy/2e0));
+        double u = pz - ((iz * fem.dz) + (fem.dz/2e0));
+        
+        s = s / (fem.dx / 2e0);
+        t = t / (fem.dy / 2e0);
+        u = u / (fem.dz / 2e0);
+  
+        if(s<-1-mic || s+mic>1){
+          PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+        if(t<-1-mic || t+mic>1){
+          PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+        if(u<-1-mic || u+mic>1){
+          PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+
+        int elm = ix + (iy * nx_inside) + (iz * nx_inside * ny_inside);
+
+        if(elm > fem.numOfElmGlobal){
+          PetscPrintf(MPI_COMM_WORLD, "\n elm error \n");
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+
+        VDOUBLE1D N(fem.numOfNodeInElm, 0e0);
+        ShapeFunction3D::C3D8_N(N,s,t,u);
+        
+        phiVOF_opt[k][j][i] = 0e0;
+
+        for(int e=0; e<fem.numOfNodeInElm; e++){ 
+          phiVOF_opt[k][j][i] += N[e] * fem.phiVOF[element2[elm][e]];
+        }
+        
+      }
+    }
+  }
+  writeDADomainToFile(fem);
+
+  return;
+}
+
+double PostProcess::sdfToChi(FEM &fem, const double &sdf)
+{
+  double chi;
+  //double eps = sqrt(fem.dx*fem.dx + fem.dy*fem.dy + fem.dz*fem.dz)/2e0;
+  double eps = fem.dx;
+  
+  if(sdf > eps){ // FLUID
+    chi = 1e0;
+  }else if(sdf < -eps) { // SOLID
+    chi = 0e0;
+  }else{  //interface
+    //chi = 1e0 - 5e-1*(1e0 + sdf/eps + sin(PI*sdf/eps)/PI);
+    chi = 5e-1*(1e0 + sdf/eps + sin(PI*sdf/eps)/PI);
+  }
+
+  return chi;
+}
+
+void PostProcess::writeDADomainToFile(FEM &fem)
+{
+  if(fem.myId > 0) return;
+
+  string vtiFile = fem.outputDirDA + "/sdf_opt_" + to_string(nx_opt) + "x" + to_string(ny_opt) + "x" + to_string(nz_opt) + ".vti";
+  export_file_post.export_vti_node_xyz(vtiFile, sdf_opt, nx_opt, ny_opt, nz_opt, dx_opt, dy_opt, dz_opt);
+  vtiFile = fem.outputDirDA + "/phiVOF_opt_" + to_string(nx_opt) + "x" + to_string(ny_opt) + "x" + to_string(nz_opt) + ".vti";
+  export_file_post.export_vti_elm_xyz(vtiFile, phiVOF_opt, nx_opt, ny_opt, nz_opt, dx_opt, dy_opt, dz_opt);
+  vtiFile = fem.outputDirDA + "/vel_ref_opt_" + to_string(nx_opt) + "x" + to_string(ny_opt) + "x" + to_string(nz_opt) + ".vti";
+  export_file_post.export_vti_velocity_node(vtiFile, vel_ref_opt, nx_opt, ny_opt, nz_opt, dx_opt, dy_opt, dz_opt);
+
+
+  ofstream out_sdf(fem.outputDirDA + "/sdf_opt_" + to_string(nx_opt) + "x" + to_string(ny_opt) + "x" + to_string(nz_opt) + ".dat");
+  for(int k = 0; k < nz_opt+1; k++){
+    for(int j = 0; j < ny_opt+1; j++){
+      for(int i = 0; i < nx_opt+1; i++){
+        out_sdf << i << " " << j << " " << k << " " << sdf_opt[k][j][i] << endl;
+      }
+    }
+  }
+  out_sdf.close();
+
+  ofstream out_phi(fem.outputDirDA + "/phiVOF_opt_" + to_string(nx_opt) + "x" + to_string(ny_opt) + "x" + to_string(nz_opt) + ".dat");
+  for(int k = 0; k < nz_opt; k++){
+    for(int j = 0; j < ny_opt; j++){
+      for(int i = 0; i < nx_opt; i++){
+        out_phi << i << " " << j << " " << k << " " << phiVOF_opt[k][j][i] << endl;
+      }
+    }
+  }
+  out_phi.close();
+
+  ofstream out_vel(fem.outputDirDA + "/vel_ref_opt_" + to_string(nx_opt) + "x" + to_string(ny_opt) + "x" + to_string(nz_opt) + ".dat");
+  for(int k = 0; k < nz_opt; k++){
+    for(int j = 0; j < ny_opt; j++){
+      for(int i = 0; i < nx_opt; i++){
+        out_vel << i << " " << j << " " << k << " " 
+                << vel_ref_opt[k][j][i][0] << " " 
+                << vel_ref_opt[k][j][i][1] << " " 
+                << vel_ref_opt[k][j][i][2] << endl;
+      }
+    }
+  }
+  out_vel.close();
+  
+  
+  return;
+}

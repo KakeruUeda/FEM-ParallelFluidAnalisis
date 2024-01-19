@@ -225,17 +225,17 @@ void FEM::visualizeDomain()
   if(myId > 0) return;
   string vtiFile;
 
-  vtiFile = outputDir + "/meshPartition.vti";
+  vtiFile = outputDirMain + "/meshPartition.vti";
   export_file.export_vti_metis(vtiFile, nodeId, elmId, nx, ny, nz, dx, dy, dz);
   
   if(bd == BOUNDARY::XFEM)
   {
-    vtiFile = outputDir + "/domain.vti";
+    vtiFile = outputDirMain + "/domain.vti";
     export_file.export_vti_domain(vtiFile, sdf, phi, phiEX, nx, ny, nz, dx, dy, dz);
   }
   else if(bd == BOUNDARY::DARCY)
   {    
-    vtiFile = outputDir + "/phiVOF.vti";
+    vtiFile = outputDirMain + "/phiVOF.vti";
     export_file.export_vti_elm(vtiFile, phiVOF, nx, ny, nz, dx, dy, dz);
   }
 }

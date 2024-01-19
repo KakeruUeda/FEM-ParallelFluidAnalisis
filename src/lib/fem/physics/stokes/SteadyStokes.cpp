@@ -1,7 +1,7 @@
 #include "FEM.h"
 
-void FEM::Stokes(){
-
+void FEM::Stokes()
+{
   PetscPrintf(MPI_COMM_WORLD, "\n\n\n STEADY STOKES EQUATION \n");
 
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;

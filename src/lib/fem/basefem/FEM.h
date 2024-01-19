@@ -9,6 +9,8 @@
 #include <cstring>
 #include <sys/stat.h>
 #include <omp.h>
+#include <cassert>
+#include <filesystem>
 
 #include "gauss.h"
 #include "metis.h"
@@ -52,7 +54,7 @@ class FEM :public DomainFEM
     
     TextParser tp;
     PetscErrorCode  errpetsc;
-    string outputDir,fileName;
+    string outputDir, outputDirMain, outputDirDA, fileName;
 
     int numOfDofsNode = 4;
     PetscInt  numOfId, myId, nNode_owned;
@@ -133,7 +135,7 @@ class FEM :public DomainFEM
     FEM();
     ~FEM();
     
-    /// PREPROSESS ///
+    // PREPROSESS 
     void initialize();         void readInput();
     void readBase();           void readPysicalParam();
     void readBoundaryMethod(); void readXFEMParam();
@@ -156,7 +158,7 @@ class FEM :public DomainFEM
     
     int solverDeallocate();
 
-    /// XFEM PREPARETION ///
+    // XFEM PREPARETION
     void octreeSubDivision();
     void gererateSubElms(VDOUBLE1D &sdf_parent, VDOUBLE2D &x_sub, VDOUBLE1D &x_center_parent, const int &ic, int &tmp, int &depth);
     void getSubSubCoordinates(VDOUBLE2D &x_sub, VDOUBLE2D &x_sub_sub, VDOUBLE1D &sdf_sub_sub, const int &ii, const int &jj, const int &kk);
@@ -172,7 +174,7 @@ class FEM :public DomainFEM
     void tetraPartition2(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
     void tetraPartition3(VDOUBLE2D &sub_x_tmp, VDOUBLE1D &sdf_current, VDOUBLE2D &x_current, const int ic);
 
-    /// STEADY STOKES  ///
+    // STEADY STOKES
     void Stokes();
    
     void MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
@@ -181,7 +183,7 @@ class FEM :public DomainFEM
     void SAWADA_XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
     void Darcy_MatAssySTT(const int ic,MatrixXd &Klocal, VectorXd &Flocal);
     
-    /// STEADY NAVIER STOKES  ///
+    // STEADY NAVIER STOKES 
     void SteadyNavierStokes();
    
     void MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
@@ -197,7 +199,7 @@ class FEM :public DomainFEM
     void PressureInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE1D &NP, VDOUBLE2D &dNPdr, VDOUBLE2D &dNVdr, VDOUBLE2D &x_current, const int numOfNodeInElm, const double weight, const int ic);
     void PSPGInGaussIntegralXFEM(MatrixXd &Klocal, VectorXd &Flocal,VDOUBLE2D &dNPdr,VDOUBLE2D &x_current,const int numOfNodeInElm,const double weight,const int ic);
    
-    /// UNSTEADY NAVIER STOKES ///
+    // UNSTEADY NAVIER STOKES
     void UnsteadyNavierStokes();
     
     void MatAssyUSNS(MatrixXd &Klocal, VectorXd &Flocal, const int ic, const int t_itr);

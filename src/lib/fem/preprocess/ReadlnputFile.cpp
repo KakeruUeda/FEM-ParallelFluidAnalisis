@@ -58,11 +58,15 @@ void FEM::readBase()
     cout << label << " is not set" << endl;
     exit(0);
   }
+
   string outputDir_tmp = ("./output");
   mkdir(outputDir_tmp.c_str(), 0777);
-  outputDir = ("./output/" + outputDir);
-  mkdir(outputDir.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
-  
+  string outputDir_tmp2 = ("./output/" + outputDir);
+  mkdir(outputDir_tmp2.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+  outputDirMain = (outputDir_tmp2 + "/main");
+  mkdir(outputDirMain.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+  outputDirDA = (outputDir_tmp2 + "/opt");
+  mkdir(outputDirDA.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 
   base_label = "/Base";
   label = base_label + "/numOfOMP";

@@ -51,7 +51,7 @@ void VarDA::adjointInitialize()
 void VarDA::setControlBooundary()
 {
 
-  //top
+  // TOP
   if(controlBoundary == "top")
   {
     for(int i=0; i<nz+1; i++){
@@ -68,7 +68,7 @@ void VarDA::setControlBooundary()
     }
   }
 
-  // bottom
+  // BOTTOM
   else if(controlBoundary == "bottom")
   {
     for(int i=0; i<nz+1; i++){
@@ -86,7 +86,7 @@ void VarDA::setControlBooundary()
   }
 
 
-  // left
+  // LEFT
   else if(controlBoundary == "left")
   {
     for(int i=0; i<nz+1; i++){
@@ -104,7 +104,7 @@ void VarDA::setControlBooundary()
   }
 
 
-  // right
+  // RIGHT
   else if(controlBoundary == "right")
   {
     for(int i=0; i<nz+1; i++){
@@ -122,7 +122,7 @@ void VarDA::setControlBooundary()
   }
 
 
-  // front
+  // FRONT
   else if(controlBoundary == "front")
   {
     for(int i=0; i<ny+1; i++){
@@ -140,7 +140,7 @@ void VarDA::setControlBooundary()
   }
   
 
-  // front
+  // BACK
   else if(controlBoundary == "back")
   {
     for(int i=0; i<ny+1; i++){

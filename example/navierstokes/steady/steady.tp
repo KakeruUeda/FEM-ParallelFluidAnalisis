@@ -4,50 +4,50 @@ Base
   numOfOMP = 1
 }
 
-Domain
-{
-  nx=(32,32,32)  //element size
-  Lx=(1e0,1e0,1e0)  //domain size
-  image = "input/square/image128x128x128.dat" 
-  imageEX = "input/square/image128x128x128_around.dat"
-  imageVOF = "input/square/image128x128x128_around.dat"
-  sdf = "input/square/sdf128x128x128.dat"
-}
-
 //Domain
 //{
-//  nx=(240,80,80)  //element size
-//  Lx=(50,15,12)  //domain size
-//  image = "input/vessel/image240x80x80.dat"
-//  imageEX = "input/vessel/image240x80x80_around.dat"
-//  imageVOF = "input/vessel/image240x80x80_VOF.dat"
-//  sdf = "input/vessel/sdf240x80x80.dat"
+//  nx=(32,32,32)  //element size
+//  Lx=(1e0,1e0,1e0)  //domain size
+//  image = "input/square/image128x128x128.dat" 
+//  imageEX = "input/square/image128x128x128_around.dat"
+//  imageVOF = "input/square/image128x128x128_around.dat"
+//  sdf = "input/square/sdf128x128x128.dat"
 //}
+
+Domain
+{
+  nx=(240,80,80)  //element size
+  Lx=(50,15,12)  //domain size
+  image = "input/vessel/image240x80x80.dat"
+  imageEX = "input/vessel/image240x80x80_around.dat"
+  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+  sdf = "input/vessel/sdf240x80x80.dat"
+}
 
 Boundary
 {
  top{
-    type = "v"
-    value = (1,0,0)
+    type = "free"
+    value = (0,0,0)
  }
  bottom{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  left{
     type = "v"
-    value = (0,0,0)
+    value = (1,0,0)
  }
  right{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  front{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 back{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 }
@@ -59,17 +59,17 @@ BoundaryMethod
 
 PysicalParameter
 {
-  rho = 100
+  rho = 10
   mu = 1
 }
 
 NRParameter
 {
   NRtolerance = 1e-8
-  NRitr = 100
+  NRitr = 30
   NRitr_initial = 10
-  relaxationParam_initial = 5e-1
-  relaxationParam = 5e-1
+  relaxationParam_initial = 1e-1
+  relaxationParam = 1e-1
 }
 
 XFEMParameter
@@ -91,7 +91,8 @@ BTSubDivParameter
 
 Postprocess
 {
-  origin = (0.2, 0.2, 0.2)
-  length = (0.6, 0.6, 0.6)
+  origin = (10, 5, 4)
+  length = (30, 5, 4)
+  nx_opt = (32, 32, 32)
 }
 

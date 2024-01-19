@@ -7,10 +7,10 @@ void FEM::visualizeResults()
   {
     string vtiFile;
     
-    vtiFile = outputDir + "/result.vti";
+    vtiFile = outputDirMain + "/result.vti";
     export_file.export_vti_result(vtiFile,u,v,w,p,nx,ny,nz,dx,dy,dz);
   
-    vtiFile = outputDir + "/result_2D.vti";
+    vtiFile = outputDirMain + "/result_2D.vti";
     export_file.export_vti_result_2D(vtiFile,u,v,p,nx,ny,nz,dx,dy,dz);
   }     
 }
@@ -39,10 +39,10 @@ void FEM::physicalVariables()
   {
     string vtiFile;
     
-    vtiFile = outputDir + "/result.vti";
+    vtiFile = outputDirMain + "/result.vti";
     export_file.export_vti_result(vtiFile,u,v,w,p,nx,ny,nz,dx,dy,dz);
   
-    vtiFile = outputDir + "/result_2D.vti";
+    vtiFile = outputDirMain + "/result_2D.vti";
     export_file.export_vti_result_2D(vtiFile,u,v,p,nx,ny,nz,dx,dy,dz);
   }     
 
@@ -95,10 +95,10 @@ void FEM::physicalVariables_itr(const int loop)
   {
     string vtiFile;
     
-    vtiFile = outputDir + "/SNS_"+to_string(loop)+".vti";
+    vtiFile = outputDirMain + "/SNS_"+to_string(loop)+".vti";
     export_file.export_vti_result(vtiFile,u,v,w,p,nx,ny,nz,dx,dy,dz);
   
-    vtiFile = outputDir + "/SNS_2D_"+to_string(loop)+".vti";
+    vtiFile = outputDirMain + "/SNS_2D_"+to_string(loop)+".vti";
     export_file.export_vti_result_2D(vtiFile,u,v,p,nx,ny,nz,dx,dy,dz);
   }
   
@@ -150,10 +150,10 @@ void FEM::physicalVariables_timeItr(const int t_itr)
   {
     string vtiFile;
     
-    vtiFile = outputDir + "/USNS_"+to_string(t_itr)+".vti";
+    vtiFile = outputDirMain + "/USNS_"+to_string(t_itr)+".vti";
     export_file.export_vti_result(vtiFile,u,v,w,p,nx,ny,nz,dx,dy,dz);
   
-    vtiFile = outputDir + "/USNS_2D_"+to_string(t_itr)+".vti";
+    vtiFile = outputDirMain + "/USNS_2D_"+to_string(t_itr)+".vti";
     export_file.export_vti_result_2D(vtiFile,u,v,p,nx,ny,nz,dx,dy,dz);
   }
   return;
