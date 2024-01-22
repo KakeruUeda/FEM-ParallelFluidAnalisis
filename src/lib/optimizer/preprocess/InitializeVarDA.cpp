@@ -17,12 +17,12 @@ void VarDA::initializeVarDA()
   }
   obs.inputVelocityMAP(mapFile);
 
-  ue.resize(nz, VDOUBLE2D(ny, VDOUBLE1D(nx, 0e0)));
-  ve.resize(nz, VDOUBLE2D(ny, VDOUBLE1D(nx, 0e0)));
-  we.resize(nz, VDOUBLE2D(ny, VDOUBLE1D(nx, 0e0)));
+  ue.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+  ve.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+  we.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
 
-  feedbackForce.resize(numOfNodeGlobalFluid, VDOUBLE1D(3,0e0));
-  grad_allNode.resize(numOfNodeGlobalFluid, VDOUBLE1D(3,0e0));
+  feedbackForce.resize(numOfNodeGlobal, VDOUBLE1D(3,0e0));
+  grad_allNode.resize(numOfNodeGlobal, VDOUBLE1D(3,0e0));
 
   X.resize(control_node.size(), VDOUBLE1D(2,0e0));
   grad.resize(control_node.size(), VDOUBLE1D(2,0e0));
@@ -35,6 +35,9 @@ void VarDA::initializeVarDA()
     }
   }
 
+  resizeDAVariables();
+
+  return;
 }
 
 void VarDA::mainInitialize()
@@ -50,13 +53,14 @@ void VarDA::adjointInitialize()
 
 void VarDA::setControlBooundary()
 {
+  bdface_dir.resize(2, 0e0);
 
   // TOP
   if(controlBoundary == "top")
   {
-    for(int i=0; i<nz+1; i++){
-      for(int j=0; j<nx+1; j++){
-        int elm = i*(nx+1)*(ny+1) + (nx+1)*ny;
+    for(int k=0; k<nz; k++){
+      for(int i=0; i<nx; i++){
+        int elm = k*nx*ny + i + (nx-1)*(ny-1);
         if(phiVOF[elm] < 1e-10) continue;
         VINT1D tmp(4, 0e0);
         tmp[0] = element[elm][2];
@@ -66,14 +70,15 @@ void VarDA::setControlBooundary()
         control_elm_node.push_back(tmp);
       }
     }
+    bdface_dir[0] = 0; bdface_dir[1] = 2;
   }
 
   // BOTTOM
   else if(controlBoundary == "bottom")
   {
-    for(int i=0; i<nz+1; i++){
-      for(int j=0; j<nx+1; j++){
-        int elm = i*(nx+1)*(ny+1);
+    for(int k=0; k<nz; k++){
+      for(int i=0; i<nx; i++){
+        int elm = k*nx*ny + i;
         if(phiVOF[elm] < 1e-10) continue;
         VINT1D tmp(4, 0e0);
         tmp[0] = element[elm][0];
@@ -83,15 +88,15 @@ void VarDA::setControlBooundary()
         control_elm_node.push_back(tmp);
       }
     }
+    bdface_dir[0] = 0; bdface_dir[1] = 2;
   }
-
 
   // LEFT
   else if(controlBoundary == "left")
   {
-    for(int i=0; i<nz+1; i++){
-      for(int j=0; j<ny+1; j++){
-        int elm = (nx+1)*(ny+1)*i + (nx+1)*j;
+    for(int k=0; k<nz; k++){
+      for(int j=0; j<ny; j++){
+        int elm = nx*ny*k + nx*j;
         if(phiVOF[elm] < 1e-10) continue;
         VINT1D tmp(4, 0e0);
         tmp[0] = element[elm][0];
@@ -101,15 +106,15 @@ void VarDA::setControlBooundary()
         control_elm_node.push_back(tmp);
       }
     }
+    bdface_dir[0] = 1; bdface_dir[1] = 2;
   }
-
 
   // RIGHT
   else if(controlBoundary == "right")
   {
-    for(int i=0; i<nz+1; i++){
-      for(int j=0; j<ny+1; j++){
-        int elm = nx + (nx+1)*(ny+1)*i + (nx+1)*j;
+    for(int k=0; k<nz; k++){
+      for(int j=0; j<ny; j++){
+        int elm = nx-1 + nx*ny*k + nx*j;
         if(phiVOF[elm] < 1e-10) continue;
         VINT1D tmp(4, 0e0);
         tmp[0] = element[elm][1];
@@ -119,15 +124,15 @@ void VarDA::setControlBooundary()
         control_elm_node.push_back(tmp);
       }
     }
+    bdface_dir[0] = 0; bdface_dir[1] = 2;
   }
-
 
   // FRONT
   else if(controlBoundary == "front")
   {
-    for(int i=0; i<ny+1; i++){
-      for(int j=0; j<nx+1; j++){
-        int elm = j + (nx+1)*i;
+    for(int j=0; j<ny; j++){
+      for(int i=0; i<nx; i++){
+        int elm = i + ny*i;
         if(phiVOF[elm] < 1e-10) continue;
         VINT1D tmp(4, 0e0);
         tmp[0] = element[elm][0];
@@ -137,15 +142,15 @@ void VarDA::setControlBooundary()
         control_elm_node.push_back(tmp);
       }
     }
+    bdface_dir[0] = 0; bdface_dir[1] = 1;
   }
-  
 
   // BACK
   else if(controlBoundary == "back")
   {
-    for(int i=0; i<ny+1; i++){
-      for(int j=0; j<nx+1; j++){
-        int elm = j + (nx+1)*i + (nx+1)*(ny+1)*nz;
+    for(int j=0; j<ny; j++){
+      for(int i=0; i<nx; i++){
+        int elm = i + nx*j + nx*ny*(nz-1);
         if(phiVOF[elm]<1e-10) continue;
         VINT1D tmp(4, 0e0);
         tmp[0] = element[elm][4];
@@ -155,8 +160,8 @@ void VarDA::setControlBooundary()
         control_elm_node.push_back(tmp);
       }
     }
+    bdface_dir[0] = 0; bdface_dir[1] = 1;
   }
-
 
   for(int i=0; i<control_elm_node.size(); i++){
     for(int p=0; p<4; p++){
@@ -167,4 +172,22 @@ void VarDA::setControlBooundary()
   sort(control_node.begin(), control_node.end());
   control_node.erase(unique(control_node.begin(), control_node.end()), control_node.end());
 
+  return;
+}
+
+void VarDA::resizeDAVariables()
+{
+  cfd.u.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+  cfd.v.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+  cfd.w.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+
+  ue.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+  ve.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+  we.resize(obs.nz, VDOUBLE2D(obs.ny, VDOUBLE1D(obs.nx, 0e0)));
+
+  ue_edge.resize(obs.nz+2, VDOUBLE2D(obs.ny+2, VDOUBLE1D(obs.nx+2, 0e0)));
+  ve_edge.resize(obs.nz+2, VDOUBLE2D(obs.ny+2, VDOUBLE1D(obs.nx+2, 0e0)));
+  we_edge.resize(obs.nz+2, VDOUBLE2D(obs.ny+2, VDOUBLE1D(obs.nx+2, 0e0)));
+  
+  return;
 }

@@ -199,7 +199,7 @@ void FEM::Darcy_MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
             Klocal(IW, JW) += tau * tmp[ii] * tmp[jj] * detJ * weight;
   
             //// PSPG ////
-            Klocal(IP, JP) += (tau/rho) * K[ii][jj] * detJ * weight;
+            Klocal(IP, JP) += tau * K[ii][jj] * detJ * weight;
             for(int k=0;k<3;k++){
               Klocal(IP, JU) +=  tau * (dNdx[ii][k] * N[jj] * dvdx[k][0] + dNdx[ii][0] * vel[k] * dNdx[jj][k]) * detJ * weight; 
               Klocal(IP, JV) +=  tau * (dNdx[ii][k] * N[jj] * dvdx[k][1] + dNdx[ii][1] * vel[k] * dNdx[jj][k]) * detJ * weight; 

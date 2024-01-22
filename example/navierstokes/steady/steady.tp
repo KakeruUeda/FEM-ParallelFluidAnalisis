@@ -1,12 +1,12 @@
 Base
 {
-  outputDir = "test"
+  outputDir = "straightTube"
   numOfOMP = 1
 }
 
 //Domain
 //{
-//  nx=(32,32,32)  //element size
+//  nx=(64,64,64)  //element size
 //  Lx=(1e0,1e0,1e0)  //domain size
 //  image = "input/square/image128x128x128.dat" 
 //  imageEX = "input/square/image128x128x128_around.dat"
@@ -14,24 +14,44 @@ Base
 //  sdf = "input/square/sdf128x128x128.dat"
 //}
 
+//Domain
+//{
+//  nx=(240,80,80)  //element size
+//  Lx=(50,15,12)  //domain size
+//  image = "input/vessel/image240x80x80.dat"
+//  imageEX = "input/vessel/image240x80x80_around.dat"
+//  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+//  sdf = "input/vessel/sdf240x80x80.dat"
+//}
+
+//Domain
+//{
+//  nx=(160,80,80)  //element size
+//  Lx=(2e0,1e0,1e0)  //domain size
+//  image = "input/straightTube/image160x80x80.dat"
+//  imageEX = "input/straightTube/image160x80x80_around.dat"
+//  imageVOF = "input/straightTube/image160x80x80.dat"
+//  sdf = "input/straightTube/sdf160x80x80_node.dat"
+//}
+
 Domain
 {
-  nx=(240,80,80)  //element size
-  Lx=(50,15,12)  //domain size
-  image = "input/vessel/image240x80x80.dat"
-  imageEX = "input/vessel/image240x80x80_around.dat"
-  imageVOF = "input/vessel/image240x80x80_VOF.dat"
-  sdf = "input/vessel/sdf240x80x80.dat"
+  nx=(240,120,120)  //element size
+  Lx=(2e0,1e0,1e0)  //domain size
+  image = "input/straightTube/image240x120x120.dat"
+  imageEX = "input/straightTube/image240x120x120_around.dat"
+  imageVOF = "input/straightTube/image240x120x120.dat"
+  sdf = "input/straightTube/sdf240x120x120_node.dat"
 }
 
 Boundary
 {
  top{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  bottom{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  left{
@@ -43,11 +63,11 @@ Boundary
     value = (0,0,0)
  }
  front{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 back{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
 }
@@ -59,17 +79,17 @@ BoundaryMethod
 
 PysicalParameter
 {
-  rho = 10
+  rho = 250
   mu = 1
 }
 
 NRParameter
 {
   NRtolerance = 1e-8
-  NRitr = 30
+  NRitr = 100
   NRitr_initial = 10
-  relaxationParam_initial = 1e-1
-  relaxationParam = 1e-1
+  relaxationParam_initial = 5e-1
+  relaxationParam = 5e-1
 }
 
 XFEMParameter
@@ -91,8 +111,34 @@ BTSubDivParameter
 
 Postprocess
 {
-  origin = (10, 5, 4)
-  length = (30, 5, 4)
+  origin = (1.0, 0.25, 0.25)
+  length = (0.5, 0.5, 0.5)
+  numOfVoxels1 = (3, 3, 3)
+  numOfVoxels2 = (4, 4, 4)
+  numOfVoxels3 = (5, 5, 5)
+  numOfVoxels4 = (6, 6, 6)
+  numOfVoxels5 = (10, 10, 10)
+  numOfVoxels6 = (20, 20, 20)
   nx_opt = (32, 32, 32)
 }
 
+//Postprocess
+//{
+//  origin = (0.25, 0.25, 0.25)
+//  length = (0.5, 0.5, 0.5)
+//  numOfVoxels1 = (3, 3, 3)
+//  numOfVoxels2 = (5, 5, 5)
+//  numOfVoxels3 = (10, 10, 10)
+//  numOfVoxels4 = (20, 20, 20)
+//  nx_opt = (32, 32, 32)
+//}
+
+//Postprocess
+//{
+//  origin = (10, 5, 4)
+//  length = (30, 5, 4)
+//  numOfVoxels1 = (3, 3, 3)
+//  numOfVoxels2 = (5, 5, 5)
+//  numOfVoxels3 = (30, 10, 10)
+//  nx_opt = (64, 16, 16)
+//}

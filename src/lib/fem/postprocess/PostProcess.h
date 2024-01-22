@@ -44,6 +44,7 @@ class PostProcess
     
     void prepareForDataAssimilation(FEM &fem, const int xNumOfVoxels, const int yNumOfVoxels, const int zNumOfVoxels);
     void readDAParam();
+    void validateDADomain(FEM &fem, const int xNumOfVoxels, const int yNumOfVoxels, const int zNumOfVoxels);
     void makeVoxelAveragedVelocity(FEM &fem, VDOUBLE4D &vel_ave_voxel);
     void gaussIntegral(FEM &fem, VDOUBLE1D &N, VDOUBLE2D &dNdr, VDOUBLE2D &x_current, VDOUBLE2D &u_current, VDOUBLE1D &vel_local_ave_in_voxel, const double weight);
     void writeAveragedVelocityToFile(FEM &fem, VDOUBLE4D &vel_ave_voxel);

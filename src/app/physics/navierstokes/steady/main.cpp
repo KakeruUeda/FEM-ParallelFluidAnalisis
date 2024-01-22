@@ -27,6 +27,17 @@ int main(int argc, char* argv[])
   MPI_Barrier(MPI_COMM_WORLD);
   navier.initialize();
 
+  MPI_Barrier(MPI_COMM_WORLD);  
+  post.readDAParam();
+
+  int tmp = 0;
+  MPI_Barrier(MPI_COMM_WORLD);  
+  for(auto it = post.numOfObsVoxels.begin(); it != post.numOfObsVoxels.end(); it++){
+    post.validateDADomain(navier, post.numOfObsVoxels[tmp][0], 
+    post.numOfObsVoxels[tmp][1], post.numOfObsVoxels[tmp][2]);
+    tmp++;
+  }
+  
   MPI_Barrier(MPI_COMM_WORLD);
   navier.visualizeDomain();
 
@@ -40,15 +51,14 @@ int main(int argc, char* argv[])
   
   MPI_Barrier(MPI_COMM_WORLD);
   navier.visualizeResults();
-  
+
+  tmp = 0;
   MPI_Barrier(MPI_COMM_WORLD);  
-  post.readDAParam();
-  
-  MPI_Barrier(MPI_COMM_WORLD);  
-  post.prepareForDataAssimilation(navier, 3, 3, 3);
-  post.prepareForDataAssimilation(navier, 4, 4, 4);
-  post.prepareForDataAssimilation(navier, 5, 5, 5);
-  post.prepareForDataAssimilation(navier, 10, 10, 10);
+  for(auto it = post.numOfObsVoxels.begin(); it != post.numOfObsVoxels.end(); it++){
+    post.prepareForDataAssimilation(navier, post.numOfObsVoxels[tmp][0], 
+    post.numOfObsVoxels[tmp][1], post.numOfObsVoxels[tmp][2]);
+    tmp++;
+  }
   
   MPI_Barrier(MPI_COMM_WORLD);  
   post.extractDomain(navier);

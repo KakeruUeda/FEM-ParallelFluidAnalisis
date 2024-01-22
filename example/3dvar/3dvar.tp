@@ -1,28 +1,28 @@
 Base
 {
-  outputDir = "test"
+  outputDir = "straightTube"
   numOfOMP = 1
 }
 
 Domain
 {
   nx=(32,32,32)  //element size
-  Lx=(1e0,1e0,1e0)  //domain size
-  image = "input/square/image128x128x128.dat" 
-  imageEX = "input/square/image128x128x128_around.dat"
-  imageVOF = "input/square/image128x128x128_around.dat"
-  sdf = "input/square/sdf128x128x128.dat"
+  Lx=(0.5,0.5,0.5)  //domain size
+  image = "input/straightTube/phiVOF_opt_32x32x32.dat" 
+  imageEX = "input/straightTube/phiVOF_opt_32x32x32.dat"
+  imageVOF = "input/straightTube/phiVOF_opt_32x32x32.dat"
+  sdf = "input/straightTube/sdf_opt_32x32x32.dat"
 }
 
 
 Boundary
 {
  top{
-    type = "v"
-    value = (1,0,0)
+    type = "free"
+    value = (0,0,0)
  }
  bottom{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  left{
@@ -30,15 +30,15 @@ Boundary
     value = (0,0,0)
  }
  right{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
  front{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 back{
-    type = "v"
+    type = "free"
     value = (0,0,0)
  }
 }
@@ -51,7 +51,7 @@ BoundaryMethod
 
 PysicalParameter
 {
-  rho = 1000
+  rho = 250
   mu = 1
 }
 
@@ -69,16 +69,28 @@ XFEMParameter
   sub_div = 6  
 }
 
-
 DarcyParameter
 {
   alpha = 1e-1
   resistance = 1e2
 }
 
-
 BTSubDivParameter
 {
    max_depth = 1
    sub_div = 6  
 }
+
+VarDA
+{
+  loopMAX = 2
+  output_itr = 1
+  alpha_cf = 1e0 
+  beta1_cf = 1e-8
+  beta2_cf = 1e-4 
+  controlBoundary = "left"
+  velocityMAP = "input/straightTube/velocity_MRI_10x10x10.dat"
+  estimatedVelocity = "AVERAGE"
+}
+
+

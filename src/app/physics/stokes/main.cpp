@@ -27,6 +27,17 @@ int main(int argc, char* argv[])
   MPI_Barrier(MPI_COMM_WORLD);
   stokes.initialize();
 
+  MPI_Barrier(MPI_COMM_WORLD);  
+  post.readDAParam();
+
+  int tmp = 0;
+  MPI_Barrier(MPI_COMM_WORLD);  
+  for(auto it = post.numOfObsVoxels.begin(); it != post.numOfObsVoxels.end(); it++){
+    post.validateDADomain(stokes, post.numOfObsVoxels[tmp][0], 
+    post.numOfObsVoxels[tmp][1], post.numOfObsVoxels[tmp][2]);
+    tmp++;
+  }
+
   MPI_Barrier(MPI_COMM_WORLD);
   stokes.visualizeDomain();
 
@@ -37,14 +48,14 @@ int main(int argc, char* argv[])
   
   MPI_Barrier(MPI_COMM_WORLD);
   stokes.physicalVariables();
-
-  MPI_Barrier(MPI_COMM_WORLD);  
-  post.readDAParam();
   
+  tmp = 0;
   MPI_Barrier(MPI_COMM_WORLD);  
-  post.prepareForDataAssimilation(stokes, 3, 3, 3);
-  post.prepareForDataAssimilation(stokes, 4, 4, 4);
-  post.prepareForDataAssimilation(stokes, 5, 5, 5);
+  for(auto it = post.numOfObsVoxels.begin(); it != post.numOfObsVoxels.end(); it++){
+    post.prepareForDataAssimilation(stokes, post.numOfObsVoxels[tmp][0], 
+    post.numOfObsVoxels[tmp][1], post.numOfObsVoxels[tmp][2]);
+    tmp++;
+  }
   
   MPI_Barrier(MPI_COMM_WORLD);  
   post.extractDomain(stokes);

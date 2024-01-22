@@ -22,17 +22,17 @@ void FEM::resizeVariables()
 {
   if(solver == SOLVER::STEADY_STOKES)
   {
-    uFluid.resize(numOfNodeGlobalFluid,0); u.resize(numOfNodeGlobal,0);
-    vFluid.resize(numOfNodeGlobalFluid,0); v.resize(numOfNodeGlobal,0);
-    wFluid.resize(numOfNodeGlobalFluid,0); w.resize(numOfNodeGlobal,0);
-    pFluid.resize(numOfNodeGlobalFluid,0); p.resize(numOfNodeGlobal,0);
+    uFluid.resize(numOfNodeGlobalFluid, 0e0); u.resize(numOfNodeGlobal, 0e0);
+    vFluid.resize(numOfNodeGlobalFluid, 0e0); v.resize(numOfNodeGlobal, 0e0);
+    wFluid.resize(numOfNodeGlobalFluid, 0e0); w.resize(numOfNodeGlobal, 0e0);
+    pFluid.resize(numOfNodeGlobalFluid, 0e0); p.resize(numOfNodeGlobal, 0e0);
   }
   else if(solver == SOLVER::STEADY_NAVIERSTOKES)
   {
-    uFluid.resize(numOfNodeGlobalFluid,0e0); u.resize(numOfNodeGlobal,0e0);
-    vFluid.resize(numOfNodeGlobalFluid,0e0); v.resize(numOfNodeGlobal,0e0);
-    wFluid.resize(numOfNodeGlobalFluid,0e0); w.resize(numOfNodeGlobal,0e0);
-    pFluid.resize(numOfNodeGlobalFluid,0e0); p.resize(numOfNodeGlobal,0e0);  
+    uFluid.resize(numOfNodeGlobalFluid, 0e0); u.resize(numOfNodeGlobal, 0e0);
+    vFluid.resize(numOfNodeGlobalFluid, 0e0); v.resize(numOfNodeGlobal, 0e0);
+    wFluid.resize(numOfNodeGlobalFluid, 0e0); w.resize(numOfNodeGlobal, 0e0);
+    pFluid.resize(numOfNodeGlobalFluid, 0e0); p.resize(numOfNodeGlobal, 0e0);  
   }
   else if(solver == SOLVER::UNSTEADY_NAVIERSTOKES)
   {

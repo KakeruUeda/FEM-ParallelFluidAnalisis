@@ -15,7 +15,7 @@ void PostProcess::prepareForDataAssimilation(FEM &fem, const int xNumOfVoxels, c
   nz_in_voxel = dz_obs/fem.dz;
 
   if(nx_in_voxel == 0 || ny_in_voxel  == 0 || nz_in_voxel  == 0){
-     PetscPrintf(MPI_COMM_WORLD, "\n n*_in_voxel needs to be plus \n");
+     PetscPrintf(MPI_COMM_WORLD, "\n Observed voxels size needs to be bigger than fem element size \n");
      MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
@@ -66,19 +66,108 @@ void PostProcess::readDAParam()
   ny_opt = tmp3[1];
   nz_opt = tmp3[2];
 
-  //int num = 1;
-  //label = base_label + "/numOfVoxels" + to_string(num);
-  //while(tp_post.getInspectedVector(label, tmp3, 3))
-  //{ 
-  //  VINT1D tmp3_tmp(3);
-  //  tmp3_tmp[0] = tmp3[0]; tmp3_tmp[1] = tmp3[1]; tmp3_tmp[2] = tmp3[2];
-  //  numOfObsVoxels.push_back(tmp3_tmp);
-  //  
-  //  num++;
-  //  label = base_label + "/numOfVoxels" + to_string(num);
-  //}
+  int num = 1;
+  label = base_label + "/numOfVoxels" + to_string(num);
+  while(tp_post.getInspectedVector(label, tmp3, 3))
+  { 
+    VINT1D tmp3_tmp(3);
+    tmp3_tmp[0] = tmp3[0]; tmp3_tmp[1] = tmp3[1]; tmp3_tmp[2] = tmp3[2];
+    numOfObsVoxels.push_back(tmp3_tmp);
+    
+    num++;
+    label = base_label + "/numOfVoxels" + to_string(num);
+  }
 
   return;
+}
+
+
+void PostProcess::validateDADomain(FEM &fem, const int xNumOfVoxels, const int yNumOfVoxels, const int zNumOfVoxels)
+{
+  double mic = 1e-10; 
+  
+  nx_obs = xNumOfVoxels;
+  ny_obs = yNumOfVoxels;
+  nz_obs = zNumOfVoxels;
+  
+  dx_obs = Lx_obs/nx_obs;
+  dy_obs = Ly_obs/ny_obs;
+  dz_obs = Lz_obs/nz_obs;
+  
+  nx_in_voxel = dx_obs/fem.dx;
+  ny_in_voxel = dy_obs/fem.dy;
+  nz_in_voxel = dz_obs/fem.dz;
+
+  if(nx_in_voxel == 0 || ny_in_voxel  == 0 || nz_in_voxel  == 0){
+     PetscPrintf(MPI_COMM_WORLD, "\n Observed voxels size needs to be bigger than fem element size \n");
+     MPI_Abort(MPI_COMM_WORLD, 1);
+  }
+
+  for(int k=0; k<nz_obs; k++){
+    for(int j=0; j<ny_obs; j++){
+      for(int i=0; i<nx_obs; i++){
+        
+        for(int r=0; r<nz_in_voxel+1; r++){
+          for(int q=0; q<ny_in_voxel+1; q++){
+            for(int p=0; p<nx_in_voxel+1; p++){
+
+              double px = x0 + i * dx_obs + p * dx_obs / nx_in_voxel;
+              double py = y0 + j * dy_obs + q * dy_obs / ny_in_voxel; 
+              double pz = z0 + k * dz_obs + r * dz_obs / nz_in_voxel;
+
+              int ix = px / fem.dx + mic;
+              int iy = py / fem.dy + mic;
+              int iz = pz / fem.dz + mic;
+
+              if(ix == fem.nx || iy == fem.ny || iz == fem.nz){
+                PetscPrintf(MPI_COMM_WORLD, "\n Define the DA domain not to include edges \n");
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+            }
+          }
+        }
+      
+      }
+    }
+  }
+
+  dx_opt = Lx_obs/nx_opt;
+  dy_opt = Ly_obs/ny_opt;
+  dz_opt = Lz_obs/nz_opt;
+
+  // VALIDATION FOR EXTRACTING PHIVOF :THIS IS A CELL VALUE.
+  int tmp = 0;
+  int nx_inside = fem.nx - 1;
+  int ny_inside = fem.ny - 1;
+  int nz_inside = fem.nz - 1;
+
+  for(int k=0; k<nz_opt; k++){
+    for(int j=0; j<ny_opt; j++){
+      for(int i=0; i<nx_opt; i++){
+
+        double px = x0 + i * dx_opt;
+        double py = y0 + j * dy_opt;
+        double pz = z0 + k * dz_opt;
+
+        px = px - 5e-1 * fem.dx;
+        py = py - 5e-1 * fem.dy; 
+        pz = pz - 5e-1 * fem.dz;
+
+        int ix = px / fem.dx + mic;
+        int iy = py / fem.dy + mic;
+        int iz = pz / fem.dz + mic;
+
+        if(ix >= nx_inside || iy >= ny_inside || iz >= nz_inside){
+          PetscPrintf(MPI_COMM_WORLD, "\n Define the DA domain so the extracted phiVOF can be interpolated \n");
+          MPI_Abort(MPI_COMM_WORLD, 1);
+        }
+      
+      }
+    }
+  }
+
+
+
 }
 
 
@@ -119,15 +208,15 @@ void PostProcess::makeVoxelAveragedVelocity(FEM &fem, VDOUBLE4D &vel_ave_voxel)
               t = t / (fem.dy / 2e0);
               u = u / (fem.dz / 2e0);
   
-              if(s<-1-mic || s+mic>1){
+              if(s<-1-mic || s>1+mic){
                 PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
                 MPI_Abort(MPI_COMM_WORLD, 1);
               }
-              if(t<-1-mic || t+mic>1){
+              if(t<-1-mic || t>1+mic){
                 PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
                 MPI_Abort(MPI_COMM_WORLD, 1);
               }
-              if(u<-1-mic || u+mic>1){
+              if(u<-1-mic || u>1+mic){
                 PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
                 MPI_Abort(MPI_COMM_WORLD, 1);
               }
@@ -217,6 +306,9 @@ void PostProcess::makeVoxelAveragedVelocity(FEM &fem, VDOUBLE4D &vel_ave_voxel)
         double volume = dx_obs * dy_obs * dz_obs;
         for(int l=0; l<3; l++){
           vel_ave_voxel[k][j][i][l] /= volume;
+        }
+        for(int l=0; l<3; l++){
+          if(fabs(vel_ave_voxel[k][j][i][l]) < 1e-10) vel_ave_voxel[k][j][i][l] = 0e0;
         }
       
       }
@@ -310,15 +402,15 @@ void PostProcess::extractDomain(FEM &fem)
         t = t / (fem.dy / 2e0);
         u = u / (fem.dz / 2e0);
   
-        if(s<-1-mic || s+mic>1){
+        if(s<-1-mic || s>1+mic){
           PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
           MPI_Abort(MPI_COMM_WORLD, 1);
         }
-        if(t<-1-mic || t+mic>1){
+        if(t<-1-mic || t>1+mic){
           PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
           MPI_Abort(MPI_COMM_WORLD, 1);
         }
-        if(u<-1-mic || u+mic>1){
+        if(u<-1-mic || u>1+mic){
           PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
           MPI_Abort(MPI_COMM_WORLD, 1);
         }
@@ -345,6 +437,10 @@ void PostProcess::extractDomain(FEM &fem)
           vel_ref_opt[k][j][i][1] += N[e] * fem.v[fem.element[elm][e]];
           vel_ref_opt[k][j][i][2] += N[e] * fem.w[fem.element[elm][e]];
         }
+        if(fabs(sdf_opt[k][j][i]) < 1e-10) sdf_opt[k][j][i] = 0e0;
+        if(fabs(vel_ref_opt[k][j][i][0]) < 1e-10) vel_ref_opt[k][j][i][0] = 0e0;
+        if(fabs(vel_ref_opt[k][j][i][1]) < 1e-10) vel_ref_opt[k][j][i][1] = 0e0;        
+        if(fabs(vel_ref_opt[k][j][i][2]) < 1e-10) vel_ref_opt[k][j][i][2] = 0e0;
       }
     }
   }
@@ -402,15 +498,15 @@ void PostProcess::extractDomain(FEM &fem)
         t = t / (fem.dy / 2e0);
         u = u / (fem.dz / 2e0);
   
-        if(s<-1-mic || s+mic>1){
+        if(s<-1-mic || s>1+mic){
           PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
           MPI_Abort(MPI_COMM_WORLD, 1);
         }
-        if(t<-1-mic || t+mic>1){
+        if(t<-1-mic || t>1+mic){
           PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
           MPI_Abort(MPI_COMM_WORLD, 1);
         }
-        if(u<-1-mic || u+mic>1){
+        if(u<-1-mic || u>1+mic){
           PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
           MPI_Abort(MPI_COMM_WORLD, 1);
         }
@@ -430,7 +526,7 @@ void PostProcess::extractDomain(FEM &fem)
         for(int e=0; e<fem.numOfNodeInElm; e++){ 
           phiVOF_opt[k][j][i] += N[e] * fem.phiVOF[element2[elm][e]];
         }
-        
+        if(fabs(phiVOF_opt[k][j][i]) < 1e-10) phiVOF_opt[k][j][i] = 0e0;
       }
     }
   }

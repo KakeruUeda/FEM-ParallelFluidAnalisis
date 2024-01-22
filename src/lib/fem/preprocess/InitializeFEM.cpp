@@ -57,6 +57,8 @@ void FEM::setDomain()
       }
     }
   }
+  
+  return;
 }
 
 
@@ -227,7 +229,7 @@ void FEM::visualizeDomain()
 
   vtiFile = outputDirMain + "/meshPartition.vti";
   export_file.export_vti_metis(vtiFile, nodeId, elmId, nx, ny, nz, dx, dy, dz);
-  
+    
   if(bd == BOUNDARY::XFEM)
   {
     vtiFile = outputDirMain + "/domain.vti";
@@ -238,6 +240,8 @@ void FEM::visualizeDomain()
     vtiFile = outputDirMain + "/phiVOF.vti";
     export_file.export_vti_elm(vtiFile, phiVOF, nx, ny, nz, dx, dy, dz);
   }
+
+  return;
 }
 
 
