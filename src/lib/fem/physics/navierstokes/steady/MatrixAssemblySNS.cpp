@@ -8,13 +8,13 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
 
   int GP = 2;
   
-  VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D x_current(numOfNodeInElm, VDOUBLE1D(3,0e0));
   
-  VDOUBLE1D N(numOfNodeInElm,0);
-  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
-  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE1D N(numOfNodeInElm, 0e0);
+  VDOUBLE2D dNdr(numOfNodeInElm, VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNdx(numOfNodeInElm, VDOUBLE1D(3,0e0));
 
-  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
+  VDOUBLE2D K(numOfNodeInElm, VDOUBLE1D(numOfNodeInElm, 0e0));
   
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){

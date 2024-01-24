@@ -8,7 +8,7 @@ void FEM::UnsteadyNavierStokes()
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;
   double  norm_rhs, timer;
 
-  double norm,norm0;
+  double norm, norm0;
   double tmp = 1e12;
 
   jpn = numOfNodeInElm * numOfDofsNode;

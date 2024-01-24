@@ -94,6 +94,81 @@ int PetscSolver::initialize(int size_local, int size_global)
 }
 
 
+//int PetscSolver::adjointInitialize(int size_local, int size_global)
+//{
+//    nRow = nCol = size_global;
+//
+//    int dummy = 50;
+//
+//    // Create PETSc vector
+//    errpetsc = VecCreate(PETSC_COMM_WORLD, &solnVecAdjoint);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = VecSetSizes(solnVecAdjoint, size_local, size_global);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = VecSetFromOptions(solnVecAdjoint);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = VecDuplicate(solnVec, &rhsVec);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = VecSetOption(rhsVecAdjoint, VEC_IGNORE_NEGATIVE_INDICES, PETSC_TRUE);
+//
+//
+//    // Create PETSc matrix
+//    errpetsc = MatCreate(PETSC_COMM_WORLD, &mtxAdjoint);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = MatSetSizes(mtxAdjoint, size_local, size_local, size_global, size_global);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = MatSetFromOptions(mtxAdjoint);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = MatMPIAIJSetPreallocation(mtxAdjoint, nnz_max_row, NULL, nnz_max_row, NULL);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = MatSeqAIJSetPreallocation(mtxAdjoint, nnz_max_row, NULL);
+//    CHKERRQ(errpetsc);
+//    
+//    errpetsc = MatSetOption(mtxAdjoint, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = MatSetOption(mtxAdjoint, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
+//    CHKERRQ(errpetsc);
+//
+//    errpetsc = MatSetOption(mtxAdjoint, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
+//    CHKERRQ(errpetsc);
+//
+//    // Create the KSP context
+//    errpetsc = KSPCreate(PETSC_COMM_WORLD, &kspAdjoint);
+//    CHKERRQ(errpetsc);
+//
+//    // Set the operators for the KSP context
+//    errpetsc = KSPSetOperators(kspAdjoint, mtxAdjoint, mtxAdjoint);
+//    CHKERRQ(errpetsc);
+//
+//    //  Set whether to use non-zero initial guess or not
+//    //KSPSetInitialGuessNonzero(ksp, PETSC_TRUE);
+//    //KSPSetInitialGuessNonzero(ksp, PETSC_FALSE);
+//
+//
+//    // Set KSP options from the input file
+//    // This is convenient as it allows to choose different options
+//    // from the input files instead of recompiling the code
+//    errpetsc = KSPSetFromOptions(kspAdjoint);    CHKERRQ(errpetsc);
+//
+//    errpetsc = KSPGetPC(kspAdjoint, &pcAdjoint);    CHKERRQ(errpetsc);
+//
+//    errpetsc = PCSetFromOptions(pcAdjoint);    CHKERRQ(errpetsc);
+//
+//    currentStatus = SOLVER_EMPTY;
+//
+//    return 0;
+//}
+//
+
 int PetscSolver::factorise()
 {
   if (currentStatus != ASSEMBLY_OK)

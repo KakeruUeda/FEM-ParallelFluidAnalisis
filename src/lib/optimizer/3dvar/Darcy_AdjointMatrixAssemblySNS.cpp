@@ -1,6 +1,6 @@
-#include "FEM.h"
+#include "VariationalDataAssimilation.h"
 
-void FEM::Darcy_MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
+void VarDA::Darcy_AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 {
   int ii, jj;
   int IU,IV,IW,IP;
@@ -10,11 +10,11 @@ void FEM::Darcy_MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   
   VDOUBLE2D x_current(numOfNodeInElm,VDOUBLE1D(3,0e0));
   
-  VDOUBLE1D N(numOfNodeInElm, 0e0);
-  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3, 0e0));
-  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3, 0e0));
+  VDOUBLE1D N(numOfNodeInElm,0);
+  VDOUBLE2D dNdr(numOfNodeInElm,VDOUBLE1D(3,0e0));
+  VDOUBLE2D dNdx(numOfNodeInElm,VDOUBLE1D(3,0e0));
 
-  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm, 0e0));
+  VDOUBLE2D K(numOfNodeInElm,VDOUBLE1D(numOfNodeInElm,0e0));
   
   for(int i=0;i<numOfNodeInElm;i++){
     for(int j=0;j<3;j++){
@@ -206,53 +206,12 @@ void FEM::Darcy_MatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
               Klocal(IP, JW) +=  tau * (dNdx[ii][k] * N[jj] * dvdx[k][2] + dNdx[ii][2] * vel[k] * dNdx[jj][k]) * detJ * weight; 
             }
             
-          } // II loop //
-
-          //// disfusion ////
-          for(int kk=0;kk<3;kk++){
-            Flocal(IU) -= dNdx[ii][kk] * dvdx[0][kk] / Re * detJ * weight;
-            Flocal(IV) -= dNdx[ii][kk] * dvdx[1][kk] / Re * detJ * weight;
-            Flocal(IW) -= dNdx[ii][kk] * dvdx[2][kk] / Re * detJ * weight;
-          }
-
-          //// advection ////
-          Flocal[IU] -= N[ii] * vdvdx[0] * detJ * weight;
-          Flocal[IV] -= N[ii] * vdvdx[1] * detJ * weight;
-          Flocal[IW] -= N[ii] * vdvdx[2] * detJ * weight;
-            
-          //// pressure ////
-          Flocal[IU] += pre * dNdx[ii][0] * detJ * weight;
-          Flocal[IV] += pre * dNdx[ii][1] * detJ * weight;
-          Flocal[IW] += pre * dNdx[ii][2] * detJ * weight;
-  
-          Flocal[IP] -= N[ii] * div * detJ * weight;
-
-          //// Darcy ////
-          Flocal(IU) -= f * N[ii] * vel[0] * detJ * weight;
-          Flocal(IV) -= f * N[ii] * vel[1] * detJ * weight;
-          Flocal(IW) -= f * N[ii] * vel[2] * detJ * weight;   
-
-          //// SUPG ////
-          Flocal[IU] -= tau * tmp[ii] * dpdx[0] * detJ * weight; //pressure term
-          Flocal[IV] -= tau * tmp[ii] * dpdx[1] * detJ * weight;
-          Flocal[IW] -= tau * tmp[ii] * dpdx[2] * detJ * weight;
-          for(int kk=0;kk<3;kk++){
-            Flocal[IU] -= tau * tmp[ii] * vel[kk]*dvdx[0][kk] * detJ * weight; //advection
-            Flocal[IV] -= tau * tmp[ii] * vel[kk]*dvdx[1][kk] * detJ * weight;
-            Flocal[IW] -= tau * tmp[ii] * vel[kk]*dvdx[2][kk] * detJ * weight;
-          }
-
-          // PSPG ////
-          Flocal[IP] -= tau * dNdx[ii][0] * dpdx[0] * detJ * weight;
-          Flocal[IP] -= tau * dNdx[ii][1] * dpdx[1] * detJ * weight;
-          Flocal[IP] -= tau * dNdx[ii][2] * dpdx[2] * detJ * weight;
-          for(int kk=0;kk<3;kk++){
-            Flocal[IP] -= tau * dNdx[ii][0] * vel[kk] * dvdx[0][kk] * detJ * weight; 
-            Flocal[IP] -= tau * dNdx[ii][1] * vel[kk] * dvdx[1][kk] * detJ * weight;           
-            Flocal[IP] -= tau * dNdx[ii][2] * vel[kk] * dvdx[2][kk] * detJ * weight; 
-          }
-        }
+          } // II LOOP //
+        } // JJ LOOP //
+      
       }
     }
   }
+
+  return;
 }

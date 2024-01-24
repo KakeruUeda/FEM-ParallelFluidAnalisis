@@ -46,19 +46,8 @@ int main(int argc,char *argv[])
     MPI_Barrier(MPI_COMM_WORLD); 
     var.calcFeedbackForce();
 
-    VDOUBLE4D fvel(var.nz+1, VDOUBLE3D(var.ny+1, VDOUBLE2D(var.nx+1, VDOUBLE1D(3, 0e0))));
-
-    int tmp2 = 0;
-    for(int k=0; k<var.nz+1; k++){
-      for(int j=0; j<var.ny+1; j++){
-        for(int i=0; i<var.nx+1; i++){
-          fvel[k][j][i][0] = var.feedbackForce[tmp2][0];
-          fvel[k][j][i][1] = var.feedbackForce[tmp2][1];
-          fvel[k][j][i][2] = var.feedbackForce[tmp2][2];
-          tmp2++;
-        }
-      }
-    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    var.adjoint_SteadyNavierStokes(var.feedbackForce);
 
     int num = opt_itr/var.output_itr;
     vtiFile  = var.outputDirDA + "/force_" + to_string(num)+".vti";
@@ -67,10 +56,10 @@ int main(int argc,char *argv[])
     vtiFile  = var.outputDirDA + "/force_2D_" + to_string(num)+".vti";
     var.export_file.export_vti_node_2dir_2D(vtiFile, var.feedbackForce, var.nx, var.ny, var.nz, var.dx, var.dy, var.dz);
     
-    //var.export_file.export_vti_velocity_node(vtiFile, fvel, var.obs.nx, var.obs.ny, var.obs.nz, var.obs.dx, var.obs.dy, var.obs.dz);
     vtiFile  = var.outputDirDA + "/error_" + to_string(num)+".vti";
     var.export_file.export_vti_elm_xyz_3dir(vtiFile, var.ue, var.ve, var.we, var.obs.nx, var.obs.ny, var.obs.nz, var.obs.dx, var.obs.dy, var.obs.dz);
-    PetscPrintf(MPI_COMM_WORLD, "itr=%d costFunction = %e\n", opt_itr, var.costFunction.total);
+    
+    PetscPrintf(MPI_COMM_WORLD, "itr = %d costFunction = %e\n", opt_itr, var.costFunction.total);
     if((fp = fopen(costFunction.c_str(), "a")) == NULL){
       printf("file open error\n");
       exit(1);

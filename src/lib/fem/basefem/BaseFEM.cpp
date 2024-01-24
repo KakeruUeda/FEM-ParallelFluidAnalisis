@@ -26,6 +26,7 @@ void FEM::setMatAndVecZero()
   }
 }
 
+
 void FEM::setNRInitialValue()
 {
   for(int ic=0; ic<numOfNodeGlobalFluid; ic++)

@@ -5,6 +5,9 @@ add_library(3dvar STATIC)
 target_sources(3dvar
   PRIVATE
   AdjointVariableMethod.cpp
+  AdjointSteadyNavierStokes.cpp
+  AdjointMatrixAssemblySNS.cpp
+  Darcy_AdjointMatrixAssemblySNS.cpp
 )
 
 target_include_directories(3dvar PUBLIC

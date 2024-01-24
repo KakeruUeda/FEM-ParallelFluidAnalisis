@@ -35,10 +35,15 @@ class ElementBaseFEM{
     void prepareElemData(const int nsize);
 
 
-    /// ONLY FLUID ///
-    VINT1D nodeNumsFluid,nodeNumsPrevFluid;
-    VINT1D nodeForAssyBCsFluid,nodeForAssyFluid;
+    // ONLY FLUID 
+    VINT1D nodeNumsFluid, nodeNumsPrevFluid;
+    
+    VINT1D nodeForAssyBCsFluid, nodeForAssyFluid;
     VINT1D globalDOFnumsFluid;
+
+    VINT1D nodeForAssyBCsAdjointFluid, nodeForAssyAdjointFluid;
+    VINT1D globalDOFnumsAdjointFluid;
+
     vector<vector<vector<double>>> sub_x;
     
     SolutionData  *SolnDataFluid;

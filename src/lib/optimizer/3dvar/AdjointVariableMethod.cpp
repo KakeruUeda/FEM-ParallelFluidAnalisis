@@ -409,27 +409,27 @@ void VarDA::calcEdgeVale()
       for(int i=0; i<obs.nx+2; i++){ 
         if(k == 0){
           if((j > 0 && j < obs.ny+1) && (i > 0 && i < obs.nx+1)){
-            ue_edge[k][j][i] = ue[k][j-1][i-1] + (ue[k][j-1][i-1]- ue[k+1][j-1][i-1]);
-            ve_edge[k][j][i] = ve[k][j-1][i-1] + (ve[k][j-1][i-1]- ve[k+1][j-1][i-1]);
-            we_edge[k][j][i] = we[k][j-1][i-1] + (we[k][j-1][i-1]- we[k+1][j-1][i-1]);
+            ue_edge[k][j][i] = ue[k][j-1][i-1] + (ue[k][j-1][i-1] - ue[k+1][j-1][i-1]);
+            ve_edge[k][j][i] = ve[k][j-1][i-1] + (ve[k][j-1][i-1] - ve[k+1][j-1][i-1]);
+            we_edge[k][j][i] = we[k][j-1][i-1] + (we[k][j-1][i-1] - we[k+1][j-1][i-1]);
           }
         }else if(k > 0 && k < obs.nz+1){
           if(j == 0 && i != 0 && i != obs.nx+1){
-            ue_edge[k][j][i] = ue[k-1][j][i-1] + (ue[k-1][j][i-1]- ue[k-1][j+1][i-1]);
-            ve_edge[k][j][i] = ve[k-1][j][i-1] + (ve[k-1][j][i-1]- ve[k-1][j+1][i-1]);
-            we_edge[k][j][i] = we[k-1][j][i-1] + (we[k-1][j][i-1]- we[k-1][j+1][i-1]);
+            ue_edge[k][j][i] = ue[k-1][j][i-1] + (ue[k-1][j][i-1] - ue[k-1][j+1][i-1]);
+            ve_edge[k][j][i] = ve[k-1][j][i-1] + (ve[k-1][j][i-1] - ve[k-1][j+1][i-1]);
+            we_edge[k][j][i] = we[k-1][j][i-1] + (we[k-1][j][i-1] - we[k-1][j+1][i-1]);
           }else if(i == 0 && j != 0 && j != obs.ny+1){
-            ue_edge[k][j][i] = ue[k-1][j-1][i] + (ue[k-1][j-1][i]- ue[k-1][j-1][i+1]);
-            ve_edge[k][j][i] = ve[k-1][j-1][i] + (ve[k-1][j-1][i]- ve[k-1][j-1][i+1]);
-            we_edge[k][j][i] = we[k-1][j-1][i] + (we[k-1][j-1][i]- we[k-1][j-1][i+1]);            
+            ue_edge[k][j][i] = ue[k-1][j-1][i] + (ue[k-1][j-1][i] - ue[k-1][j-1][i+1]);
+            ve_edge[k][j][i] = ve[k-1][j-1][i] + (ve[k-1][j-1][i] - ve[k-1][j-1][i+1]);
+            we_edge[k][j][i] = we[k-1][j-1][i] + (we[k-1][j-1][i] - we[k-1][j-1][i+1]);            
           }else if(i == obs.nx+1 && j != 0 && j != obs.ny+1){
-            ue_edge[k][j][i] = ue[k-1][j-1][i-2] + (ue[k-1][j-1][i-2]- ue[k-1][j-1][i-3]);
-            ve_edge[k][j][i] = ve[k-1][j-1][i-2] + (ve[k-1][j-1][i-2]- ve[k-1][j-1][i-3]);
-            we_edge[k][j][i] = we[k-1][j-1][i-2] + (we[k-1][j-1][i-2]- we[k-1][j-1][i-3]);            
+            ue_edge[k][j][i] = ue[k-1][j-1][i-2] + (ue[k-1][j-1][i-2] - ue[k-1][j-1][i-3]);
+            ve_edge[k][j][i] = ve[k-1][j-1][i-2] + (ve[k-1][j-1][i-2] - ve[k-1][j-1][i-3]);
+            we_edge[k][j][i] = we[k-1][j-1][i-2] + (we[k-1][j-1][i-2] - we[k-1][j-1][i-3]);            
           }else if(j == obs.ny+1 && i != 0 && i != obs.nx+1){
-            ue_edge[k][j][i] = ue[k-1][j-2][i-1] + (ue[k-1][j-2][i-1]- ue[k-1][j-3][i-1]);
-            ve_edge[k][j][i] = ve[k-1][j-2][i-1] + (ve[k-1][j-2][i-1]- ve[k-1][j-3][i-1]);
-            we_edge[k][j][i] = we[k-1][j-2][i-1] + (we[k-1][j-2][i-1]- we[k-1][j-3][i-1]);
+            ue_edge[k][j][i] = ue[k-1][j-2][i-1] + (ue[k-1][j-2][i-1] - ue[k-1][j-3][i-1]);
+            ve_edge[k][j][i] = ve[k-1][j-2][i-1] + (ve[k-1][j-2][i-1] - ve[k-1][j-3][i-1]);
+            we_edge[k][j][i] = we[k-1][j-2][i-1] + (we[k-1][j-2][i-1] - we[k-1][j-3][i-1]);
           }else if(i != 0 && i != obs.nx+1 && j != 0 && j != obs.ny+1){
             ue_edge[k][j][i] = ue[k-1][j-1][i-1];
             ve_edge[k][j][i] = ve[k-1][j-1][i-1];
@@ -447,77 +447,77 @@ void VarDA::calcEdgeVale()
     }   
   }
 
-  //for(int k=0; k<obs.nz+2; k++){
-  //  for(int j=0; j<obs.ny+2; j++){
-  //    for(int i=0; i<obs.nx+2; i++){
-  //      
-  //      if(k != 0 && k != obs.nz+1){
-  //        if(i == 0 && j == 0){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) ) / 2e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) ) / 2e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) ) / 2e0;        
-  //        }else if(i == obs.nx+1 && j == 0){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) ) / 2e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) ) / 2e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) ) / 2e0;              
-  //        }else if(i == 0 && j == obs.ny+1){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) ) / 2e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) ) / 2e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) ) / 2e0;        
-  //        }else if(i == obs.nx+1 && j == obs.ny+1){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) ) / 2e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) ) / 2e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) ) / 2e0;              
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
+  for(int k=0; k<obs.nz+2; k++){
+    for(int j=0; j<obs.ny+2; j++){
+      for(int i=0; i<obs.nx+2; i++){
+        
+        if(k != 0 && k != obs.nz+1){
+          if(i == 0 && j == 0){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) ) / 2e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) ) / 2e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) ) / 2e0;        
+          }else if(i == obs.nx+1 && j == 0){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) ) / 2e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) ) / 2e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) ) / 2e0;              
+          }else if(i == 0 && j == obs.ny+1){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) ) / 2e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) ) / 2e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) ) / 2e0;        
+          }else if(i == obs.nx+1 && j == obs.ny+1){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) ) / 2e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) ) / 2e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) ) / 2e0;              
+          }
+        }
+      }
+    }
+  }
 
-  //for(int k=0; k<obs.nz+2; k++){
-  //  for(int j=0; j<obs.ny+2; j++){
-  //    for(int i=0; i<obs.nx+2; i++){
-  //
-  //      if(k == 0){
-  //        if(i == 0 && j == 0){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ve_edge[k+1][j][i] + (ve_edge[k+1][j][i] - ve_edge[k+2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (we_edge[k+1][j][i] + (we_edge[k+1][j][i] - we_edge[k+2][j][i])) ) / 3e0;        
-  //        }else if(i == obs.nx+1 && j == 0){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ve_edge[k+1][j][i] + (ve_edge[k+1][j][i] - ve_edge[k+2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (we_edge[k+1][j][i] + (we_edge[k+1][j][i] - we_edge[k+2][j][i])) ) / 3e0;              
-  //        }else if(i == 0 && j == obs.ny+1){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;        
-  //        }else if(i == obs.nx+1 && j == obs.ny+1){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ve_edge[k+1][j][i] + (ve_edge[k+1][j][i] - ve_edge[k+2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (we_edge[k+1][j][i] + (we_edge[k+1][j][i] - we_edge[k+2][j][i])) ) / 3e0;              
-  //        }
-  //      }else if(k == obs.nz+1){
-  //        if(i == 0 && j == 0){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ve_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (we_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;        
-  //        }else if(i == obs.nx+1 && j == 0){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;              
-  //        }else if(i == 0 && j == obs.ny+1){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ve_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (we_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;        
-  //        }else if(i == obs.nx+1 && j == obs.ny+1){
-  //          ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
-  //          ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ve_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
-  //          we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (we_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;              
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
+  for(int k=0; k<obs.nz+2; k++){
+    for(int j=0; j<obs.ny+2; j++){
+      for(int i=0; i<obs.nx+2; i++){
+  
+        if(k == 0){
+          if(i == 0 && j == 0){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ve_edge[k+1][j][i] + (ve_edge[k+1][j][i] - ve_edge[k+2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (we_edge[k+1][j][i] + (we_edge[k+1][j][i] - we_edge[k+2][j][i])) ) / 3e0;        
+          }else if(i == obs.nx+1 && j == 0){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ve_edge[k+1][j][i] + (ve_edge[k+1][j][i] - ve_edge[k+2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (we_edge[k+1][j][i] + (we_edge[k+1][j][i] - we_edge[k+2][j][i])) ) / 3e0;              
+          }else if(i == 0 && j == obs.ny+1){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;        
+          }else if(i == obs.nx+1 && j == obs.ny+1){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k+1][j][i] + (ue_edge[k+1][j][i] - ue_edge[k+2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ve_edge[k+1][j][i] + (ve_edge[k+1][j][i] - ve_edge[k+2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (we_edge[k+1][j][i] + (we_edge[k+1][j][i] - we_edge[k+2][j][i])) ) / 3e0;              
+          }
+        }else if(k == obs.nz+1){
+          if(i == 0 && j == 0){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ve_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (we_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;        
+          }else if(i == obs.nx+1 && j == 0){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j+1][i] + (ue_edge[k][j+1][i] - ue_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j+1][i] + (ve_edge[k][j+1][i] - ve_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j+1][i] + (we_edge[k][j+1][i] - we_edge[k][j+2][i])) + (ue_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;              
+          }else if(i == 0 && j == obs.ny+1){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i+1] + (ue_edge[k][j][i+1] - ue_edge[k][j][i+2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i+1] + (ve_edge[k][j][i+1] - ve_edge[k][j][i+2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ve_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i+1] + (we_edge[k][j][i+1] - we_edge[k][j][i+2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (we_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;        
+          }else if(i == obs.nx+1 && j == obs.ny+1){
+            ue_edge[k][j][i] = ( (ue_edge[k][j][i-1] + (ue_edge[k][j][i-1] - ue_edge[k][j][i-2])) + (ue_edge[k][j-1][i] + (ue_edge[k][j-1][i] - ue_edge[k][j-2][i])) + (ue_edge[k-1][j][i] + (ue_edge[k-1][j][i] - ue_edge[k-2][j][i])) ) / 3e0;
+            ve_edge[k][j][i] = ( (ve_edge[k][j][i-1] + (ve_edge[k][j][i-1] - ve_edge[k][j][i-2])) + (ve_edge[k][j-1][i] + (ve_edge[k][j-1][i] - ve_edge[k][j-2][i])) + (ve_edge[k-1][j][i] + (ve_edge[k-1][j][i] - ve_edge[k-2][j][i])) ) / 3e0;
+            we_edge[k][j][i] = ( (we_edge[k][j][i-1] + (we_edge[k][j][i-1] - we_edge[k][j][i-2])) + (we_edge[k][j-1][i] + (we_edge[k][j-1][i] - we_edge[k][j-2][i])) + (we_edge[k-1][j][i] + (we_edge[k-1][j][i] - we_edge[k-2][j][i])) ) / 3e0;              
+          }
+        }
+      }
+    }
+  }
 
   return;
 }

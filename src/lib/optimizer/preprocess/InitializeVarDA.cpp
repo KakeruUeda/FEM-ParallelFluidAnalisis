@@ -49,6 +49,12 @@ void VarDA::adjointInitialize()
 {
   readInputVarDA(); 
   setControlBooundary();
+  
+  if(adjointSolverPetscFluid != NULL) delete adjointSolverPetscFluid;
+  adjointSolverPetscFluid = NULL;
+  adjointSolverPetscFluid = (PetscSolver*) new PetscSolver;
+  
+  setPetscAdjointSolver();
 }
 
 void VarDA::setControlBooundary()
@@ -189,5 +195,229 @@ void VarDA::resizeDAVariables()
   ve_edge.resize(obs.nz+2, VDOUBLE2D(obs.ny+2, VDOUBLE1D(obs.nx+2, 0e0)));
   we_edge.resize(obs.nz+2, VDOUBLE2D(obs.ny+2, VDOUBLE1D(obs.nx+2, 0e0)));
   
+  return;
+}
+
+void VarDA::setPetscAdjointSolver()
+{
+  int jpn, nsize,size, kk;
+  numOfDofsNodePrevAdjointFluid.resize(numOfNodeGlobalFluid, 0);
+  numOfDofsNodeInElementPrevAdjointFluid.resize(numOfElmGlobalFluid, VINT1D(numOfNodeInElm, 0));
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    numOfDofsNodePrevAdjointFluid[in] = numOfDofsNode;
+    for(int ib=0; ib<control_node.size(); ib++){
+      if(control_node[ib] == in){
+        numOfDofsNodePrevAdjointFluid[in] = numOfDofsNode + 3;
+      }
+    }
+  }
+
+  for(int ie=0; ie<numOfElmGlobalFluid; ie++){
+    for(int p=0; p<numOfNodeInElm; p++){
+      numOfDofsNodeInElementPrevAdjointFluid[ie][p] = numOfDofsNode;
+    }
+    for(int ib=0; ib<control_elm_node.size(); ib++){
+      for(int p=0; p<4; p++){
+        if(control_elm_node[ib][p] == elementFluidPrev[ie][p]){
+          numOfDofsNodeInElementPrevAdjointFluid[ie][p] = numOfDofsNode + 3;
+        }
+      }
+    }
+  }
+
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    VBOOL1D vecBoolTempFalse(numOfDofsNodePrevAdjointFluid[in], false);
+    nodeTypePrevAdjointFluid.push_back(vecBoolTempFalse);
+  }
+ 
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    VINT1D vecIntTempM1(numOfDofsNodePrevAdjointFluid[in], -1);
+    nodeDofArrayBCsPrevAdjointFluid.push_back(vecIntTempM1);
+    nodeDofArrayPrevAdjointFluid.push_back(vecIntTempM1);
+  }
+
+  for(int i=0; i<numOfBdNodeFluid; i++){
+    nodeTypePrevAdjointFluid[DirichletBCsFluid_tmp[i][0]][DirichletBCsFluid_tmp[i][1]] = true;
+  }
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    for(int j=0; j<numOfDofsNodePrevAdjointFluid[in]; j++){
+      nodeDofArrayPrevAdjointFluid[in][j] = numOfDofsAdjointGlobalFluid;
+      nodeDofArrayBCsPrevAdjointFluid[in][j] = numOfDofsAdjointGlobalFluid++;
+      if(nodeTypePrevAdjointFluid[in][j]){
+        nodeDofArrayBCsPrevAdjointFluid[in][j] = -1;
+      }
+    }
+  }
+
+  /////////////////
+  ////  SORT   ////
+  /////////////////
+  numOfDofsNodeAdjointFluid.resize(numOfNodeGlobalFluid, 0);
+  numOfDofsNodeInElementAdjointFluid.resize(numOfElmGlobalFluid, VINT1D(numOfNodeInElm, 0));
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    numOfDofsNodeAdjointFluid[in] = numOfDofsNode;
+    for(int ib=0; ib<control_node.size(); ib++){
+      if(control_node[ib] == nodeMapFluid[in]){
+        numOfDofsNodeAdjointFluid[in] = numOfDofsNode + 3;
+      }
+    }
+  }
+
+  for(int ie=0; ie<numOfElmGlobalFluid; ie++){
+    for(int p=0; p<numOfNodeInElm; p++){
+      numOfDofsNodeInElementAdjointFluid[ie][p] = numOfDofsNode;
+    }
+    for(int ib=0; ib<control_elm_node.size(); ib++){
+      for(int p=0; p<4; p++){
+        if(control_elm_node[ib][p] == elementFluid[ie][p]){
+          numOfDofsNodeInElementAdjointFluid[ie][p] = numOfDofsNode + 3;
+        }
+      }
+    }
+  }
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    VBOOL1D vecBoolTempFalse(numOfDofsNodeAdjointFluid[in], false);
+    nodeTypeAdjointFluid.push_back(vecBoolTempFalse);
+  }
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    VINT1D vecIntTempM1(numOfDofsNodeAdjointFluid[in], -1);
+    nodeDofArrayBCsAdjointFluid.push_back(vecIntTempM1);
+    nodeDofArrayAdjointFluid.push_back(vecIntTempM1);
+  }
+
+  for(int i=0; i<numOfBdNodeFluid; i++){ 
+    int n1 = nodeMapFluid[DirichletBCsFluid_tmp[i][0]];
+    DirichletBCsFluid_tmp[i][0] = n1;
+    nodeTypeAdjointFluid[n1][DirichletBCsFluid_tmp[i][1]] = true;
+  }
+
+  jpn = 0;
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    for(int j=0; j<numOfDofsNodeAdjointFluid[in]; j++){
+      nodeDofArrayAdjointFluid[in][j] = jpn;
+      nodeDofArrayBCsAdjointFluid[in][j] = jpn++;
+      if(nodeTypeAdjointFluid[in][j]){
+        nodeDofArrayBCsAdjointFluid[in][j] = -1;
+      }
+    }
+  }
+
+  if(jpn != numOfDofsAdjointGlobalFluid)
+  {
+    cerr << "(Adjpoint) Something wrong with NodeDofArrayNew " << endl;
+    cout << "jpn = " << jpn << '\t' << numOfDofsAdjointGlobalFluid << '\t' << myId << endl;
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  for(int i=0; i<node_start; i++){
+    row_start_adjoint += numOfDofsNodeAdjointFluid[i];
+  }
+  for(int i=0; i<node_end+1; i++){
+    row_end_adjoint += numOfDofsNodeAdjointFluid[i];
+  }
+  for(int i=node_start; i<=node_end; i++){
+    for(int j=0; j<numOfDofsNodeAdjointFluid[i]; j++){
+      numOfDofsAdjointLocalFluid++;
+    }
+  }
+  printf(" numOfDofsLocalFluidAdjoint = %5d/%5d \t row_start_adjoint  = %5d \t row_end_adjoint  = %5d \t myId  = %5d \n", numOfDofsAdjointLocalFluid, numOfDofsAdjointGlobalFluid, row_start_adjoint, row_end_adjoint, myId);
+  MPI_Barrier(MPI_COMM_WORLD);
+  
+  jpn=0;
+  errpetsc = MPI_Allreduce(&numOfDofsAdjointLocalFluid, &jpn, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+ 
+  if(jpn != numOfDofsAdjointGlobalFluid)
+  {
+    cerr << " (Adjoint) Sum of local problem sizes is not equal to global size" << endl;
+    cout << " jpn = " << jpn << '\t' << numOfDofsAdjointGlobalFluid << '\t' << myId << endl;
+  }
+  /////////////////
+  //// SORTEND ////
+  /////////////////
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  for(int ie=0; ie<numOfElmGlobalFluid; ie++){
+    if(elmFluid[ie]->getSubdomainId() == myId){
+      nsize = 0;
+      for(int p=0; p<numOfNodeInElm; p++){
+        nsize += numOfDofsNodeInElementAdjointFluid[ie][p];
+      }
+      //elmFluid[ie]->prepareElemData(nsize);
+      //numOfNodeInElm = elmFluid[ie]->nodeNumsFluid.size();
+
+      elmFluid[ie]->nodeForAssyBCsAdjointFluid.resize(nsize);
+      elmFluid[ie]->nodeForAssyAdjointFluid.resize(nsize);
+      for(int p=0; p<numOfNodeInElm; p++){
+        jpn = numOfDofsNodeInElementAdjointFluid[ie][p] * p;
+        kk  = elmFluid[ie]->nodeNumsFluid[p];
+        for(int j=0; j<numOfDofsNodeInElementAdjointFluid[ie][p]; j++){
+          elmFluid[ie]->nodeForAssyBCsAdjointFluid[jpn+j] = nodeDofArrayBCsAdjointFluid[kk][j];
+          elmFluid[ie]->nodeForAssyAdjointFluid[jpn+j] =  nodeDofArrayAdjointFluid[kk][j];
+        }
+      }
+    }
+  }   
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  assyForSolnAdjointFluid.resize(numOfDofsAdjointGlobalFluid);
+  jpn = 0;
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    for(int j=0; j<numOfDofsNodeAdjointFluid[in]; j++){
+      assyForSolnAdjointFluid[jpn++] = in * numOfDofsNodeAdjointFluid[in] + j;
+    }
+  }
+
+  vector<set<int>> forAssyMatAdjointFluid;
+  set<int>::iterator it;
+  int  *tt; int r;
+  nsize = 0;
+
+  forAssyMatAdjointFluid.resize(numOfDofsAdjointGlobalFluid);
+
+  for(int ie=0; ie<numOfElmGlobalFluid; ie++)
+  {
+    if(elmFluid[ie]->getSubdomainId() == myId)
+    {
+      tt = &(elmFluid[ie]->nodeForAssyAdjointFluid[0]);
+      nsize = elmFluid[ie]->nodeForAssyAdjointFluid.size();
+
+      for(int ii=0;ii<nsize; ii++)
+      {
+        r = tt[ii];
+
+        if(r != -1)
+        {
+          if(r >= row_start_adjoint && r <= row_end_adjoint)
+          {
+          for(int jj=0;jj<nsize;jj++)
+            {
+              if(tt[jj] != -1)
+              {
+                forAssyMatAdjointFluid[r].insert(tt[jj]);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  adjointSolverPetscFluid->nnz_max_row = 0;
+  for(int i=row_start_adjoint; i<=row_end_adjoint; i++){
+    size = forAssyMatAdjointFluid[i].size();
+    adjointSolverPetscFluid->nnz_max_row = max(adjointSolverPetscFluid->nnz_max_row, size);
+  }
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  adjointSolverPetscFluid->initialize(numOfDofsAdjointLocalFluid, numOfDofsAdjointGlobalFluid);
+
   return;
 }

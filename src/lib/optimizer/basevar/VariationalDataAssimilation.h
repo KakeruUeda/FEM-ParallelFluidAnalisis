@@ -14,7 +14,6 @@ class ObservedParam
 
   public: 
     void inputVelocityMAP(const string file);
-    void export_VelocityMAP(const string &file);
 };
 
 class CFDParam
@@ -50,6 +49,8 @@ class VarDA :public FEM
     CFDParam cfd;
     CostFunction costFunction;
     EstimatedVelocity estVel;
+    PetscSolver *adjointSolverPetscFluid;
+
   
   public:
     int optMaxItr; int output_itr;
@@ -59,6 +60,17 @@ class VarDA :public FEM
     string controlBoundary;
     
     string mapFile;
+
+    PetscInt numOfDofsAdjointLocalFluid, numOfDofsAdjointGlobalFluid;
+    int row_start_adjoint, row_end_adjoint;
+    VINT1D  assyForSolnAdjointFluid;
+    VINT2D  nodeDofArrayBCsPrevAdjointFluid, nodeDofArrayPrevAdjointFluid, nodeDofArrayBCsAdjointFluid, nodeDofArrayAdjointFluid;
+    VBOOL2D  nodeTypePrevAdjointFluid, nodeTypeAdjointFluid;
+    
+    VINT1D numOfDofsNodePrevAdjointFluid;
+    VINT2D numOfDofsNodeInElementPrevAdjointFluid;
+    VINT1D numOfDofsNodeAdjointFluid;
+    VINT2D numOfDofsNodeInElementAdjointFluid;
 
     VDOUBLE1D u_adjoint; VDOUBLE1D v_adjoint;
     VDOUBLE1D w_adjoint; VDOUBLE1D p_adjoint;
@@ -84,11 +96,10 @@ class VarDA :public FEM
     void initializeVarDA();
     void mainInitialize();
     void adjointInitialize();
-
     void readInputVarDA(); 
     void setControlBooundary();
-
     void resizeDAVariables();
+    void setPetscAdjointSolver();
     
     // OPTIMIZATION
     
@@ -108,5 +119,12 @@ class VarDA :public FEM
     void calcInterpolatedFeedback(VDOUBLE1D &N, VDOUBLE2D &x_current, double (&feedbackGaussPoint)[3], const int ic);
     void calcEdgeVale();
     void feedback_inGaussIntegral(VDOUBLE3D &feedbackIntegral, VDOUBLE1D &N, VDOUBLE2D &dNdr, double (&feedbackGaussPoint)[3], VDOUBLE2D &x_current, const double weight, const int ic);
+
+    void adjoint_SteadyNavierStokes(VDOUBLE2D &externalForce);
+    void AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void Darcy_AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+
+    void setAdjointMatAndVecZero();
+    void calcBoundaryIntegral();
 };
 

@@ -7,7 +7,7 @@ void FEM::SteadyNavierStokes()
   int  aa, bb, ee, ii, jj, kk, count, row, col, jpn, n1, n2, size1, size2;
   double  norm_rhs, timer;
 
-  double norm,norm0;
+  double norm, norm0;
   double tmp = 1e12;
 
   jpn = numOfNodeInElm*numOfDofsNode;
@@ -90,7 +90,7 @@ void FEM::SteadyNavierStokes()
 
     timer = MPI_Wtime();
 
-    solverPetscFluid->factoriseAndSolve();
+    solverPetscFluid->solve();
   
     MPI_Barrier(MPI_COMM_WORLD);
     timer = MPI_Wtime() - timer;
