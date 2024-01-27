@@ -67,6 +67,8 @@ void FEM::readBase()
   mkdir(outputDirMain.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
   outputDirDA = (outputDir_tmp2 + "/opt");
   mkdir(outputDirDA.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+  outputDirTest = (outputDir_tmp2 + "/test");
+  mkdir(outputDirTest.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 
   base_label = "/Base";
   label = base_label + "/numOfOMP";

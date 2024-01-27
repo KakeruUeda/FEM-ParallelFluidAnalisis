@@ -1,19 +1,28 @@
 Base
 {
-  outputDir = "straightTube"
+  outputDir = "test"
   numOfOMP = 1
 }
 
+//Domain
+//{
+//  nx=(32,32,32)  //element size
+//  Lx=(0.5,0.5,0.5)  //domain size
+//  image = "input/straightTube/phiVOF_opt_32x32x32.dat" 
+//  imageEX = "input/straightTube/phiVOF_opt_32x32x32.dat"
+//  imageVOF = "input/straightTube/phiVOF_opt_32x32x32.dat"
+//  sdf = "input/straightTube/sdf_opt_32x32x32.dat"
+//}
+
 Domain
 {
-  nx=(32,32,32)  //element size
-  Lx=(0.5,0.5,0.5)  //domain size
-  image = "input/straightTube/phiVOF_opt_32x32x32.dat" 
-  imageEX = "input/straightTube/phiVOF_opt_32x32x32.dat"
-  imageVOF = "input/straightTube/phiVOF_opt_32x32x32.dat"
-  sdf = "input/straightTube/sdf_opt_32x32x32.dat"
+  nx=(5,5,5)  //element size
+  Lx=(0.8,0.8,0.8)  //domain size
+  image = "input/test/phiVOF_opt_5x5x5.dat" 
+  imageEX = "input/test/phiVOF_opt_5x5x5.dat"
+  imageVOF = "input/test/phiVOF_opt_5x5x5.dat"
+  sdf = "input/test/sdf_opt_5x5x5.dat"
 }
-
 
 Boundary
 {
@@ -77,8 +86,8 @@ DarcyParameter
 
 BTSubDivParameter
 {
-   max_depth = 1
-   sub_div = 6  
+  max_depth = 1
+  sub_div = 6  
 }
 
 VarDA
@@ -89,7 +98,7 @@ VarDA
   beta1_cf = 1e-8
   beta2_cf = 1e-4 
   controlBoundary = "left"
-  velocityMAP = "input/straightTube/velocity_MRI_10x10x10.dat"
+  velocityMAP = "input/test/velocity_MRI_3x3x3.dat"
   estimatedVelocity = "AVERAGE"
 }
 

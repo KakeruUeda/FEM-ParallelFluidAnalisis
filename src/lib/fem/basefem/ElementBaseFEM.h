@@ -12,7 +12,7 @@ class SubProperty{
 
 class ElementBaseFEM{
   public:
-    int subdomainId,numOfDofsNode,numOfNodeInElm,numOfSubdomain;
+    int subdomainId, numOfDofsNode, numOfNodeInElm, numOfSubdomain;
     //VINT1D  nodeNums,nodeNumsPrev,nodeForAssyBCs,nodeForAssy,globalDOFnums;
 
     ElementBaseFEM();
@@ -33,10 +33,13 @@ class ElementBaseFEM{
     { return  numOfSubdomain; }
     
     void prepareElemData(const int nsize);
+    void prepareAdjointElemData(const int nsize);
+    void prepareAdjointElemDataBd(VINT2D &numOfDofsNodeInElementAdjointFluid, const int nsize, const int ie);
 
 
     // ONLY FLUID 
-    VINT1D nodeNumsFluid, nodeNumsPrevFluid;
+    VINT1D nodeNumsFluid, nodeNumsPrevFluid; 
+    VINT1D dofsNumsFluid, dofsNumsPrevFluid;
     
     VINT1D nodeForAssyBCsFluid, nodeForAssyFluid;
     VINT1D globalDOFnumsFluid;

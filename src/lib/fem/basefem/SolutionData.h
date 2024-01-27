@@ -32,6 +32,8 @@ class  SolutionData
     VectorXd  soln, solnPrev, solnPrev2, solnPrev3, solnPrev4, solnCur, solnInit, solnApplied;
     VectorXd  td;
 
+    VectorXd  solnAdjoint;
+
     VINT1D  nodeMapPrev, nodeMap;
     
     /// ONLY FLUID ///

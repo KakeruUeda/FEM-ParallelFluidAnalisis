@@ -23,7 +23,7 @@ void FEM::prepareMatrix()
   nodeDofArrayFluid.resize(numOfNodeGlobalFluid, vecIntTempM1);
   
   for(ii=0; ii<numOfBdNodeFluid; ii++){
-    nodeTypePrevFluid[DirichletBCsFluid_tmp[ii][0]][DirichletBCsFluid_tmp[ii][1]] = true;
+    nodeTypePrevFluid[DirichletBCsFluidPrev_tmp[ii][0]][DirichletBCsFluidPrev_tmp[ii][1]] = true;
   }
 
   numOfDofsGlobalFluid = 0;
@@ -36,6 +36,18 @@ void FEM::prepareMatrix()
       }
     }
   }
+
+  if(myId == 0){
+    ofstream out_nodeTypePrevFluid(outputDirTest + "/nodeTypePrevFluid.dat");
+    for(int in=0; in<numOfNodeGlobalFluid; in++){
+      for(int p=0; p<numOfDofsNode; p++){
+        out_nodeTypePrevFluid << nodeTypePrevFluid[in][p] << " ";
+      }
+      out_nodeTypePrevFluid << endl;
+    }
+    out_nodeTypePrevFluid.close();
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
 
   if(myId == 0)
   {
@@ -70,9 +82,9 @@ void FEM::prepareMatrix()
     for(ee=0; ee<numOfElmGlobalFluid; ee++){
       elmFluid[ee]->nodeNumsPrevFluid = elementFluid[ee];
       elmFluid[ee]->nodeNumsFluid = elementFluid[ee];
-      elementFluid[ee].clear();
+      //elementFluid[ee].clear();
     }
-    elementFluid.clear();
+    //elementFluid.clear();
    
     for(ii=0;ii<numOfNodeGlobalFluid;++ii)
     {
@@ -463,9 +475,10 @@ int FEM::prepareForParallel()
   VINT2D swap(elementFluid);
  
   // update Dirichlet BC information with new node numbers
+  DirichletBCsFluid_tmp = DirichletBCsFluidPrev_tmp;
   for(ii=0; ii<numOfBdNodeFluid; ii++)
   { 
-    n1 = nodeMapFluid[DirichletBCsFluid_tmp[ii][0]];
+    n1 = nodeMapFluid[DirichletBCsFluidPrev_tmp[ii][0]];
     DirichletBCsFluid_tmp[ii][0] = n1;
     nodeTypeFluid[n1][DirichletBCsFluid_tmp[ii][1]] = true;
   }

@@ -1,6 +1,6 @@
 #include "VariationalDataAssimilation.h"
 
-void VarDA::adjoint_SteadyNavierStokes(VDOUBLE2D &externalForce)
+void VarDA::adjointSteadyNavierStokes(VDOUBLE2D &externalForce)
 {
   PetscPrintf(MPI_COMM_WORLD, "\n\n\n ADJOINT STEADY NAVIER STOKES EQUATION \n");
 
@@ -14,11 +14,11 @@ void VarDA::adjoint_SteadyNavierStokes(VDOUBLE2D &externalForce)
   VectorXd  Flocal(jpn);
   MatrixXd  Klocal(jpn, jpn);
 
-  jpn2 = 4 * numOfDofsNode;
+  jpn2 = numOfNodeInElm * numOfDofsNode + 4 * 3;
   VectorXd FlocalBd(jpn2);
   MatrixXd KlocalBd(jpn2, jpn2);
   
-  PetscScalar *arrayTempSolnFluid;
+  PetscScalar *arrayTempSolnAdjointFluid;
 
   Vec            vec_SEQ;
   VecScatter     ctx;
@@ -26,7 +26,7 @@ void VarDA::adjoint_SteadyNavierStokes(VDOUBLE2D &externalForce)
   VecScatterCreateToAll(adjointSolverPetscFluid->solnVec, &ctx, &vec_SEQ);
 
   MPI_Barrier(MPI_COMM_WORLD);
-  assignBCs();
+  assignBCsAdjoint();
   
   MPI_Barrier(MPI_COMM_WORLD);
   setAdjointMatAndVecZero();
@@ -35,51 +35,138 @@ void VarDA::adjoint_SteadyNavierStokes(VDOUBLE2D &externalForce)
   adjointSolverPetscFluid->initialAssembly();  
 
   MPI_Barrier(MPI_COMM_WORLD);
-  setNRInitialValue(); 
+  applyBCsAdjoint();
+      cout << "2" << endl;
 
-  MPI_Barrier(MPI_COMM_WORLD);
-  applyBCs();
-
-  for(int ic=0;ic<numOfElmGlobalFluid;ic++)
+  for(int ic=0; ic<numOfElmGlobalFluid; ic++)
   {
     if(elmFluid[ic]->getSubdomainId() == myId)
     {
       Klocal.setZero();
       Flocal.setZero();
-      
-      switch(bd)
+      KlocalBd.setZero();
+      FlocalBd.setZero();
+
+      if(!control_elm_prev_type[ic])
       {
-        case BOUNDARY::XFEM:
-          if(phiEXFluid[ic]>0.999){
-            AdjointMatAssySNS(ic,Klocal,Flocal);
-          }else{
-            PetscPrintf(MPI_COMM_WORLD, "XFEM not yet implemented");
+        switch(bd)
+        {
+          case BOUNDARY::XFEM:
+            if(phiEXFluid[ic]>0.999){
+              AdjointMatAssySNS(ic, Klocal, Flocal, externalForce);
+            }else{
+              PetscPrintf(MPI_COMM_WORLD, "XFEM not yet implemented");
+              exit(1);
+            }
+            break;
+
+          case BOUNDARY::DARCY:
+            if(phiVOFFluid[ic]>0.999){
+              AdjointMatAssySNS(ic, Klocal, Flocal, externalForce);
+            }else{
+              Darcy_AdjointMatAssySNS(ic, Klocal, Flocal, externalForce);
+            }
+            break;
+
+          default:
+            PetscPrintf(MPI_COMM_WORLD, "undefined boundary method");
             exit(1);
-          }
-          break;
-
-        case BOUNDARY::DARCY:
-          if(phiVOFFluid[ic]>0.999){
-            AdjointMatAssySNS(ic,Klocal,Flocal);
-          }else{
-            Darcy_AdjointMatAssySNS(ic,Klocal,Flocal);
-          }
-          break;
-
-        default:
-          PetscPrintf(MPI_COMM_WORLD, "undefined boundary method");
-          exit(1);
+        }
+        adjointSolverPetscFluid->setValue(elmFluid[ic]->nodeForAssyBCsAdjointFluid, elmFluid[ic]->nodeForAssyAdjointFluid, Klocal, Flocal);
       }
-      adjointSolverPetscFluid->setValue(elmFluid[ic]->nodeForAssyBCsFluid, elmFluid[ic]->nodeForAssyFluid, Klocal, Flocal);
+      else
+      {
+        switch(bd)
+        {
+          case BOUNDARY::XFEM:
+            if(phiEXFluid[ic]>0.999){
+              AdjointMatAssySNS(ic, KlocalBd, FlocalBd, externalForce);
+            }else{
+              PetscPrintf(MPI_COMM_WORLD, "XFEM not yet implemented");
+              exit(1);
+            }
+            break;
+
+          case BOUNDARY::DARCY:
+            if(phiVOFFluid[ic]>0.999){
+              AdjointBdMatAssySNS(ic, KlocalBd, FlocalBd, externalForce);
+            }else{
+              Darcy_AdjointBdMatAssySNS(ic, KlocalBd, FlocalBd, externalForce);
+            }
+            break;
+
+          default:
+            PetscPrintf(MPI_COMM_WORLD, "undefined boundary method");
+            exit(1);
+        }
+        calcBoundaryIntegral(ic, KlocalBd, FlocalBd);
+        adjointSolverPetscFluid->setValue(elmFluid[ic]->nodeForAssyBCsAdjointFluid, elmFluid[ic]->nodeForAssyAdjointFluid, KlocalBd, FlocalBd);
+      }    
+    
     }
   }
-
   MPI_Barrier(MPI_COMM_WORLD);
+  adjointSolverPetscFluid->solve();
 
-  for(int ic=0; ic<control_elm_node.size(); ic++)
+  for(ii=0; ii<numOfDofsAdjointGlobalFluid; ii++){
+    SolnDataFluid.solnAdjoint[assyForSolnAdjointFluid[ii]] = 0e0;
+  }
+
+  VecScatterBegin(ctx, adjointSolverPetscFluid->solnVec, vec_SEQ, INSERT_VALUES, SCATTER_FORWARD);
+  VecScatterEnd(ctx, adjointSolverPetscFluid->solnVec, vec_SEQ, INSERT_VALUES, SCATTER_FORWARD);
+  VecGetArray(vec_SEQ, &arrayTempSolnAdjointFluid);
+
+  for(ii=0; ii<numOfDofsAdjointGlobalFluid; ii++){
+    SolnDataFluid.solnAdjoint[assyForSolnAdjointFluid[ii]] += arrayTempSolnAdjointFluid[ii];
+  }
+
+  MPI_Barrier(MPI_COMM_WORLD); 
+  VecRestoreArray(vec_SEQ, &arrayTempSolnAdjointFluid);
+
+  scatterPysicalvVariables();
+
+  return;
+}
+
+void VarDA::scatterPysicalvVariables()
+{
+  for(int in=0; in<numOfNodeGlobalFluid; in++)
   {
-    FlocalBd.setZero();
-    KlocalBd.setZero();
+    int nn = nodeDofsMapFluid[in];
+    
+    if(!control_node_type[in])
+    {
+      u_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn];
+      v_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn+1];
+      w_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn+2];
+      p_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn+3];
+      
+      u_adjoint[sortNode[in]] = u_adjoint_fluid[in];
+      v_adjoint[sortNode[in]] = v_adjoint_fluid[in];
+      w_adjoint[sortNode[in]] = w_adjoint_fluid[in];
+      p_adjoint[sortNode[in]] = p_adjoint_fluid[in];
+    }
+    else
+    {
+      u_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn];
+      v_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn+1];
+      w_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn+2];
+      p_adjoint_fluid[in] = SolnDataFluid.solnAdjoint[nn+3];
+      
+      lambda_u_fluid[in]  = SolnDataFluid.solnAdjoint[nn+4];
+      lambda_v_fluid[in]  = SolnDataFluid.solnAdjoint[nn+5];
+      lambda_w_fluid[in]  = SolnDataFluid.solnAdjoint[nn+6];
+      
+      u_adjoint[sortNode[in]] = u_adjoint_fluid[in];
+      v_adjoint[sortNode[in]] = v_adjoint_fluid[in];
+      w_adjoint[sortNode[in]] = w_adjoint_fluid[in];
+      p_adjoint[sortNode[in]] = p_adjoint_fluid[in];
+      
+      lambda_u[sortNode[in]]  = lambda_u_fluid[in];
+      lambda_v[sortNode[in]]  = lambda_v_fluid[in];
+      lambda_w[sortNode[in]]  = lambda_w_fluid[in];
+    }
+
   }
 
   return;

@@ -108,7 +108,7 @@ void FEM::SteadyNavierStokes()
 
     // update solution vector
     for(ii=0; ii<numOfDofsGlobalFluid; ii++){
-      SolnDataFluid.soln[assyForSolnFluid[ii]]   +=  arrayTempSolnFluid[ii];
+      SolnDataFluid.soln[assyForSolnFluid[ii]] += arrayTempSolnFluid[ii];
     }
 
     MPI_Barrier(MPI_COMM_WORLD);

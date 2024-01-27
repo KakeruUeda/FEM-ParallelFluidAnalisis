@@ -469,67 +469,150 @@ void PostProcess::extractDomain(FEM &fem)
     }
   }
 
+  //for(int k=0; k<nz_opt; k++){
+  //  for(int j=0; j<ny_opt; j++){
+  //    for(int i=0; i<nx_opt; i++){
+
+  //      double px = x0 + i * dx_opt + 5e-1 * dx_opt; // ELEMENT CENTER X
+  //      double py = y0 + j * dy_opt + 5e-1 * dy_opt; // ELEMENT CENTER Y
+  //      double pz = z0 + k * dz_opt + 5e-1 * dz_opt; // ELEMENT CENTER Z
+
+  //      px = px - 5e-1 * fem.dx;
+  //      py = py - 5e-1 * fem.dy; 
+  //      pz = pz - 5e-1 * fem.dz;
+
+  //      int ix = px / fem.dx + mic;
+  //      int iy = py / fem.dy + mic;
+  //      int iz = pz / fem.dz + mic;
+
+  //      if(ix == nx_inside || iy == ny_inside || iz == nz_inside){
+  //        PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
+  //        MPI_Abort(MPI_COMM_WORLD, 1);
+  //      }
+  //
+  //      double s = px - ((ix * fem.dx) + (fem.dx/2e0));
+  //      double t = py - ((iy * fem.dy) + (fem.dy/2e0));
+  //      double u = pz - ((iz * fem.dz) + (fem.dz/2e0));
+  //      
+  //      s = s / (fem.dx / 2e0);
+  //      t = t / (fem.dy / 2e0);
+  //      u = u / (fem.dz / 2e0);
+  //
+  //      if(s<-1-mic || s>1+mic){
+  //        PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
+  //        MPI_Abort(MPI_COMM_WORLD, 1);
+  //      }
+  //      if(t<-1-mic || t>1+mic){
+  //        PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
+  //        MPI_Abort(MPI_COMM_WORLD, 1);
+  //      }
+  //      if(u<-1-mic || u>1+mic){
+  //        PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
+  //        MPI_Abort(MPI_COMM_WORLD, 1);
+  //      }
+
+  //      int elm = ix + (iy * nx_inside) + (iz * nx_inside * ny_inside);
+
+  //      if(elm > fem.numOfElmGlobal){
+  //        PetscPrintf(MPI_COMM_WORLD, "\n elm error \n");
+  //        MPI_Abort(MPI_COMM_WORLD, 1);
+  //      }
+
+  //      VDOUBLE1D N(fem.numOfNodeInElm, 0e0);
+  //      ShapeFunction3D::C3D8_N(N,s,t,u);
+  //      
+  //      phiVOF_opt[k][j][i] = 0e0;
+
+  //      for(int e=0; e<fem.numOfNodeInElm; e++){ 
+  //        phiVOF_opt[k][j][i] += N[e] * fem.phiVOF[element2[elm][e]];
+  //      }
+  //      if(fabs(phiVOF_opt[k][j][i]) < 1e-10) phiVOF_opt[k][j][i] = 0e0;
+  //    }
+  //  }
+  //}
+  //writeDADomainToFile(fem);
+
+  int nx_in_voxel_opt = dx_opt/fem.dx;
+  int ny_in_voxel_opt = dy_opt/fem.dy;
+  int nz_in_voxel_opt = dz_opt/fem.dz;
+
+  VDOUBLE3D phiVOF_xyz(fem.nz, VDOUBLE2D(fem.ny, VDOUBLE1D(fem.nx, 0e0)));
+
+  int tmptmp = 0;
+  for(int k=0; k<fem.nz; k++){
+    for(int j=0; j<fem.ny; j++){
+      for(int i=0; i<fem.nx; i++){
+        phiVOF_xyz[k][j][i] = fem.phiVOF[tmptmp];
+        tmptmp++;
+      }
+    }
+  }
+
   for(int k=0; k<nz_opt; k++){
     for(int j=0; j<ny_opt; j++){
       for(int i=0; i<nx_opt; i++){
 
-        double px = x0 + i * dx_opt;
-        double py = y0 + j * dy_opt;
-        double pz = z0 + k * dz_opt;
-
-        px = px - 5e-1 * fem.dx;
-        py = py - 5e-1 * fem.dy; 
-        pz = pz - 5e-1 * fem.dz;
-
-        int ix = px / fem.dx + mic;
-        int iy = py / fem.dy + mic;
-        int iz = pz / fem.dz + mic;
-
-        if(ix == nx_inside || iy == ny_inside || iz == nz_inside){
-          PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
-          MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-  
-        double s = px - ((ix * fem.dx) + (fem.dx/2e0));
-        double t = py - ((iy * fem.dy) + (fem.dy/2e0));
-        double u = pz - ((iz * fem.dz) + (fem.dz/2e0));
+        int tmp, tmp2 = 0;
+        double mic = 1e-10; 
         
-        s = s / (fem.dx / 2e0);
-        t = t / (fem.dy / 2e0);
-        u = u / (fem.dz / 2e0);
+        for(int r=0; r<nz_in_voxel_opt+1; r++){
+          for(int q=0; q<ny_in_voxel_opt+1; q++){
+            for(int p=0; p<nx_in_voxel_opt+1; p++){
+
+              double px = x0 + i * dx_opt + p * dx_opt / nx_in_voxel_opt - 5e-1 * fem.dx;
+              double py = y0 + j * dy_opt + q * dy_opt / ny_in_voxel_opt - 5e-1 * fem.dy; 
+              double pz = z0 + k * dz_opt + r * dz_opt / nz_in_voxel_opt - 5e-1 * fem.dz;
+
+              int ix = px / fem.dx + mic;
+              int iy = py / fem.dy + mic;
+              int iz = pz / fem.dz + mic;
+
+              if(ix >= fem.nx || iy >= fem.ny || iz >= fem.nz){
+                PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+              if(ix < 0 || iy < 0 || iz < 0){
+                PetscPrintf(MPI_COMM_WORLD, "\n please define the DA domain as boundaries of the CFD domain are not included \n");
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+
+              double s = px - ((ix * fem.dx) + (fem.dx/2e0));
+              double t = py - ((iy * fem.dy) + (fem.dy/2e0));
+              double u = pz - ((iz * fem.dz) + (fem.dz/2e0));
+              
+              s = s / (fem.dx / 2e0);
+              t = t / (fem.dy / 2e0);
+              u = u / (fem.dz / 2e0);
   
-        if(s<-1-mic || s>1+mic){
-          PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
-          MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-        if(t<-1-mic || t>1+mic){
-          PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
-          MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-        if(u<-1-mic || u>1+mic){
-          PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
-          MPI_Abort(MPI_COMM_WORLD, 1);
-        }
+              if(s<-1-mic || s>1+mic){
+                PetscPrintf(MPI_COMM_WORLD, "\n s interpolation error found. s = %e \n", s);
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+              if(t<-1-mic || t>1+mic){
+                PetscPrintf(MPI_COMM_WORLD, "\n t interpolation error found. t = %e \n", t);
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+              if(u<-1-mic || u>1+mic){
+                PetscPrintf(MPI_COMM_WORLD, "\n u interpolation error found. u = %e \n", u);
+                MPI_Abort(MPI_COMM_WORLD, 1);
+              }
+              
+              VDOUBLE1D N(fem.numOfNodeInElm, 0e0);
+              ShapeFunction3D::C3D8_N(N,s,t,u);
 
-        int elm = ix + (iy * nx_inside) + (iz * nx_inside * ny_inside);
+              phiVOF_opt[k][j][i] += N[0]*phiVOF_xyz[iz][iy][ix]+N[1]*phiVOF_xyz[iz][iy][ix+1]+N[2]*phiVOF_xyz[iz][iy+1][ix+1]+N[3]*phiVOF_xyz[iz][iy+1][ix]
+                                   + N[4]*phiVOF_xyz[iz+1][iy][ix]+N[5]*phiVOF_xyz[iz+1][iy][ix+1]+N[6]*phiVOF_xyz[iz+1][iy+1][ix+1]+N[7]*phiVOF_xyz[iz+1][iy+1][ix];
+            }
+          }
+        } // LOCAL DIVISION LOOP
 
-        if(elm > fem.numOfElmGlobal){
-          PetscPrintf(MPI_COMM_WORLD, "\n elm error \n");
-          MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-
-        VDOUBLE1D N(fem.numOfNodeInElm, 0e0);
-        ShapeFunction3D::C3D8_N(N,s,t,u);
-        
-        phiVOF_opt[k][j][i] = 0e0;
-
-        for(int e=0; e<fem.numOfNodeInElm; e++){ 
-          phiVOF_opt[k][j][i] += N[e] * fem.phiVOF[element2[elm][e]];
-        }
+        int total = (nx_in_voxel_opt+1)*(ny_in_voxel_opt+1)*(nz_in_voxel_opt+1);
+        phiVOF_opt[k][j][i] /= total;
         if(fabs(phiVOF_opt[k][j][i]) < 1e-10) phiVOF_opt[k][j][i] = 0e0;
+      
       }
     }
-  }
+  }/// DA DOMAIN LOOP
   writeDADomainToFile(fem);
 
   return;

@@ -46,8 +46,9 @@ int main(int argc,char *argv[])
     MPI_Barrier(MPI_COMM_WORLD); 
     var.calcFeedbackForce();
 
+    cout << "1" << endl;
     MPI_Barrier(MPI_COMM_WORLD);
-    var.adjoint_SteadyNavierStokes(var.feedbackForce);
+    var.adjointSteadyNavierStokes(var.feedbackForceFluid);
 
     int num = opt_itr/var.output_itr;
     vtiFile  = var.outputDirDA + "/force_" + to_string(num)+".vti";
@@ -68,7 +69,6 @@ int main(int argc,char *argv[])
     MPI_Barrier(MPI_COMM_WORLD); 
     exit(1);
   }
-
 
   MPI_Barrier(MPI_COMM_WORLD);
   PetscFinalize(); MPI_Finalize();

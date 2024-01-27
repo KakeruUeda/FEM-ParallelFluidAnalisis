@@ -41,7 +41,6 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
         weight = gauss.weight[i1] * gauss.weight[i2] * gauss.weight[i3];
               
         MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
-        MathFEM::calc_dNdx(dNdx,dNdr,dxdr,numOfNodeInElm);
 
         double vel[3]={0e0,0e0,0e0};
         double dvdx[3][3];

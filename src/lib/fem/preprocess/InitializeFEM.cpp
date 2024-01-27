@@ -57,7 +57,7 @@ void FEM::setDomain()
       }
     }
   }
-  
+
   return;
 }
 
@@ -196,7 +196,7 @@ void FEM::setFluidDomain()
         vecDbTmp[0] = ii;
         vecDbTmp[1] = kk;
         vecDbTmp[2] = bd_u_fluid[ii][kk];
-        DirichletBCsFluid_tmp.push_back(vecDbTmp);
+        DirichletBCsFluidPrev_tmp.push_back(vecDbTmp);
         count++;
       }
     }
@@ -206,10 +206,11 @@ void FEM::setFluidDomain()
       vecDbTmp[0] = ii;
       vecDbTmp[1] = 3;
       vecDbTmp[2] = bd_p_fluid[ii];
-      DirichletBCsFluid_tmp.push_back(vecDbTmp);
+      DirichletBCsFluidPrev_tmp.push_back(vecDbTmp);
       count++;
     }
   }
+
 
   numOfBdNodeFluid = count;
 

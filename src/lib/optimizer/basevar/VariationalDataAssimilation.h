@@ -72,9 +72,19 @@ class VarDA :public FEM
     VINT1D numOfDofsNodeAdjointFluid;
     VINT2D numOfDofsNodeInElementAdjointFluid;
 
+    VINT1D nodeDofsMapPrevFluid;
+    VINT1D nodeDofsMapFluid;
+
+    VDOUBLE1D DirichletBCsAdjointFluid;
+
     VDOUBLE1D u_adjoint; VDOUBLE1D v_adjoint;
     VDOUBLE1D w_adjoint; VDOUBLE1D p_adjoint;
+    VDOUBLE1D lambda_u; VDOUBLE1D lambda_v; VDOUBLE1D lambda_w;
 
+    VDOUBLE1D u_adjoint_fluid; VDOUBLE1D v_adjoint_fluid;
+    VDOUBLE1D w_adjoint_fluid; VDOUBLE1D p_adjoint_fluid;
+    VDOUBLE1D lambda_u_fluid; VDOUBLE1D lambda_v_fluid; VDOUBLE1D lambda_w_fluid;
+    
     VDOUBLE3D ue, ve, we;
     VDOUBLE3D ue_edge, ve_edge, we_edge;
 
@@ -82,10 +92,26 @@ class VarDA :public FEM
     VDOUBLE2D grad;
     VDOUBLE2D grad_allNode;
     VDOUBLE2D feedbackForce;
-
+    VDOUBLE2D feedbackForceFluid;
+    
+    VBOOL1D control_elm_prev_type;
+    VBOOL1D control_node_prev_type;
+    VBOOL2D control_elm_node_prev_type;
+    VBOOL1D control_elm_type;
+    VBOOL1D control_node_type;
     VINT2D control_elm_node;
     VINT1D control_node;
+
+    VBOOL1D control_elm_prev_type_fluid;
+    VBOOL1D control_node_prev_type_fluid;
+    VBOOL2D control_elm_node_prev_type_fluid;
+    VBOOL1D control_elm_type_fluid;
+    VBOOL1D control_node_type_fluid;
+    VINT2D  control_elm_node_fluid;
+    VINT1D  control_node_fluid;
+    
     VINT1D bdface_dir;
+    VINT1D bdnodeInElm;
 
     int nx_in_voxel, ny_in_voxel, nz_in_voxel;
     double volume;
@@ -119,12 +145,21 @@ class VarDA :public FEM
     void calcInterpolatedFeedback(VDOUBLE1D &N, VDOUBLE2D &x_current, double (&feedbackGaussPoint)[3], const int ic);
     void calcEdgeVale();
     void feedback_inGaussIntegral(VDOUBLE3D &feedbackIntegral, VDOUBLE1D &N, VDOUBLE2D &dNdr, double (&feedbackGaussPoint)[3], VDOUBLE2D &x_current, const double weight, const int ic);
+    
+    // ADJOINT EQUATION
+    void adjointSteadyNavierStokes(VDOUBLE2D &externalForce);
 
-    void adjoint_SteadyNavierStokes(VDOUBLE2D &externalForce);
-    void AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
-    void Darcy_AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+    void assignBCsAdjoint();
+    void applyBCsAdjoint();
+    void AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE2D &externalForce);
+    void Darcy_AdjointMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE2D &externalForce);
 
+    void AdjointBdMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE2D &externalForce);
+    void Darcy_AdjointBdMatAssySNS(const int ic, MatrixXd &Klocal, VectorXd &Flocal, VDOUBLE2D &externalForce);
+   
     void setAdjointMatAndVecZero();
-    void calcBoundaryIntegral();
+    void calcBoundaryIntegral(const int ic, MatrixXd &Klocal, VectorXd &Flocal);
+
+    void scatterPysicalvVariables();
 };
 

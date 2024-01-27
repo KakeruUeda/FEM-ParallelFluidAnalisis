@@ -1,6 +1,6 @@
 Base
 {
-  outputDir = "straightTube"
+  outputDir = "test"
   numOfOMP = 1
 }
 
@@ -38,9 +38,9 @@ Domain
 {
   nx=(240,120,120)  //element size
   Lx=(2e0,1e0,1e0)  //domain size
-  image = "input/straightTube/image240x120x120.dat"
-  imageEX = "input/straightTube/image240x120x120_around.dat"
-  imageVOF = "input/straightTube/image240x120x120.dat"
+  image = "input/straightTube/image240x120x120_VOF.dat"
+  imageEX = "input/straightTube/image240x120x120_VOF.dat"
+  imageVOF = "input/straightTube/image240x120x120_VOF.dat"
   sdf = "input/straightTube/sdf240x120x120_node.dat"
 }
 
@@ -111,34 +111,8 @@ BTSubDivParameter
 
 Postprocess
 {
-  origin = (1.0, 0.25, 0.25)
-  length = (0.5, 0.5, 0.5)
+  origin = (0.6, 0.1, 0.1)
+  length = (0.8, 0.8, 0.8)
   numOfVoxels1 = (3, 3, 3)
-  numOfVoxels2 = (4, 4, 4)
-  numOfVoxels3 = (5, 5, 5)
-  numOfVoxels4 = (6, 6, 6)
-  numOfVoxels5 = (10, 10, 10)
-  numOfVoxels6 = (20, 20, 20)
-  nx_opt = (32, 32, 32)
+  nx_opt = (5, 5, 5)
 }
-
-//Postprocess
-//{
-//  origin = (0.25, 0.25, 0.25)
-//  length = (0.5, 0.5, 0.5)
-//  numOfVoxels1 = (3, 3, 3)
-//  numOfVoxels2 = (5, 5, 5)
-//  numOfVoxels3 = (10, 10, 10)
-//  numOfVoxels4 = (20, 20, 20)
-//  nx_opt = (32, 32, 32)
-//}
-
-//Postprocess
-//{
-//  origin = (10, 5, 4)
-//  length = (30, 5, 4)
-//  numOfVoxels1 = (3, 3, 3)
-//  numOfVoxels2 = (5, 5, 5)
-//  numOfVoxels3 = (30, 10, 10)
-//  nx_opt = (64, 16, 16)
-//}

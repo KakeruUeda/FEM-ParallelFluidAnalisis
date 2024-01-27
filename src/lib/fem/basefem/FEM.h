@@ -54,7 +54,7 @@ class FEM :public DomainFEM
     
     TextParser tp;
     PetscErrorCode  errpetsc;
-    string outputDir, outputDirMain, outputDirDA, fileName;
+    string outputDir, outputDirMain, outputDirDA, outputDirTest, fileName;
 
     int numOfDofsNode = 4;
     PetscInt  numOfId, myId, nNode_owned;
@@ -105,6 +105,8 @@ class FEM :public DomainFEM
 
     PetscInt numOfDofsLocalFluid, numOfDofsGlobalFluid;
     VINT1D  assyForSolnFluid;
+    VDOUBLE1D DirichletBCsFluidPrev; 
+    VDOUBLE2D DirichletBCsFluidPrev_tmp; 
     VDOUBLE1D DirichletBCsFluid; 
     VDOUBLE2D DirichletBCsFluid_tmp; 
 

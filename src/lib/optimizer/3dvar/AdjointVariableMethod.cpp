@@ -336,16 +336,25 @@ void VarDA::calcFeedbackForce()
   }
 
   
-  for(int ic=0; ic<numOfNodeGlobal; ic++){
-    for(int k=0; k<3; k++) feedbackForce[ic][k] = 0e0;
+  for(int in=0; in<numOfNodeGlobal; in++){
+    for(int k=0; k<3; k++) feedbackForce[in][k] = 0e0;
   }
-  for(int ic=0; ic<numOfElmGlobal; ic++){
+  for(int ie=0; ie<numOfElmGlobal; ie++){
     for(int p=0; p<numOfNodeInElm; p++){
       for(int k=0; k<3; k++){
-        feedbackForce[element[ic][p]][k] += feedbackIntegral[ic][p][k];
+        feedbackForce[element[ie][p]][k] += feedbackIntegral[ie][p][k];
       }
     }
   }
+
+  for(int in=0; in<numOfNodeGlobalFluid; in++){
+    for(int k=0; k<3; k++){
+      feedbackForceFluid[in][k] = 0e0;
+      feedbackForceFluid[in][k] = feedbackForce[sortNode[in]][k];
+    } 
+  }
+
+
 
   return;
 }
