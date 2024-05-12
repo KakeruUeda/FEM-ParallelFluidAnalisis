@@ -35,6 +35,7 @@ void FEM::Stokes()
   PetscPrintf(MPI_COMM_WORLD, "\n ****** ELEMENT LOOP START ******* \n", timer);
   
   timer = MPI_Wtime();
+  int i = 0;
 
   for(int ic=0;ic<numOfElmGlobalFluid;ic++)
   {
@@ -43,12 +44,30 @@ void FEM::Stokes()
       Klocal.setZero();
       Flocal.setZero();
 
+      VDOUBLE1D sdf_current(numOfNodeInElm,0e0);
+      double sdf_extention = 2e0 * sqrt(dx * dx + dy * dy);
+      double sdf_ave = 0e0;
+      bool xfem_bd;
+  
+      for(int i=0;i<numOfNodeInElm;i++){
+        sdf_current[i] = sdfFluid[elmFluid[ic]->nodeNumsPrevFluid[i]];
+        sdf_ave += sdf_current[i];
+      }
+
+      sdf_ave = sdf_ave / numOfNodeInElm;
+      
+      if(fabs(sdf_ave) < sdf_extention){
+        xfem_bd = true;
+      }else{
+        xfem_bd = false;
+      }
+
       switch(bd){
         case BOUNDARY::XFEM:
-          if(phiEXFluid[ic]>0.999){
-            MatAssySTT(ic,Klocal,Flocal);
-          }else{
+          if(xfem_bd){
             XFEM_MatAssySTT(ic,Klocal,Flocal);
+          }else{
+            MatAssySTT(ic,Klocal,Flocal);
           }
           break;
 

@@ -31,7 +31,7 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
   for(int i=0;i<numOfNodeInElm;i++){
     sdf_current[i] = sdfFluid[elmFluid[ic]->nodeNumsPrevFluid[i]];
     if(sdf_current[i] <= 0e0){
-      check = check +1;
+      check = check + 1;
     }
     if(sdf_current[i]>0e0 && sdf_current[i]<minSDF_node) minSDF_node = sdf_current[i];
     if(sdf_current[i]>0e0 && sdf_current[i]>maxSDF_node) maxSDF_node = sdf_current[i];
@@ -77,8 +77,6 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
               for(int p=0;p<numOfNodeInElm;p++) sdf_gauss += NP[p] * sdf_current[p];
 
               if(sdf_gauss<=0){
-                countMinus++; 
-                //continue;
                 for(int p=0;p<numOfNodeInElm;p++){
                   NV[p] = 0;
                   NP[p] = 0;
@@ -98,7 +96,6 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                 }
               }
 
-              
               MathFEM::calc_dxdr(dxdr,dNPdr,x_current,numOfNodeInElm);
             
               detJ = dxdr[0][0]*dxdr[1][1]*dxdr[2][2]+dxdr[0][1]*dxdr[1][2]*dxdr[2][0]+dxdr[0][2]*dxdr[1][0]*dxdr[2][1]
@@ -108,7 +105,7 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
               MathFEM::calc_dNdx(dNVdx,dNVdr,dxdr,numOfNodeInElm);
               MathFEM::calc_dNdx(dNPdx,dNPdr,dxdr,numOfNodeInElm);
 
-              if(sdf_gauss<=0){
+              if(sdf_gauss <= 0){
                 for(int p=0;p<numOfNodeInElm;p++){
                   for(int i=0;i<3;i++){
                     dNVdx[p][i] = 0;
@@ -132,27 +129,28 @@ void FEM::XFEM_MatAssySTT(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
                   K[ii][jj] = 0e0;
                   L[ii][jj] = 0e0;
                   
-                  for(int k=0;k<3;k++){
+                  for(int k=0;k<3;k++)
+                  {
                     K[ii][jj] += dNVdx[ii][k] * dNVdx[jj][k];
                     L[ii][jj] += dNPdx[ii][k] * dNPdx[jj][k];
                   }
 
-                  //// disfusion ////
+                  // Disfusion
                   Klocal(IU, JU) -= mu * K[ii][jj] * detJ * weight;
                   Klocal(IV, JV) -= mu * K[ii][jj] * detJ * weight;
                   Klocal(IW, JW) -= mu * K[ii][jj] * detJ * weight;
 
-                  //// pressure ////
+                  // Pressure
                   Klocal(IU, JP) += NP[jj] * dNVdx[ii][0] * detJ * weight;
                   Klocal(IV, JP) += NP[jj] * dNVdx[ii][1] * detJ * weight;
                   Klocal(IW, JP) += NP[jj] * dNVdx[ii][2] * detJ * weight;
-              
-                  //// continuity ////
+
+                  // Continuity
                   Klocal(IP, JU) += NP[ii] * dNVdx[jj][0] * detJ * weight;
                   Klocal(IP, JV) += NP[ii] * dNVdx[jj][1] * detJ * weight;
                   Klocal(IP, JW) += NP[ii] * dNVdx[jj][2] * detJ * weight;
                   
-                  //// PSPG ////
+                  // PSPG
                   Klocal(IP, JP) += tau * L[ii][jj] * detJ * weight;
                 }
               }
@@ -200,7 +198,7 @@ void FEM::XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
 
   double dxdr[3][3];
 
-  //// stabilization parameter ////
+  // stabilization parameter
   double h = dx/2;
   double tau = h*h/mu/12e0;
   
@@ -292,22 +290,22 @@ void FEM::XFEM_MatAssySTT2(const int ic, MatrixXd &Klocal, VectorXd &Flocal)
             L[ii][jj] += dNPdx[ii][k] * dNPdx[jj][k];
           }
 
-          //// disfusion ////
+          // Disfusion 
           Klocal(IU, JU) -= mu * K[ii][jj] * detJ * weight;
           Klocal(IV, JV) -= mu * K[ii][jj] * detJ * weight;
           Klocal(IW, JW) -= mu * K[ii][jj] * detJ * weight;
 
-          //// pressure ////
+          // Pressure
           Klocal(IU, JP) += NP[jj] * dNVdx[ii][0] * detJ * weight;
           Klocal(IV, JP) += NP[jj] * dNVdx[ii][1] * detJ * weight;
           Klocal(IW, JP) += NP[jj] * dNVdx[ii][2] * detJ * weight;
       
-          //// continuity ////
+          // Continuity 
           Klocal(IP, JU) += NP[ii] * dNVdx[jj][0] * detJ * weight;
           Klocal(IP, JV) += NP[ii] * dNVdx[jj][1] * detJ * weight;
           Klocal(IP, JW) += NP[ii] * dNVdx[jj][2] * detJ * weight;
           
-          //// PSPG ////
+          // PSPG
           Klocal(IP, JP) += tau * L[ii][jj] * detJ * weight;
         }
       }

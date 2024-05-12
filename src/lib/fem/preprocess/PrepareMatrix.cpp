@@ -242,7 +242,6 @@ void FEM::prepareMatrix()
   //PetscFree(diag_nnz); 
   //PetscFree(offdiag_nnz);  
 
-  
   for(ii=0; ii<nodeDofArrayBCsFluid.size(); ii++)
   {
     nodeDofArrayBCsPrevFluid[ii].clear();
@@ -259,7 +258,6 @@ void FEM::prepareMatrix()
   VINT2D().swap(nodeDofArrayBCsFluid);
   VINT2D().swap(nodeDofArrayPrevFluid);
   VINT2D().swap(nodeDofArrayFluid);
-  
 }
 
 int FEM::divideMesh()

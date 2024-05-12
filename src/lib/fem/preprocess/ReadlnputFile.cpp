@@ -10,7 +10,7 @@ void FEM::readInput()
     readBoundaryMethod();
     readXFEMParam();
     readDarcyParam();
-    readBTSubDivParam();
+    //readBTSubDivParam();
     readDomain();
     readBoundary();
     readImage();
@@ -22,7 +22,7 @@ void FEM::readInput()
     readBoundaryMethod();
     readXFEMParam();
     readDarcyParam();
-    readBTSubDivParam();
+    //readBTSubDivParam();
     readNRParam();
     readDomain();
     readBoundary();
@@ -35,7 +35,7 @@ void FEM::readInput()
     readBoundaryMethod();
     readXFEMParam();
     readDarcyParam();
-    readBTSubDivParam();
+    //readBTSubDivParam();
     readTimeParam();
     readDomain();
     readBoundary();
@@ -640,7 +640,8 @@ void FEM::readImage()
 
 
   label = "/Domain/imageVOF";
-  if ( !tp.getInspectedValue(label,imageFile)){
+  if ( !tp.getInspectedValue(label,
+  )){
     cout << label << " is not set" << endl;
     exit(0);
   }

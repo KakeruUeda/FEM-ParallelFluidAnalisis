@@ -14,15 +14,15 @@ Base
 //  sdf = "input/square/sdf128x128x128.dat"
 //}
 
-//Domain
-//{
-//  nx=(240,80,80)  //element size
-//  Lx=(50,15,12)  //domain size
-//  image = "input/vessel/image240x80x80.dat"
-//  imageEX = "input/vessel/image240x80x80_around.dat"
-//  imageVOF = "input/vessel/image240x80x80_VOF.dat"
-//  sdf = "input/vessel/sdf240x80x80.dat"
-//}
+Domain
+{
+  nx=(240,80,80)  //element size
+  Lx=(50,15,12)  //domain size
+  image = "input/vessel/image240x80x80.dat"
+  imageEX = "input/vessel/image240x80x80_around.dat"
+  imageVOF = "input/vessel/image240x80x80_VOF.dat"
+  sdf = "input/vessel/sdf240x80x80.dat"
+}
 
 //Domain
 //{
@@ -35,15 +35,15 @@ Base
 //}
 
 
-Domain
-{
-  nx=(160,80,80)  //element size
-  Lx=(2e0,1e0,1e0)  //domain size
-  image = "input/straightTube/image160x80x80_VOF.dat"
-  imageEX = "input/straightTube/image160x80x80_VOF.dat"
-  imageVOF = "input/straightTube/image160x80x80_VOF.dat"
-  sdf = "input/straightTube/sdf160x80x80_node.dat"
-}
+//Domain
+//{
+//  nx=(160,80,80)  //element size
+//  Lx=(2e0,1e0,1e0)  //domain size
+//  image = "input/straightTube/image160x80x80_VOF.dat"
+//  imageEX = "input/straightTube/image160x80x80_VOF.dat"
+//  imageVOF = "input/straightTube/image160x80x80_VOF.dat"
+//  sdf = "input/straightTube/sdf160x80x80_node.dat"
+//}
 
 Boundary
 {
@@ -81,13 +81,13 @@ PysicalParameter
 
 BoundaryMethod
 {
-  boundary = "Darcy"
+  boundary = "XFEM"
 }
 
 
 XFEMParameter
 {
-  sub_div = 2  
+  sub_div = 10  
 }
 
 DarcyParameter
@@ -99,7 +99,7 @@ DarcyParameter
 BTSubDivParameter
 {
   max_depth = 1
-  sub_div = 6  
+  sub_div = 10  
 }
 
 //Postprocess

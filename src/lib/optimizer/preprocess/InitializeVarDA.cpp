@@ -470,8 +470,7 @@ void VarDA::setPetscAdjointSolver()
       numOfDofsNodeAdjointFluid[in] = numOfDofsNode;
     }
   }
-  cout << "0_3" << endl;
-
+  
   for(int ie=0; ie<numOfElmGlobalFluid; ie++){
     for(int p=0; p<numOfNodeInElm; p++){
       numOfDofsNodeInElementAdjointFluid[ie][p] = numOfDofsNodeAdjointFluid[elmFluid[ie]->nodeNumsPrevFluid[p]];
@@ -492,7 +491,6 @@ void VarDA::setPetscAdjointSolver()
     nodeDofsMapFluid[in] = dofsStart;
     dofsStart += numOfDofsNodeAdjointFluid[in];
   }
-
  //if(myId == 0){
  //  ofstream out_nodeDofsMapFluid(outputDirTest + "/nodeDofsMapFluid.dat");
  //  for(int in=0; in<numOfNodeGlobalFluid; in++){
@@ -521,7 +519,6 @@ void VarDA::setPetscAdjointSolver()
     DirichletBCsFluid_tmp[ib][0] = n1;
     nodeTypeAdjointFluid[n1][DirichletBCsFluid_tmp[ib][1]] = true;
   }
-  cout << "0_6" << endl;
 
   jpn = 0;
   for(int in=0; in<numOfNodeGlobalFluid; in++){
@@ -631,7 +628,7 @@ void VarDA::setPetscAdjointSolver()
 
   for(int ie=0; ie<numOfElmGlobalFluid; ie++){
     if(elmFluid[ie]->getSubdomainId() == myId){
-        cout << "0_7_0" << endl;
+
       nsize = 0;
       for(int p=0; p<numOfNodeInElm; p++){
         nsize += numOfDofsNodeInElementAdjointFluid[ie][p];
@@ -641,8 +638,6 @@ void VarDA::setPetscAdjointSolver()
       }else{
         elmFluid[ie]->prepareAdjointElemDataBd(numOfDofsNodeInElementAdjointFluid, nsize, ie);
       }
-      cout << "0_7_1" << endl;
-      cout << "nsize = " << nsize << endl;
 
       elmFluid[ie]->nodeForAssyBCsAdjointFluid.resize(nsize);
       elmFluid[ie]->nodeForAssyAdjointFluid.resize(nsize);
@@ -665,7 +660,7 @@ void VarDA::setPetscAdjointSolver()
       assyForSolnAdjointFluid[jpn++] = in * numOfDofsNodeAdjointFluid[in] + j;
     }
   }
-cout << "0_9" << endl;
+
   vector<set<int>> forAssyMatAdjointFluid;
   set<int>::iterator it;
   int  *tt; int r;

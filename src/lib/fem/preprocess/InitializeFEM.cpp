@@ -186,7 +186,6 @@ void FEM::setFluidDomain()
     }
   }
 
-
   int count = 0;
   VDOUBLE1D vecDbTmp(3,0);
 

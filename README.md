@@ -17,6 +17,6 @@ Users can apply either eXtended Finite Element Method or Darcy's law to wall bou
 ・UnsteadyNavierStokesSolver: Unsteady Navier-Stokes Equation Solver <br>
 ・3DVar: 3D Variational Data Assimilation (Not yet implemented) <br>
 ・4DVar: 4D Variational Data Assimilation (Not yet implemented) <br>
-## Reference
+## References
 https://github.com/oubiomechlab/voxelFEMfluid.git <br>
 https://github.com/chennachaos/cfdsfemmpi.git

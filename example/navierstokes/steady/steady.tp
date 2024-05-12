@@ -94,7 +94,7 @@ NRParameter
 
 XFEMParameter
 {
-  sub_div = 6  
+  sub_div = 12
 }
 
 DarcyParameter
@@ -106,7 +106,7 @@ DarcyParameter
 BTSubDivParameter
 {
   max_depth = 1
-  sub_div = 6  
+  sub_div = 12
 }
 
 Postprocess
