@@ -640,12 +640,10 @@ void FEM::readImage()
 
 
   label = "/Domain/imageVOF";
-  if ( !tp.getInspectedValue(label,
-  )){
+  if ( !tp.getInspectedValue(label,imageFile)){
     cout << label << " is not set" << endl;
     exit(0);
   }
-
 
   if ((fp = fopen(imageFile.c_str(), "r")) == NULL)
   {
