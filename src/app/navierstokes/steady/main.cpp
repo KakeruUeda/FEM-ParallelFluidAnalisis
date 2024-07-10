@@ -34,12 +34,14 @@ int main(int argc, char * argv[])
 
 	int tmp = 0;
 
+	/*
 	MPI_Barrier(MPI_COMM_WORLD);
 	for (auto it = post.numOfObsVoxels.begin(); it != post.numOfObsVoxels.end(); it++) {
 		post.validateDADomain(navier, post.numOfObsVoxels[tmp][0],
 		post.numOfObsVoxels[tmp][1], post.numOfObsVoxels[tmp][2]);
 		tmp++;
 	}
+	*/
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	navier.visualizeDomain();

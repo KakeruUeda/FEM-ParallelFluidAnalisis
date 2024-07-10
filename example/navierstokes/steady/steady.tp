@@ -4,51 +4,22 @@ Base
   numOfOMP = 1
 }
 
-//Domain
-//{
-//  nx=(64,64,64)  //element size
-//  Lx=(1e0,1e0,1e0)  //domain size
-//  image = "input/square/image128x128x128.dat" 
-//  imageEX = "input/square/image128x128x128_around.dat"
-//  imageVOF = "input/square/image128x128x128_around.dat"
-//  sdf = "input/square/sdf128x128x128.dat"
-//}
-
-//Domain
-//{
-//  nx=(240,80,80)  //element size
-//  Lx=(50,15,12)  //domain size
-//  image = "input/vessel/image240x80x80.dat"
-//  imageEX = "input/vessel/image240x80x80_around.dat"
-//  imageVOF = "input/vessel/image240x80x80_VOF.dat"
-//  sdf = "input/vessel/sdf240x80x80.dat"
-//}
-
-//Domain
-//{
-//  nx=(160,80,80)  //element size
-//  Lx=(2e0,1e0,1e0)  //domain size
-//  image = "input/straightTube/image160x80x80.dat"
-//  imageEX = "input/straightTube/image160x80x80_around.dat"
-//  imageVOF = "input/straightTube/image160x80x80.dat"
-//  sdf = "input/straightTube/sdf160x80x80_node.dat"
-//}
-
 Domain
 {
-  nx=(240,120,120)  //element size
-  Lx=(2e0,1e0,1e0)  //domain size
-  image = "input/straightTube/image240x120x120_VOF.dat"
-  imageEX = "input/straightTube/image240x120x120_VOF.dat"
-  imageVOF = "input/straightTube/image240x120x120_VOF.dat"
-  sdf = "input/straightTube/sdf240x120x120_node.dat"
+  nx=(32,32,32)  //element size
+  Lx=(1.0,1.0,1.0)  //domain size
+  image = "input/square/image32x32x32.dat"
+  imageEX = "input/square/image32x32x32.dat"
+  imageVOF = "input/square/image32x32x32.dat"
+  sdf = "input/square/sdf32x32x32.dat"
 }
+
 
 Boundary
 {
  top{
     type = "v"
-    value = (0,0,0)
+    value = (1,0,0)
  }
  bottom{
     type = "v"
@@ -56,10 +27,10 @@ Boundary
  }
  left{
     type = "v"
-    value = (1,0,0)
+    value = (0,0,0)
  }
  right{
-    type = "free"
+    type = "v"
     value = (0,0,0)
  }
  front{
@@ -71,6 +42,7 @@ back{
     value = (0,0,0)
  }
 }
+
 
 BoundaryMethod 
 {

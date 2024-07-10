@@ -410,12 +410,12 @@ int FEM::prepareForParallel()
  
   kk=0;
   for(ii=0; ii<numOfNodeGlobalFluid; ii++)
+  {
+    if(nodeIdFluid[ii] == myId)
     {
-      if(nodeIdFluid[ii] == myId)
-      {
-        nodelist_owned[kk++] = ii;
-      }
+      nodelist_owned[kk++] = ii;
     }
+  }
  
   MPI_Barrier(MPI_COMM_WORLD);
  

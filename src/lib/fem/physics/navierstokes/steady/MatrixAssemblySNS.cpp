@@ -132,9 +132,9 @@ void FEM::MatAssySNS(const int ic,MatrixXd &Klocal, VectorXd &Flocal)
             Klocal(IW, JV) += N[ii] * N[jj] * dvdx[2][1] * detJ * weight;
             Klocal(IW, JW) += N[ii] * N[jj] * dvdx[2][2] * detJ * weight;
     
-            Klocal(IU, JU) += N[ii]*tmp[jj] * detJ * weight;
-            Klocal(IV, JV) += N[ii]*tmp[jj] * detJ * weight;
-            Klocal(IW, JW) += N[ii]*tmp[jj] * detJ * weight;
+            Klocal(IU, JU) += N[ii] * tmp[jj] * detJ * weight;
+            Klocal(IV, JV) += N[ii] * tmp[jj] * detJ * weight;
+            Klocal(IW, JW) += N[ii] * tmp[jj] * detJ * weight;
             
             // PRESSURE TERM
             Klocal(IU, JP) -= N[jj] * dNdx[ii][0] * detJ * weight;

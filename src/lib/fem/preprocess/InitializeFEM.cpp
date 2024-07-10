@@ -200,6 +200,7 @@ void FEM::setFluidDomain()
       }
     }
   }
+  
   for(int ii=0;ii<numOfNodeGlobalFluid;ii++){
     if(bd_ip_fluid[ii] == 0){
       vecDbTmp[0] = ii;
