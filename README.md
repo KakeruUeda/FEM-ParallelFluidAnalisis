@@ -15,12 +15,17 @@ The equations are discretized in orthogonal grid using Finite Element Method. <b
 ・SteadyNavierStokesSolver: Steady Navier-Stokes Equation Solver <br>
 ・UnsteadyNavierStokesSolver: Unsteady Navier-Stokes Equation Solver <br>
 ## examples
-Flow through a stenosed tube
 
-![Example result](images/stenosis0_x.png)
-![Example result](images/stenosis1_x.png)
-![Example result](images/stenosis2_x.png)
+・Flow through a stenosed tube
 
-MPI performance
+<p>
+  <img src="images/stenosis0_x.png" alt="Stenosis 0" width="500" style="margin-bottom: 10px;"><br>
+  <img src="images/stenosis1_x.png" alt="Stenosis 1" width="500" style="margin-bottom: 10px;"><br>
+  <img src="images/stenosis2_x.png" alt="Stenosis 2" width="500">
+</p>
 
-![Example result](images/mpi_performance.png)
+・MPI performance
+
+<p>
+  <img src="images/mpi_performance.png" alt="MPI Performance" width="400">
+</p>
