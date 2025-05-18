@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
   PostProcess post;
   navier.solver = SOLVER::UNSTEADY_NAVIERSTOKES;
   
-  //input and check tp file
+  // input and check tp file
   string input_file = argv[1];
   int ierror;
   if ((ierror = navier.tp.read(input_file)) != TP_NO_ERROR) {
@@ -33,8 +33,6 @@ int main(int argc, char* argv[])
 
   navier.nu = navier.mu / navier.rho;
   navier.Re = 1e0 / navier.nu;
-
-  omp_set_num_threads(navier.numOfOMP);
  
   MPI_Barrier(MPI_COMM_WORLD);
   navier.UnsteadyNavierStokes();

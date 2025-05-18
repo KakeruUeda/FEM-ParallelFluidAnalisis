@@ -14,6 +14,13 @@ The equations are discretized in orthogonal grid using Finite Element Method. <b
 ・SteadyStokesSolver: Steady Stokes Equation Solver <br>
 ・SteadyNavierStokesSolver: Steady Navier-Stokes Equation Solver <br>
 ・UnsteadyNavierStokesSolver: Unsteady Navier-Stokes Equation Solver <br>
-## References
-https://github.com/oubiomechlab/voxelFEMfluid.git <br>
-https://github.com/chennachaos/cfdsfemmpi.git
+## examples
+Flow through a stenosed tube
+
+![Example result](images/stenosis0_x.png)
+![Example result](images/stenosis1_x.png)
+![Example result](images/stenosis2_x.png)
+
+MPI performance
+
+![Example result](images/mpi_performance.png)

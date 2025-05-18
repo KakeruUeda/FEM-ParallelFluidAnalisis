@@ -1,4 +1,3 @@
-#include <omp.h>
 #include <string>
 #include <iostream>
 #include <cmath>

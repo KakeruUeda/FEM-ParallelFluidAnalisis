@@ -40,8 +40,6 @@ int main(int argc, char* argv[])
 
   MPI_Barrier(MPI_COMM_WORLD);
   stokes.visualizeDomain();
-
-  omp_set_num_threads(stokes.numOfOMP);
   
   MPI_Barrier(MPI_COMM_WORLD);
   stokes.Stokes();

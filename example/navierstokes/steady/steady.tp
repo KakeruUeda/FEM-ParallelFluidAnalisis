@@ -6,12 +6,12 @@ Base
 
 Domain
 {
-  nx=(32,32,32)  //element size
+  nx=(64,64,64)  //element size
   Lx=(1.0,1.0,1.0)  //domain size
-  image = "input/square/image32x32x32.dat"
-  imageEX = "input/square/image32x32x32.dat"
-  imageVOF = "input/square/image32x32x32.dat"
-  sdf = "input/square/sdf32x32x32.dat"
+  image = "input/square/image64x64x64.dat"
+  imageEX = "input/square/image64x64x64.dat"
+  imageVOF = "input/square/image64x64x64.dat"
+  sdf = "input/square/sdf64x64x64.dat"
 }
 
 
